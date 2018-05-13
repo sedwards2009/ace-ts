@@ -1,0 +1,13 @@
+{
+  "name": "ace_ts",
+  "version": "1.0.0",
+  "description": "Ace editor but using TypeScript",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "2.8.3"
+  }
+}
