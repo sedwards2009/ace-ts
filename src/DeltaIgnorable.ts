@@ -1,4 +1,4 @@
-import { Delta } from "editor-document";
+import { Delta } from "./Delta";
 
 /**
  *

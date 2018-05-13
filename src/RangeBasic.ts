@@ -1,4 +1,4 @@
-import { Position, equalPositions } from 'editor-document';
+import { Position, equalPositions } from './Position';
 
 /**
  * 

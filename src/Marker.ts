@@ -1,8 +1,8 @@
 import { MarkerConfig } from './layer/MarkerConfig';
 import { IMarkerLayer } from './layer/MarkerLayer';
 import { MarkerRenderer } from './layer/MarkerRenderer';
-import { EditSession } from '../editor/EditSession';
-import { OrientedRange as Range } from '../editor/RangeBasic';
+import { EditSession } from './EditSession';
+import { OrientedRange as Range } from './RangeBasic';
 
 export type MarkerType = 'fullLine' | 'line' | 'text' | 'screenLine';
 

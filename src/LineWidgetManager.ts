@@ -1,5 +1,5 @@
 import { addCssClass, createHTMLDivElement } from "./lib/dom";
-import { Delta } from "editor-document";
+import { Delta } from "./Delta";
 import { Editor } from "./Editor";
 import { EditSession } from "./EditSession";
 import { Renderer } from "./Renderer";

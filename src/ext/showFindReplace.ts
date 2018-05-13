@@ -5,7 +5,7 @@ import { keyCodeToString } from '../lib/keys';
 import { addListener, addCommandKeyListener, stopEvent, stopPropagation } from '../lib/event';
 import { KeyboardHandler } from '../keyboard/KeyboardHandler';
 import { Range } from '../Range';
-import { Editor } from '../../editor/Editor';
+import { Editor } from '../Editor';
 
 // TODO: Need to negotiate with Editor to install (disposable) extension.
 const SEARCH_EXTENSION = "searchBox";

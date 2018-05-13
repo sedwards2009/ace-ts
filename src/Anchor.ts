@@ -1,5 +1,7 @@
 import { AnchorChangeEvent } from './events/AnchorChangeEvent';
-import { Delta, Document, Position } from "editor-document";
+import { Delta } from './Delta';
+import { Document } from './Document';
+import { Position } from './Position';
 import { EventEmitterClass } from './lib/EventEmitterClass';
 import { EventBus } from "./EventBus";
 

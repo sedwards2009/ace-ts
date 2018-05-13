@@ -1,7 +1,7 @@
 import { BackgroundTokenizer } from "../BackgroundTokenizer";
 import { Completion } from "../Completion";
 import { EditSession } from '../EditSession';
-import { Document } from "editor-document";
+import { Document } from "../Document";
 import { Renderer } from "../Renderer";
 import { Editor } from "../Editor";
 import { EditorEventName } from "../Editor";

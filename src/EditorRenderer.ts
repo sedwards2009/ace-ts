@@ -1,5 +1,5 @@
 import { Annotation } from "./Annotation";
-import { Position } from "editor-document";
+import { Position } from "./Position";
 
 /**
  *

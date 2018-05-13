@@ -1,4 +1,4 @@
-import { OrientedRange as Range } from '../../editor/RangeBasic';
+import { OrientedRange as Range } from '../RangeBasic';
 
 /**
  *

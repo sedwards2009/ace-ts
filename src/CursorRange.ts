@@ -1,4 +1,4 @@
-import { Position } from 'editor-document';
+import { Position } from './Position';
 
 export interface CursorRange {
     start: Position;

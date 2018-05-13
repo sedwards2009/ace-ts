@@ -1,8 +1,8 @@
-import { Completer } from '../../editor/Completer';
-import { Completion } from '../../editor/Completion';
-import { Editor } from '../../editor/Editor';
-import { EditSession } from '../../editor/EditSession';
-import { Position } from 'editor-document';
+import { Completer } from '../Completer';
+import { Completion } from '../Completion';
+import { Editor } from '../Editor';
+import { EditSession } from '../EditSession';
+import { Position } from '../Position';
 
 export interface KeywordCompleterEditor extends Editor {
     getSession(): EditSession | undefined;

@@ -1,7 +1,7 @@
 import { displayPartsToHtml } from './displayPartsToHtml';
 import { Editor } from '../Editor';
 import { Tooltip } from '../Tooltip';
-import { Position } from 'editor-document';
+import { Position } from '../Position';
 import { QuickInfoTooltipHost } from './QuickInfoTooltipHost';
 
 /**

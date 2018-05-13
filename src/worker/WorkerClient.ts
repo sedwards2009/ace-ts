@@ -1,10 +1,10 @@
 import { qualifyURL } from '../lib/net';
-import { Delta } from "editor-document";
+import { Delta } from "../Delta";
 import { EventBus } from "../EventBus";
 import { EventEmitterClass } from '../lib/EventEmitterClass';
 import { CallbackManager } from './CallbackManager';
-import { Disposable } from '../../editor/Disposable';
-import { EditSession } from "../../editor/EditSession";
+import { Disposable } from '../Disposable';
+import { EditSession } from "../EditSession";
 
 /**
  * Protocol for the initialization message.

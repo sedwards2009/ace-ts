@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
 import { EventBus } from "../EventBus";
 import { Command } from '../commands/Command';
 const stopPropagation = function (this: { propagationStopped: boolean }) { this.propagationStopped = true; };
@@ -123,15 +121,6 @@ export class EventEmitterClass<NAME extends string, E, T> implements EventBus<NA
         for (const listener of listeners) {
             listener(event, this.owner);
         }
-    }
-
-    events(eventName: NAME): Observable<E> {
-        return new Observable<E>((observer: Observer<E>) => {
-            function changeListener(value: E, source: T) {
-                observer.next(value);
-            }
-            return this.on(eventName, changeListener, false);
-        });
     }
 
     once(eventName: NAME, callback: (event: E, source: T) => any) {

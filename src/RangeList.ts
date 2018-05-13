@@ -1,8 +1,8 @@
 import { RangeBasic } from "./RangeBasic";
 import { isEmpty } from "./RangeHelpers";
 import { EditSession } from "./EditSession";
-import { comparePositions } from "editor-document";
-import { Position } from "editor-document";
+import { comparePositions } from "./Position";
+import { Position } from "./Position";
 
 /**
  *

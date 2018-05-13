@@ -965,7 +965,7 @@ function watchForCvoxLoad(editor) {
   }
 }
 
-var Editor = require('../editor').Editor;
+var Editor = require('.').Editor;
 require('../config').defineOptions(Editor.prototype, 'editor', {
   enableChromevoxEnhancements: {
     set: function(val) {

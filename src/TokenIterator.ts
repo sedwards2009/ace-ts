@@ -1,6 +1,6 @@
 import { HighlighterToken } from './mode/Highlighter';
-import { BasicToken } from '../editor/Token';
-import { TokenWithIndex } from '../editor/Token';
+import { BasicToken } from './Token';
+import { TokenWithIndex } from './Token';
 
 /**
  * Temporary check for undefined token values. 

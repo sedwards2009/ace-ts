@@ -2,9 +2,9 @@
 import { Command } from './Command';
 import { Editor } from '../Editor';
 import { Direction } from '../Direction';
-// import {COMMAND_NAME_BACKSPACE} from '../editor_protocol';
-// import {COMMAND_NAME_DEL} from '../editor_protocol';
-// import {COMMAND_NAME_INSERT_STRING} from "../editor_protocol";
+// import {COMMAND_NAME_BACKSPACE} from '._protocol';
+// import {COMMAND_NAME_DEL} from '._protocol';
+// import {COMMAND_NAME_INSERT_STRING} from "._protocol";
 
 /*
 function bindKey(win: string, mac: string) {

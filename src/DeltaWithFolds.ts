@@ -1,5 +1,5 @@
 import { Fold } from "./Fold";
-import { Delta } from "editor-document";
+import { Delta } from "./Delta";
 
 /**
  *

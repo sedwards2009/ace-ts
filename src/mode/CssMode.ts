@@ -6,8 +6,8 @@ import { MatchingBraceOutdent } from "./MatchingBraceOutdent";
 import { WorkerClient } from "../worker/WorkerClient";
 import { CssBehaviour } from "./behaviour/CssBehaviour";
 import { CstyleFoldMode } from "./folding/CstyleFoldMode";
-import { Position } from 'editor-document';
-import { EditSession } from '../../editor/EditSession';
+import { Position } from '../Position';
+import { EditSession } from '../EditSession';
 
 export class CssMode extends TextMode {
     $outdent: MatchingBraceOutdent;

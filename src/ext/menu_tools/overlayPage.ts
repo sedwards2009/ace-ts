@@ -1,5 +1,5 @@
 import { createHTMLDivElement } from "../../lib/dom";
-import { Editor } from '../../../editor/Editor';
+import { Editor } from '../../Editor';
 // cssText = require("../../requirejs/text!./settings_menu.css");
 // dom.importCssString(cssText);
 

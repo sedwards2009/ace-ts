@@ -1,9 +1,9 @@
 import { Completion } from '../Completion';
 import { CompletionEntry } from './CompletionEntry';
-import { Position } from "editor-document";
+import { Position } from "./Position";
 import { WorkspaceCompleterHost } from './WorkspaceCompleterHost';
-import { Completer } from '../../editor/Completer';
-import { Editor } from '../../editor/Editor';
+import { Completer } from '../Completer';
+import { Editor } from '../Editor';
 
 /**
  *

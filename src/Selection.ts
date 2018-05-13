@@ -1,4 +1,5 @@
-import { Document, Position } from "editor-document";
+import { Document } from "./Document";
+import { Position } from "./Position";
 import { stringReverse } from "./lib/lang";
 import { EventEmitterClass } from "./lib/EventEmitterClass";
 import { Range } from "./Range";
@@ -11,7 +12,7 @@ import { AnchorChangeEvent } from "./events/AnchorChangeEvent";
 import { EventBus } from "./EventBus";
 import { SelectionAddRangeEvent } from "./events/SelectionAddRangeEvent";
 import { SelectionRemoveRangeEvent } from "./events/SelectionRemoveRangeEvent";
-import { OrientedRange } from '../editor/RangeBasic';
+import { OrientedRange } from './RangeBasic';
 
 /**
  * Nothing (void 0).

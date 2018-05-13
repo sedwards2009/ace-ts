@@ -12,7 +12,6 @@ function hasType(token: { type: string }, type: string) {
     needleList.forEach(function (needle) {
         if (typeList.indexOf(needle) === -1) {
             hasType = false;
-            return false;
         }
     });
     return hasType;
@@ -31,7 +30,7 @@ export class XQueryBehaviour extends Behaviour {
                 let token = iterator.getCurrentToken();
                 let atCursor = false;
                 const stateStr: string = JSON.parse(state).pop();
-                if ((token && token.value === '>') || stateStr !== "StartTag") return;
+                if ((token && token.value === '>') || stateStr !== "StartTag") return null;
                 if (!token || !hasType(token, 'meta.tag') && !(hasType(token, 'text') && token.value.match('/'))) {
                     do {
                         token = iterator.stepBackward();
@@ -41,7 +40,7 @@ export class XQueryBehaviour extends Behaviour {
                 }
                 const previous = iterator.stepBackward();
                 if (!token || !hasType(token, 'meta.tag') || (previous !== null && previous.value.match('/'))) {
-                    return;
+                    return null;
                 }
                 let tag = token.value.substring(1);
                 if (atCursor) {
@@ -54,6 +53,7 @@ export class XQueryBehaviour extends Behaviour {
                     selection: [1, 1]
                 };
             }
+            return null;
         });
     }
 }

@@ -7,7 +7,7 @@ import { TokenIterator } from "../../TokenIterator";
 import { EditSession } from "../../EditSession";
 import { FoldStyle } from "../../FoldStyle";
 import { FoldWidget } from "../../FoldWidget";
-import { Position } from "editor-document";
+import { Position } from "../../Position";
 
 /**
  *

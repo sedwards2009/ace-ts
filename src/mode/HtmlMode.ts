@@ -1,6 +1,6 @@
 import { arrayToMap } from "../lib/lang";
 import { Completion } from "../Completion";
-import { Position } from "editor-document";
+import { Position } from "../Position";
 import { TextMode } from "./TextMode";
 import { hookAnnotations, hookTerminate } from './TextMode';
 import { JavaScriptMode } from "./JavaScriptMode";

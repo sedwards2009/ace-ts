@@ -1,11 +1,9 @@
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
-import { equalPositions } from 'editor-document';
+import { equalPositions } from './Position';
 import { createDelayedCall } from './lib/lang/createDelayedCall';
 import { DelayedCall } from './lib/lang/DelayedCall';
 import { stringRepeat } from "./lib/lang";
 import { Annotation } from './Annotation';
-import { Delta } from "editor-document";
+import { Delta } from "./Delta";
 import { DeltaIgnorable } from "./DeltaIgnorable";
 import { DeltaGroup } from './DeltaGroup';
 import { Disposable } from './Disposable';
@@ -23,10 +21,10 @@ import { Marker, MarkerType } from "./Marker";
 import { MarkerRenderer } from "./layer/MarkerRenderer";
 import { Range } from "./Range";
 import { RangeBasic } from "./RangeBasic";
-import { collapseRows, compareEnd, comparePoint, compareRange, contains, isEmpty, isEnd, isEqual, isPosition, isRange, isMultiLine, isStart, setEnd } from "./RangeHelpers";
+import { collapseRows, compareEnd, comparePoint, compareRange, contains, isEmpty, isEnd, isEqual, isPosition, isRange, isMultiLine, isStart, setEnd, fromPoints } from "./RangeHelpers";
 import { mutateExtendToken } from "./Token";
 import { Token } from "./Token";
-import { Document, NewLineMode } from "editor-document";
+import { Document, NewLineMode } from "./Document";
 import { BackgroundTokenizer } from "./BackgroundTokenizer";
 import { SearchHighlight } from "./SearchHighlight";
 import { BracketMatch } from "./BracketMatch";
@@ -34,14 +32,14 @@ import { UndoManager } from './UndoManager';
 import { TokenIterator } from './TokenIterator';
 import { LineWidget } from './LineWidget';
 import { LineWidgetManager } from './LineWidgetManager';
-import { Position } from 'editor-document';
+import { Position } from './Position';
 import { HighlighterToken } from './mode/Highlighter';
 
-import { LanguageMode } from '../editor/LanguageMode';
-import { RangeWithCollapseChildren } from '../editor/RangeBasic';
-import { OrientedRange } from '../editor/RangeBasic';
-import { RangeSelectionMarker } from '../editor/RangeBasic';
-import { TokenWithIndex } from '../editor/Token';
+import { LanguageMode } from './LanguageMode';
+import { RangeWithCollapseChildren } from './RangeBasic';
+import { OrientedRange } from './RangeBasic';
+import { RangeSelectionMarker } from './RangeBasic';
+import { TokenWithIndex } from './Token';
 import { FoldMode } from './mode/folding/FoldMode';
 import { TextMode } from './mode/TextMode';
 
@@ -242,11 +240,6 @@ export class EditSession {
     // public readonly changeModeEvents = this.changeModeBus.events('changeMode');
 
     /**
-     * A source of 'change' events that is observable.
-     */
-    public readonly changeEvents: Observable<Delta>;
-
-    /**
      * Determines whether the worker will be started.
      */
     private $useWorker = true;
@@ -265,11 +258,6 @@ export class EditSession {
      * The worker corresponding to the mode (i.e. Language).
      */
     private $worker: Disposable | null;
-
-    /**
-     * 
-     */
-    public workerCompleted: Observable<void>;
 
     public tokenRe: RegExp;
     public nonTokenRe: RegExp;
@@ -321,15 +309,6 @@ export class EditSession {
         }
         this.$breakpoints = [];
         this.eventBus = new EventEmitterClass<EditSessionEventName, any, EditSession>(this);
-
-        // TODO: This is getting better. Can we turn it into a 1-liner on the eventBus?
-        this.changeEvents = this.eventBus.events('change');
-        this.changeEvents = new Observable<Delta>((observer: Observer<Delta>) => {
-            function changeListener(value: Delta, source: EditSession) {
-                observer.next(value);
-            }
-            return this.eventBus.on('change', changeListener, false);
-        });
 
         this.foldLines_.toString = function (this: FoldLine[]) {
             return this.join("\n");
@@ -1535,7 +1514,7 @@ export class EditSession {
      * Triggers a 'change' event in the document.
      * Throws if the document is not defined.
      */
-    public remove(range: Readonly<RangeBasic>): Position {
+    public remove(range: RangeBasic): Position {
         return this.docOrThrow().remove(range);
     }
 

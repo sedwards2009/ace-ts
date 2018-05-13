@@ -1,9 +1,9 @@
 import { TokenIterator } from "./TokenIterator";
 import { HighlighterToken } from './mode/Highlighter';
-import { Position } from "editor-document";
-import { OrientedRange } from "../editor/RangeBasic";
+import { Position } from "./Position";
+import { OrientedRange } from "./RangeBasic";
 import { fromPoints } from "./RangeHelpers";
-import { TokenWithIndex } from '../editor/Token';
+import { TokenWithIndex } from './Token';
 
 /**
  * Maps an opening(closing) bracket string to the corresponding closing(opening) bracket.

@@ -2,7 +2,7 @@ import { FoldLine } from "./FoldLine";
 import { clone, compare, containsRange, isEqual } from "./RangeHelpers";
 import { RangeBasic } from "./RangeBasic";
 import { RangeList } from "./RangeList";
-import { Position } from "editor-document";
+import { Position } from "./Position";
 
 /**
  * Simple fold-data struct.

@@ -1,4 +1,4 @@
-import { RangeBasic as Range } from '../editor/RangeBasic';
+import { RangeBasic as Range } from './RangeBasic';
 
 /**
  *

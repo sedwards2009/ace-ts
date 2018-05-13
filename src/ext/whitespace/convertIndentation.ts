@@ -1,5 +1,5 @@
 import { stringRepeat } from "../../lib/lang";
-import { Document } from 'editor-document';
+import { Document } from '../../Document';
 import { EditSession } from '../../EditSession';
 
 export function convertIndentation(session: EditSession, ch: string, len: number): void {

@@ -1,9 +1,10 @@
 import { EventBus } from './EventBus';
-import { Delta, Document } from 'editor-document';
+import { Delta } from './Delta';
+import { Document } from './Document';
 import { EventEmitterClass } from "./lib/EventEmitterClass";
 import { FirstAndLast } from "./FirstAndLast";
 import { Tokenizer } from "./Tokenizer";
-import { HighlighterStackElement, HighlighterStack, HighlighterToken } from '../editor/mode/Highlighter';
+import { HighlighterStackElement, HighlighterStack, HighlighterToken } from './mode/Highlighter';
 
 /**
  * Symbolic constant for the timer handle.

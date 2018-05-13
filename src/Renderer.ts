@@ -23,7 +23,7 @@ import { EditSession } from './EditSession';
 import { EventBus } from './EventBus';
 import { OptionsProvider } from "./OptionsProvider";
 import { PixelPosition } from './PixelPosition';
-import { Position } from 'editor-document';
+import { Position } from './Position';
 import { ScreenCoordinates } from './ScreenCoordinates';
 import { ScrollBarEvent } from './events/ScrollBarEvent';
 import { EditorRenderer } from './EditorRenderer';

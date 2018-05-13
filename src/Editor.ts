@@ -12,7 +12,7 @@ import { GutterTooltip } from './GutterTooltip';
 import { KeyboardHandler as KeyboardHandlerClazz } from "./keyboard/KeyboardHandler";
 import { KeyBinding } from "./keyboard/KeyBinding";
 import { TextInput } from "./keyboard/TextInput";
-import { Delta } from "editor-document";
+import { Delta } from "./Delta";
 import { Action } from "./keyboard/Action";
 import { Search } from "./Search";
 import { assembleRegExp } from './Search';
@@ -20,7 +20,7 @@ import { FirstAndLast } from "./FirstAndLast";
 import { Fold } from "./Fold";
 import { LineWidget } from './LineWidget';
 import { LineWidgetManager } from './LineWidgetManager';
-import { Position } from "editor-document";
+import { Position } from "./Position";
 import { Range } from "./Range";
 import { RangeBasic } from "./RangeBasic";
 import { collapseRows, contains, compare, comparePoint, compareRange, insideStart, isEmpty, isEqual, isMultiLine, moveBy, setEnd } from "./RangeHelpers";
@@ -57,16 +57,16 @@ import { UndoManager as NativeUndoManager } from './UndoManager';
 import { QuickInfoTooltip as NativeQuickInfoTooltip } from './workspace/QuickInfoTooltip';
 import { Annotation } from './Annotation';
 import { EditSession } from './EditSession';
-import { Direction } from '../editor/Direction';
-import { KeyboardHandler } from '../editor/keyboard/KeyboardHandler';
-import { MarkerType } from '../editor/Marker';
-import { MarkerRenderer } from '../editor/layer/MarkerRenderer';
+import { Direction } from './Direction';
+import { KeyboardHandler } from './keyboard/KeyboardHandler';
+import { MarkerType } from './Marker';
+import { MarkerRenderer } from './layer/MarkerRenderer';
 import { OrientedRange } from './RangeBasic';
 import { PixelPosition } from './PixelPosition';
-import { QuickInfoTooltip } from '../editor/workspace/QuickInfoTooltip';
-import { QuickInfoTooltipHost } from '../editor/workspace/QuickInfoTooltipHost';
-import { RangeWithCollapseChildren } from '../editor/RangeBasic';
-import { RangeSelectionMarker } from '../editor/RangeBasic';
+import { QuickInfoTooltip } from './workspace/QuickInfoTooltip';
+import { QuickInfoTooltipHost } from './workspace/QuickInfoTooltipHost';
+import { RangeWithCollapseChildren } from './RangeBasic';
+import { RangeSelectionMarker } from './RangeBasic';
 import { TokenWithIndex } from './Token';
 import { UndoManager } from './UndoManager';
 
@@ -193,7 +193,6 @@ export class Editor {
     private eventBus: EventEmitterClass<EditorEventName, any, Editor>;
 
     private readonly gotoDefinitionBus = new EventEmitterClass<'gotoDefinition', Position, Editor>(this);
-    public readonly gotoDefinitionEvents = this.gotoDefinitionBus.events('gotoDefinition');
 
     /**
      * Have to make this public to support error marker extension.
@@ -268,7 +267,6 @@ export class Editor {
      */
     private $readOnly = false;
     private readonly $readOnlyBus = new EventEmitterClass<'$readOnly', { oldValue: boolean; newValue: boolean }, Editor>(this);
-    public readonly readOnlyEvents = this.$readOnlyBus.events('$readOnly');
 
     private $scrollAnchor: HTMLDivElement;
     /**

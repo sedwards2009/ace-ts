@@ -1,5 +1,5 @@
-import { Position } from 'editor-document';
-import { RangeBasic as Range } from '../editor/RangeBasic';
+import { Position } from './Position';
+import { RangeBasic as Range } from './RangeBasic';
 
 /**
  * Returns a duplicate of the calling range.

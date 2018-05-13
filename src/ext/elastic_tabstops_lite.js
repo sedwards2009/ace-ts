@@ -297,7 +297,7 @@ var ElasticTabstopsLite = function(editor) {
 
 exports.ElasticTabstopsLite = ElasticTabstopsLite;
 
-var Editor = require("../editor").Editor;
+var Editor = require("./Editor").Editor;
 require("../config").defineOptions(Editor.prototype, "editor", {
     useElasticTabstops: {
         set: function(val) {

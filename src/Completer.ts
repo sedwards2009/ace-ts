@@ -1,5 +1,5 @@
 import { Completion } from './Completion';
-import { Position } from 'editor-document';
+import { Position } from './Position';
 
 export interface CompleterEditor {
 

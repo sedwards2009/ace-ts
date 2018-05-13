@@ -1,4 +1,4 @@
-import { Document } from 'editor-document';
+import { Document } from '../../Document';
 import { EditSession } from '../../EditSession';
 
 export function trimTrailingSpace(session: EditSession, trimEmpty: boolean): void {

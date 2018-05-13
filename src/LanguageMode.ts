@@ -1,7 +1,7 @@
 import { Completion } from "./Completion";
 import { Editor } from "./Editor";
 import { EditSession } from "./EditSession";
-import { Position } from "editor-document";
+import { Position } from "./Position";
 import { Range } from "./Range";
 import { RangeBasic } from "./RangeBasic";
 import { TextAndSelection } from "./TextAndSelection";

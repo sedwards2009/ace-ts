@@ -2,11 +2,11 @@ import { Command } from '../commands/Command';
 import { CompletionEntry } from './CompletionEntry';
 import { CompletionService } from './CompletionService';
 import { AutoCompleteView } from './AutoCompleteView';
-import { Delta } from 'editor-document';
+import { Delta } from '../Delta';
 import { Editor } from '../Editor';
 import { EventEmitterClass } from '../lib/EventEmitterClass';
 import { KeyboardHandler } from '../keyboard/KeyboardHandler';
-import { Position } from 'editor-document';
+import { Position } from './Position';
 import { COMMAND_NAME_BACKSPACE } from '../editor_protocol';
 
 /**

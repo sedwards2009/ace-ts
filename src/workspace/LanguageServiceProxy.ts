@@ -1,6 +1,6 @@
 import { CompletionEntry } from './CompletionEntry';
 import { DefinitionInfo } from './DefinitionInfo';
-import { Delta } from 'editor-document';
+import { Delta } from '../Delta';
 import { Diagnostic } from './Diagnostic';
 import { FormatCodeSettings } from './FormatCodeSettings';
 import { TextChange } from './TextChange';

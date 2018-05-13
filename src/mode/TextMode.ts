@@ -1,7 +1,7 @@
 import { Annotation } from "../Annotation";
 import { BlockComment } from './BlockComment';
 import { Completion } from "../Completion";
-import { Position } from "editor-document";
+import { Position } from "../Position";
 import { Tokenizer } from "../Tokenizer";
 import { TextHighlightRules } from "./TextHighlightRules";
 import { Behaviour } from "./Behaviour";

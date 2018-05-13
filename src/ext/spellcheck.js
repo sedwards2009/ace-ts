@@ -50,7 +50,7 @@ exports.contextMenuHandler = function(e){
     });
 };
 // todo support highlighting with typo.js
-var Editor = require("../editor").Editor;
+var Editor = require("./Editor").Editor;
 require("../config").defineOptions(Editor.prototype, "editor", {
     spellcheck: {
         set: function(val) {

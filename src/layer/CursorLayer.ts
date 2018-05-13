@@ -4,7 +4,7 @@ import { CursorConfig } from './CursorConfig';
 import { Disposable } from '../Disposable';
 import { EditSession } from '../EditSession';
 import { PixelPosition } from '../PixelPosition';
-import { Position } from 'editor-document';
+import { Position } from '../Position';
 import { Interval } from '../Interval';
 import { refChange } from '../refChange';
 

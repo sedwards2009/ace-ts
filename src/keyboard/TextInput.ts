@@ -6,7 +6,7 @@ import { DelayedCall } from "../lib/lang/DelayedCall";
 import { Editor } from "../Editor";
 import { COMMAND_NAME_BACKSPACE } from '../editor_protocol';
 import { COMMAND_NAME_DEL } from '../editor_protocol';
-import { RangeBasic } from '../../editor/RangeBasic';
+import { RangeBasic } from '../RangeBasic';
 
 const BROKEN_SETDATA = <number>isChrome < 18;
 const USE_IE_MIME_TYPE = isIE;
