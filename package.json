@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Ace editor but using TypeScript",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && webpack"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "2.8.3"
+    "typescript": "2.8.3",
+    "webpack": "^4.8.3",
+    "webpack-cli": "^2.1.3"
   }
 }

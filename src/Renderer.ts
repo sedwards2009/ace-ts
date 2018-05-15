@@ -71,7 +71,7 @@ export type TextDirection = 'ltr' | 'rtl' | 'auto';
  * The number of steps is hard-coded to 8.
  */
 function calcSteps(fromValue: number, toValue: number): number[] {
-    const Δ = toValue - fromValue;
+    const delta = toValue - fromValue;
     const N = 8;
     const steps: number[] = [];
 
@@ -83,7 +83,7 @@ function calcSteps(fromValue: number, toValue: number): number[] {
     };
 
     for (let i = 0; i < N; ++i) {
-        steps.push(func(i / N, fromValue, Δ));
+        steps.push(func(i / N, fromValue, delta));
     }
 
     return steps;
