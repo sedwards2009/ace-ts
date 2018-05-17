@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
+        "module": "es6",
         "declaration": false,
         "noImplicitAny": false,
         "noImplicitThis": true,
@@ -12,10 +12,6 @@
         "outDir": "src",
         "jsx": "react",
         "experimentalDecorators": true,
-        "typeRoots" : ["./src/typings"],
-        "paths": {
-         "*": ["./src/typings/*"]
-        },
         "baseUrl": ".",
         "emitDecoratorMetadata": true
       

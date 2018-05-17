@@ -29,6 +29,7 @@ import { TextAndSelection } from "./TextAndSelection";
 import { EventEmitterClass } from "./lib/EventEmitterClass";
 import { Command } from "./commands/Command";
 import { CommandManager } from "./commands/CommandManager";
+import * as DefaultCommands from "./commands/DefaultCommands";
 import { TokenIterator } from "./TokenIterator";
 import { COMMAND_NAME_AUTO_COMPLETE } from './editor_protocol';
 import { COMMAND_NAME_BACKSPACE } from './editor_protocol';
@@ -337,6 +338,8 @@ export class Editor {
         this.curOp = null;
         this.prevOp = {};
         this.$mergeableCommands = [COMMAND_NAME_BACKSPACE, COMMAND_NAME_DEL, COMMAND_NAME_INSERT_STRING];
+        
+        this.commands.addCommands(DefaultCommands.commands);
 
         if (renderer) {
             this.container = renderer.getContainerElement();

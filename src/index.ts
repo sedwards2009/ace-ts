@@ -117,3 +117,4 @@ export function createEditSession(text, mode?) {
     doc.setUndoManager(new UndoManager());
     return doc;
 };
+(<any> window).edit = edit;

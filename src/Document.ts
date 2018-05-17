@@ -1,7 +1,7 @@
 import { applyDelta } from './applyDelta';
 import { equalPositions } from './Position';
 import { Delta } from './Delta';
-import { EventEmitterClass } from './EventEmitterClass';
+import { EventEmitterClass } from './lib/EventEmitterClass';
 import { Position, position } from './Position';
 import { Range } from './Range';
 import { Shareable } from './Shareable';
