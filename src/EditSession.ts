@@ -493,7 +493,7 @@ export class EditSession {
 
         this.$resetRowCache(delta.start.row);
 
-        const removedFolds = this.$updateInternalDataOnChange(delta);
+        const removedFolds = this._updateInternalDataOnChange(delta);
         if (!this.$fromUndo && this.$undoManager && !delta.ignore) {
             this.$deltasDoc.push(delta);
             if (removedFolds && removedFolds.length !== 0) {
@@ -2060,7 +2060,7 @@ export class EditSession {
     /**
      *
      */
-    private $updateInternalDataOnChange(delta: Delta): Fold[] {
+    protected _updateInternalDataOnChange(delta: Delta): Fold[] {
         const doc = this.docOrThrow();
         const useWrapMode = this.$useWrapMode;
         const action = delta.action;
