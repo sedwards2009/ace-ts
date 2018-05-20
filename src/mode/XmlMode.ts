@@ -6,7 +6,7 @@ import { arrayToMap } from '../lib/lang';
 
 const voidElements: string[] = [];
 
-interface VoidElementsMap {
+export interface VoidElementsMap {
     [name: string]: number;
 }
 

@@ -1,6 +1,8 @@
 *~
 *.map
 .vscode/
+dist/
+build/
 node_modules/
 src/*.js
 src/autocomplete/*.js

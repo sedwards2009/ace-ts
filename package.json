@@ -1,14 +1,16 @@
 {
-  "name": "ace_ts",
+  "name": "ace-ts",
   "version": "1.0.0",
   "description": "Ace editor but using TypeScript",
   "scripts": {
-    "tsc": "tsc",
-    "build": "tsc && rollup src/index.js --o dist/bundle.js -f iife --name ace"
+    "build": "node build_scripts/build.js"
   },
+  "main": "build",
+  "typings": "build",
   "dependencies": {},
   "devDependencies": {
     "rollup": "^0.59.1",
+    "shelljs": "^0.8.2",
     "typescript": "2.8.3"
   }
 }

@@ -4612,7 +4612,7 @@ class FoldHandler {
     }
 }
 
-interface IGestureHandler {
+export interface IGestureHandler {
     $dragDelay: number;
     $scrollSpeed: number;
     isMousePressed: boolean;
