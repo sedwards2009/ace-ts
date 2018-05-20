@@ -2260,7 +2260,7 @@ export class Editor {
 
         // Alternatively, run it through the 'paste' command so that we remain DRY.
         const pasteCommand = this.commands.getCommandByName(COMMAND_NAME_PASTE);
-        if (pasteCommand.exec) {
+        if (pasteCommand) {
             pasteCommand.exec(this, { text });
         }
     }
