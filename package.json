@@ -5,8 +5,8 @@
   "scripts": {
     "build": "node build_scripts/build.js"
   },
-  "main": "build",
-  "typings": "build",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
   "dependencies": {},
   "devDependencies": {
     "rollup": "^0.59.1",

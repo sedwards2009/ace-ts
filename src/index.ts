@@ -32,6 +32,15 @@ export { EditSession } from './EditSession';
 export { Range } from './Range';
 export { Renderer as VirtualRenderer } from './Renderer';
 export { UndoManager } from './UndoManager';
+export { Document } from './Document';
+
+export { HighlighterToken } from './mode/Highlighter';
+export { Delta } from './Delta';
+export { Fold } from './Fold';
+export { LanguageMode } from './LanguageMode';
+export { TextMode } from './mode/TextMode';
+export { RangeBasic } from './RangeBasic';
+export { TokenWithIndex } from './Token';
 
 
 /**
