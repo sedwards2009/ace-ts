@@ -28,20 +28,20 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-export { EditSession } from './EditSession';
-export { Range } from './Range';
-export { Renderer as VirtualRenderer } from './Renderer';
-export { UndoManager } from './UndoManager';
-export { Document } from './Document';
-
-export { HighlighterToken } from './mode/Highlighter';
 export { Delta } from './Delta';
+export { Document } from './Document';
+export { Editor } from './Editor';
+export { EditSession } from './EditSession';
 export { Fold } from './Fold';
+export { HighlighterToken } from './mode/Highlighter';
 export { LanguageMode } from './LanguageMode';
-export { TextMode } from './mode/TextMode';
+export { Position } from './Position';
+export { Range } from './Range';
 export { RangeBasic } from './RangeBasic';
+export { Renderer } from './Renderer';
+export { TextMode } from './mode/TextMode';
 export { TokenWithIndex } from './Token';
-
+export { UndoManager } from './UndoManager';
 
 /**
  * The main class required to set up an Ace instance in the browser.
