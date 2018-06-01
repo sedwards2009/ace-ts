@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { JsxHighlightRules } from './JsxHighlightRules';
 import { TextMode } from './TextMode';
 import { CstyleBehaviour } from "./behaviour/CstyleBehaviour";
@@ -49,3 +54,4 @@ export class JsxMode extends TextMode {
         this.$outdent.autoOutdent(session, row);
     }
 }
+

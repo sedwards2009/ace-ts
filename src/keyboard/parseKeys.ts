@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { FUNCTION_KEYS, KEY_MODS } from "../lib/keys";
 import { Keys as keyCodes } from "../lib/keys";
 import { KeyHash } from './KeyHash';
@@ -36,3 +41,4 @@ export function parseKeys(keys: string): KeyHash {
     }
     return { key: key, hashId: hashId };
 }
+

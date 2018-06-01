@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { createHTMLDivElement } from '../lib/dom';
 import { EditorEventHandler } from '../Editor';
 import { LineWidget } from '../LineWidget';
@@ -109,3 +114,4 @@ export function showErrorMarker(editor: Editor, direction: number): void {
 
     editor.scrollCursorIntoView(null, 0.5, { bottom: w.el.offsetHeight });
 }
+

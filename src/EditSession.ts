@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { equalPositions } from './Position';
 import { createDelayedCall } from './lib/lang/createDelayedCall';
 import { DelayedCall } from './lib/lang/DelayedCall';
@@ -3830,3 +3835,4 @@ export class EditSession {
         return "off";
     }
 }
+

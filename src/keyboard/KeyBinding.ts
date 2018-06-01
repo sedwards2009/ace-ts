@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { keyCodeToString } from "../lib/keys";
 import { stopEvent } from "../lib/event";
 import { COMMAND_NAME_INSERT_STRING } from "../editor_protocol";
@@ -169,3 +174,4 @@ export class KeyBinding<TARGET extends TargetWithCommands<TARGET>> {
         }
     }
 }
+

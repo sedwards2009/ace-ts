@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { Editor } from './Editor';
 import { addListener } from "./lib/event";
 
@@ -28,3 +33,4 @@ export function addAltCursorListeners(this: void, editor: Editor) {
         }
     }
 }
+

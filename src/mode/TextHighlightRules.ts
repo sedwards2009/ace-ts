@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { deepCopy } from "../lib/lang";
 import { Highlighter, HighlighterRule, HighlighterStack, HighlighterStackElement } from './Highlighter';
 import { HighlighterFactory } from './HighlighterFactory';
@@ -308,3 +313,4 @@ export class TextHighlightRules implements Highlighter {
         return this.$keywordList;
     }
 }
+

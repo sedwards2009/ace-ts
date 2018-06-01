@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { Position } from "./Position";
 import { RangeBasic } from './RangeBasic';
 import { compareRange, isStart, isEnd, isMultiLine } from './RangeHelpers';
@@ -299,3 +304,4 @@ export class Range implements RangeBasic {
         return new Range(start.row, start.column, end.row, end.column);
     }
 }
+

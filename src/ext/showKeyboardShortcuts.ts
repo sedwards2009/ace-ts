@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { KeyboardShortcut } from '../ext/menu_tools/getEditorKeyboardShortcuts';
 import { getEditorKeyboardShortcuts } from '../ext/menu_tools/getEditorKeyboardShortcuts';
 import { overlayPage } from '../ext/menu_tools/overlayPage';
@@ -31,3 +36,4 @@ export function showKeyboardShortcuts(editor: Editor) {
         });
     }
 }
+

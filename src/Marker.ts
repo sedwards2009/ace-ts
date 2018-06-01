@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { MarkerConfig } from './layer/MarkerConfig';
 import { IMarkerLayer } from './layer/MarkerLayer';
 import { MarkerRenderer } from './layer/MarkerRenderer';
@@ -46,3 +51,4 @@ export interface Marker {
      */
     update?: (html: (number | string)[], markerLayer: IMarkerLayer, session: EditSession, config: MarkerConfig) => void;
 }
+

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { createDelayedCall } from '../lib/lang/createDelayedCall';
 import { DelayedCall } from '../lib/lang/DelayedCall';
 import { setCssClass } from '../lib/dom';
@@ -316,3 +321,4 @@ export function showFindReplace(editor: Editor, isReplace?: boolean): void {
     const sb = searchBox || new SearchBox(editor);
     sb.show(editor.getTextRange(), isReplace);
 }
+

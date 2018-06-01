@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { FoldLine } from "./FoldLine";
 import { clone, compare, containsRange, isEqual } from "./RangeHelpers";
 import { RangeBasic } from "./RangeBasic";
@@ -147,3 +152,4 @@ function restoreRange(range: Fold, anchor: Position) {
     restorePoint(range.start, anchor);
     restorePoint(range.end, anchor);
 }
+

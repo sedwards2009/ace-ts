@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 //
 // Rules are defined by various language modes.
 // The Tokenizer seems to be the main consumer of the Rule.
@@ -123,3 +128,4 @@ export interface Rule<T, E, S extends Array<string | E>> {
      */
     merge?: boolean;
 }
+

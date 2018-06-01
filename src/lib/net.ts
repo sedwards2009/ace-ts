@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
+/**
  * based on code from:
  *
  * @license RequireJS text 0.25.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
@@ -61,3 +66,4 @@ export function qualifyURL(url: string): string {
     a.href = url;
     return a.href;
 }
+

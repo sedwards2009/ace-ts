@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { createElement } from "./lib/dom";
 import { addListener, preventDefault, removeListener } from "./lib/event";
 import { Disposable } from './Disposable';
@@ -100,3 +105,4 @@ export class ScrollBar implements EventBus<ScrollBarEventName, ScrollBarEvent, S
         return this;
     }
 }
+

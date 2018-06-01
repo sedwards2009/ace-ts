@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { isMac } from "../lib/useragent";
 import { Action } from "./Action";
 import { KeyHash } from './KeyHash';
@@ -220,3 +225,4 @@ export class KeyboardHandler<TARGET> {
         // This implementation does nothing.
     }
 }
+

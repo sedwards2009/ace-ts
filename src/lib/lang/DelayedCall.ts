@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
+/**
  * A wrapper around a callback function that allows the function to be scheduled.
  * After the callback has been executed it may be scheduled again.
  */
@@ -11,3 +16,4 @@ export interface DelayedCall {
     isPending(): boolean;
     schedule(timeout?: number): void;
 }
+

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 let statistics: { [uuid: string]: { refCount: number; name: string; zombie: boolean } } = {};
 let running = 0;
 // let trace = false;
@@ -192,3 +197,4 @@ export function refChange(uuid: string, name?: string, change = 0): number | und
     }
     return void 0;
 }
+

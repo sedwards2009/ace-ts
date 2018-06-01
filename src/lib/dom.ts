@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 
 export function getDocumentBody(doc: Document = document): HTMLBodyElement {
@@ -246,3 +251,4 @@ export function getParentWindow(document: Document): Window {
     // This is a bit redundant now that parentWindow has been removed.
     return document.defaultView;
 }
+

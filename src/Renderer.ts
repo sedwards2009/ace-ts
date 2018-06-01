@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2015-2018, David Holmes
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 import { addCssClass, createElement, createHTMLDivElement, removeCssClass, setCssClass } from "./lib/dom";
 import { isIE } from './lib/useragent';
 import { appendHTMLLinkElement } from './dom/appendHTMLLinkElement';
@@ -2055,3 +2060,4 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 function pixelStyle(pixels: number): string {
     return `${pixels}px`;
 }
+
