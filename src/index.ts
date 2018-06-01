@@ -42,7 +42,9 @@ export { Renderer } from './Renderer';
 export { TextMode } from './mode/TextMode';
 export { TokenWithIndex } from './Token';
 export { UndoManager } from './UndoManager';
-
+export { ScrollBar } from './ScrollBar';
+export { HScrollBar } from './HScrollBar';
+export { VScrollBar } from './VScrollBar';
 /**
  * The main class required to set up an Ace instance in the browser.
  *

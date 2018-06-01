@@ -321,14 +321,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$horizScroll = false;
         this.$vScroll = false;
 
-        this.scrollBarV = new VScrollBar(this.container, this);
+        this.scrollBarV = this.createVScrollBar(this.container)
         this.scrollBarVscrollUnhook = this.scrollBarV.on("scroll", (event: ScrollBarEvent, scrollBar: VScrollBar) => {
             if (!this.$scrollAnimation && this.session) {
                 this.session.setScrollTop(event.data - this.scrollMargin.top);
             }
         });
 
-        this.scrollBarH = new HScrollBar(this.container, this);
+        this.scrollBarH = this.createHScrollBar(this.container);
         this.scrollBarHscrollUnhook = this.scrollBarH.on("scroll", (event: ScrollBarEvent, scrollBar: HScrollBar) => {
             if (!this.$scrollAnimation && this.session) {
                 this.session.setScrollLeft(event.data - this.scrollMargin.left);
@@ -360,6 +360,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.setFontSize("16px");
         this.setShowFoldWidgets(true);
         this.updateCharacterSize();
+    }
+
+    protected createVScrollBar(container: HTMLElement): VScrollBar {
+        return new VScrollBar(container, this);
+    }
+
+    protected createHScrollBar(container: HTMLElement): HScrollBar {
+        return new HScrollBar(container, this);
     }
 
     /**
