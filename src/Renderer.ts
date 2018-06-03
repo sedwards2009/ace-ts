@@ -1507,7 +1507,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private $getLongestLine(): number {
         const session = this.sessionOrThrow();
         const charCount = session.getScreenWidth() + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
-        return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.round(charCount * this.characterWidth));
+        return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.floor(charCount * this.characterWidth));
     }
 
     /**
