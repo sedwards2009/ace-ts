@@ -3,19 +3,9 @@
  * Copyright (c) 2015-2018, David Holmes
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
-// import { Range } from "../Range";
 import { Command } from './Command';
 import { Editor } from '../Editor';
 import { Direction } from '../Direction';
-// import {COMMAND_NAME_BACKSPACE} from '._protocol';
-// import {COMMAND_NAME_DEL} from '._protocol';
-// import {COMMAND_NAME_INSERT_STRING} from "._protocol";
-
-/*
-function bindKey(win: string, mac: string) {
-    return { win: win, mac: mac };
-}
-*/
 
 // commands to enter multiselect mode
 export const commands: Command<Editor>[] = [{
@@ -72,19 +62,10 @@ export const commands: Command<Editor>[] = [{
     exec: function (editor: Editor) { editor.findAll(); },
     bindKey: { win: "Ctrl-Alt-K", mac: "Ctrl-Alt-K" },
     readOnly: true
-}];
-
-/*
-// commands active only in multiselect mode
-exports.multiSelectCommands = [{
+}, {
     name: "singleSelection",
     bindKey: "esc",
     exec: function(editor) { editor.exitMultiSelectMode(); },
-    readonly: true,
+    readOnly: true,
     isAvailable: function(editor) {return editor && editor.inMultiSelectMode}
 }];
-
-var HashHandler = require("../keyboard/hash_handler").HashHandler;
-exports.keyboardHandler = new HashHandler(exports.multiSelectCommands);
-*/
-

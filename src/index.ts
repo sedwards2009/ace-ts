@@ -50,6 +50,10 @@ export { UndoManager } from './UndoManager';
 export { ScrollBar } from './ScrollBar';
 export { HScrollBar } from './HScrollBar';
 export { VScrollBar } from './VScrollBar';
+export { commands as DefaultCommands } from './commands/DefaultCommands';
+export { Command } from './commands/Command';
+export { commands as MultiSelectCommands } from './commands/MultiSelectCommands';
+
 /**
  * The main class required to set up an Ace instance in the browser.
  *

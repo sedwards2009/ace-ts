@@ -344,8 +344,6 @@ export class Editor {
         this.prevOp = {};
         this.$mergeableCommands = [COMMAND_NAME_BACKSPACE, COMMAND_NAME_DEL, COMMAND_NAME_INSERT_STRING];
         
-        this.commands.addCommands(DefaultCommands.commands);
-
         if (renderer) {
             this.container = renderer.getContainerElement();
             this.renderer = renderer;
