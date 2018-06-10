@@ -10,19 +10,21 @@ echo("");
 echo("Compiling TS files");
 shelljs.exec("tsc");
 
+
 echo("Copying remaining JS source files to 'build'");
 var baseDir = shelljs.pwd();
+
 shelljs.cd("src");
+
 var jsSourceFiles = shelljs.find(".").filter(function(file) { return file.match(/\.js$/); });
 
 for (var i=0; i<jsSourceFiles.length; i++) {
   var jsSourceFile = jsSourceFiles[i];
-  var dest = path.join("build", jsSourceFile);
+  var dest = path.join(""+baseDir, "build", jsSourceFile);
   echo(jsSourceFile + " -> " + dest);
   shelljs.mkdir("-p", path.dirname(dest));
   shelljs.cp(jsSourceFile, dest);
 }
-// shelljs.cp(jsSourceFiles, "build");
 shelljs.cd(baseDir);
 
 echo("");
