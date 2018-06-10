@@ -34,9 +34,7 @@ import { ScrollBarEvent } from './events/ScrollBarEvent';
 import { EditorRenderer } from './EditorRenderer';
 import { refChange } from './refChange';
 
-// FIXME: The editor.css is crucial to the operation of the renderer.
-// import editorCss = require("./requirejs/text!./css/editor.css");
-// ensureHTMLStyleElement(editorCss, "ace_editor");
+const editorCss = require("./css/editor.css");
 
 const CHANGE_CURSOR = 1;
 const CHANGE_MARKER = 2;
@@ -290,9 +288,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.container = container || <HTMLDivElement>createElement("div");
         this.container.dir = 'ltr';
 
-        // TODO: this breaks rendering in Cloud9 with multiple ace instances
         // // Imports CSS once per DOM document ('ace_editor' serves as an identifier).
-        // ensureHTMLStyleElement(editorCss, "ace_editor", container.ownerDocument);
+        ensureHTMLStyleElement(editorCss, "ace_editor", container.ownerDocument);
 
         addCssClass(this.container, "ace_editor");
 

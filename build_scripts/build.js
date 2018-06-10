@@ -16,7 +16,7 @@ var baseDir = shelljs.pwd();
 
 shelljs.cd("src");
 
-var jsSourceFiles = shelljs.find(".").filter(function(file) { return file.match(/\.js$/); });
+var jsSourceFiles = shelljs.find(".").filter(function(file) { return file.match(/\.(js|css)$/); });
 
 for (var i=0; i<jsSourceFiles.length; i++) {
   var jsSourceFile = jsSourceFiles[i];
