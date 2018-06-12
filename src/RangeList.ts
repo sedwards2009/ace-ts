@@ -9,38 +9,17 @@ import { EditSession } from "./EditSession";
 import { comparePositions } from "./Position";
 import { Position } from "./Position";
 
-/**
- *
- */
 export class RangeList<R extends RangeBasic> {
 
-    /**
-     *
-     */
-    public ranges: R[] = [];
+    ranges: R[] = [];
 
-    /**
-     *
-     */
     private session: EditSession | null;
-
-    /**
-     * 
-     */
     private onChange: (e: { data: { action: string; range: R } }, unused: EditSession) => void;
 
-    /**
-     *
-     */
     constructor() {
         // Do nothing.
     }
 
-    /**
-     * @param pos
-     * @param excludeEdges
-     * @param startIndex
-     */
     pointIndex(pos: Position, excludeEdges?: boolean, startIndex?: number): number {
         const list = this.ranges;
         let i: number;

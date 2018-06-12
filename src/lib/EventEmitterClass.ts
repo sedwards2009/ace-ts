@@ -22,18 +22,14 @@ export class EventEmitterClass<NAME extends string, E, T> implements EventBus<NA
     /**
      * Each event name has multiple callbacks.
      */
-    public _eventRegistry: { [name: string]: ((event: E | undefined, source: T) => void)[] };
+    _eventRegistry: { [name: string]: ((event: E | undefined, source: T) => void)[] };
 
     /**
      * There may be one default handler for an event too.
      */
     private _defaultHandlers: { [name: string]: (event: E, source: T) => void };
-
     private owner: T;
 
-    /**
-     *
-     */
     constructor(owner: T) {
         this.owner = owner;
     }
@@ -90,9 +86,6 @@ export class EventEmitterClass<NAME extends string, E, T> implements EventBus<NA
         }
     }
 
-    /**
-     *
-     */
     hasListeners(eventName: NAME): boolean {
         const registry = this._eventRegistry;
         const listeners = registry && registry[eventName];
@@ -204,9 +197,6 @@ export class EventEmitterClass<NAME extends string, E, T> implements EventBus<NA
         };
     }
 
-    /**
-     *
-     */
     on(eventName: NAME, callback: (event: E, source: T) => any, capturing?: boolean): () => void {
         return this.addEventListener(eventName, callback, capturing);
     }
@@ -225,16 +215,10 @@ export class EventEmitterClass<NAME extends string, E, T> implements EventBus<NA
         }
     }
 
-    /**
-     *
-     */
-    public off(eventName: NAME, callback: (event: E, source: T) => any, capturing?: boolean): void {
+    off(eventName: NAME, callback: (event: E, source: T) => any, capturing?: boolean): void {
         return this.removeEventListener(eventName, callback, capturing);
     }
 
-    /**
-     *
-     */
     removeAllListeners(eventName: NAME) {
         if (this._eventRegistry) this._eventRegistry[eventName] = [];
     }

@@ -16,18 +16,11 @@ export class EditorMouseEvent {
     /**
      * The original DOM mouse event.
      */
-    public readonly domEvent: MouseEvent;
-    private readonly editor: Editor;
+    readonly domEvent: MouseEvent;
+    readonly editor: Editor;
 
-    /**
-     *
-     */
-    public readonly clientX: number;
-
-    /**
-     *
-     */
-    public readonly clientY: number;
+    readonly clientX: number;
+    readonly clientY: number;
 
     /**
      * Cached text coordinates following getDocumentPosition()
@@ -36,11 +29,11 @@ export class EditorMouseEvent {
     private $inSelection: boolean | null;
     // private propagationStopped = false;
     // private defaultPrevented = false;
-    public time: number;
+    time: number;
     // wheelY, wheelY and speed are for 'mousewheel' events.
-    public wheelX: number;
-    public wheelY: number;
-    public speed: number;
+    wheelX: number;
+    wheelY: number;
+    speed: number;
 
     constructor(domEvent: MouseEvent, editor: Editor) {
         this.domEvent = domEvent;

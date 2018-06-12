@@ -39,7 +39,7 @@ export interface RangeSelectionMarker extends OrientedRange, RangeWithMarkerId {
 /**
  * The range is empty if the start and end position coincide.
  */
-export function isEmptyRange(range: RangeBasic): boolean {
+export function isRangeEmpty(range: RangeBasic): boolean {
     return equalPositions(range.start, range.end);
 }
 

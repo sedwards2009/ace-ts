@@ -23,18 +23,14 @@ export type CommandManagerEventName = 'afterExec' | 'exec';
  *
  */
 export class CommandManager<TARGET> implements CommandExecutor<TARGET>, EventBus<CommandManagerEventName, any, CommandManager<TARGET>> {
-    /**
-     *
-     */
-    public readonly hashHandler: KeyboardHandler<TARGET>;
-    /**
-     *
-     */
+
+    readonly hashHandler: KeyboardHandler<TARGET>;
+
     private $inReplay: boolean;
     /**
      * Used by StatusBar
      */
-    public recording: boolean;
+    recording: boolean;
     /**
      * A macro is a sequence of commands.
      */

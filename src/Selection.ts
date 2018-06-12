@@ -4,7 +4,7 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { Document } from "./Document";
-import { Position } from "./Position";
+import { Position, equalPositions } from "./Position";
 import { stringReverse } from "./lib/lang";
 import { EventEmitterClass } from "./lib/EventEmitterClass";
 import { Range } from "./Range";
@@ -1161,9 +1161,6 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         return $blockChangeEvents || this.fromOrientedRange(range);
     }
 
-    /**
-     *
-     */
     private $onAddRange(range: OrientedRange): void {
         this.rangeCount = this.rangeList.ranges.length;
         this.ranges.unshift(range);

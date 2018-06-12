@@ -187,86 +187,53 @@ export interface EditorEventHandler {
  */
 export class Editor {
 
-    /**
-     *
-     */
-    public renderer: Renderer;
-
-    /**
-     *
-     */
-    public session: NativeEditSession | undefined;
+    renderer: Renderer;
+    session: NativeEditSession | undefined;
 
     private eventBus: EventEmitterClass<EditorEventName, any, Editor>;
-
     private readonly gotoDefinitionBus = new EventEmitterClass<'gotoDefinition', Position, Editor>(this);
 
     /**
      * Have to make this public to support error marker extension.
      */
-    public $mouseHandler: IGestureHandler;
+    $mouseHandler: MouseHandler;
 
     /**
      * The command manager.
      * It is initially devoid of commands.
      */
-    public readonly commands = new CommandManager<Editor>(isMac ? "mac" : "win", []);
+    readonly commands = new CommandManager<Editor>(isMac ? "mac" : "win", []);
 
-    /**
-     *
-     */
-    public keyBinding: KeyBinding<Editor>;
+    keyBinding: KeyBinding<Editor>;
+    completers: Completer[] = [];
+    completionManager: CompletionManager;
 
-    /**
-     *
-     */
-    public completers: Completer[] = [];
-
-    /**
-     *
-     */
-    public completionManager: CompletionManager;
-
-    public widgetManager: LineWidgetManager | null;
+    widgetManager: LineWidgetManager | null;
 
     /**
      * The renderer container element.
      */
-    public container: HTMLElement;
-    public textInput: TextInput;
-    public inMultiSelectMode: boolean;
+    container: HTMLElement;
+    textInput: TextInput;
+    inMultiSelectMode: boolean;
 
-    /**
-     *
-     */
-    public multiSelect: Selection | undefined;
+    multiSelect: Selection | undefined;
 
-    public inVirtualSelectionMode: boolean;
-    public $blockSelectEnabled: boolean;
+    inVirtualSelectionMode: boolean;
+    $blockSelectEnabled: boolean;
 
-    /**
-     * 'ace', 'slim', 'smooth', or 'wide'
-     */
     private $cursorStyle: CursorStyle;
 
-    public $isFocused: boolean;
-    /**
-     * FIXME: Dead code?
-     */
-    // private $keybindingId: any;
-    /**
-     *
-     */
+    $isFocused: boolean;
+
     private $behavioursEnabled = true;
     private $wrapBehavioursEnabled = true;
-    private $blockScrolling: number;
+    $blockScrolling: number;
     private $highlightActiveLine = true;
     private $highlightPending: boolean;
     private $highlightSelectedWord = true;
     private $highlightTagPending: boolean;
-    /**
-     * 
-     */
+
     private $mergeUndoDeltas: boolean | 'always' = true;
     /**
      * The internal representation of the readOnly property.
@@ -276,10 +243,11 @@ export class Editor {
     private readonly $readOnlyBus = new EventEmitterClass<'$readOnly', { oldValue: boolean; newValue: boolean }, Editor>(this);
 
     private $scrollAnchor: HTMLDivElement;
+
     /**
      * Used by SearchBox.
      */
-    public $search: Search;
+    $search: Search;
     private _$emitInputEvent: DelayedCall;
 
     /**
@@ -287,9 +255,6 @@ export class Editor {
      */
     private readonly selectionRanges_: Range[] = [];
 
-    /**
-     *
-     */
     private $selectionStyle: 'line' | 'text' = 'line';
     private $opResetTimer: DelayedCall;
     private curOp: { command?: Command<Editor>; args?: any; scrollTop?: number; docChanged?: boolean; selectionChanged?: boolean } | null;
@@ -366,7 +331,6 @@ export class Editor {
         });
 
         this.on("changeSession", (e: EditorChangeSessionEvent, editor: Editor) => {
-
             const session = this.session;
 
             if (session && !session.multiSelect) {
@@ -555,7 +519,7 @@ export class Editor {
      * If the range is omitted, the range corresponding to the selection is used.
      * Throws an exception if neither range nor selection are available.
      */
-    public getTextRange(range?: RangeBasic): string {
+    getTextRange(range?: RangeBasic): string {
         return this.sessionOrThrow().getTextRange(range);
     }
 
@@ -706,7 +670,7 @@ export class Editor {
     /**
      * Convenience method for obtaining the session.
      */
-    public sessionOrThrow(): NativeEditSession {
+    sessionOrThrow(): NativeEditSession {
         if (this.session) {
             return this.session;
         }
@@ -1689,9 +1653,6 @@ export class Editor {
         return this.renderer.getTheme();
     }
 
-    /**
-     *
-     */
     setStyle(className: EditorStyle): void {
         const renderer = this.renderer;
         if (renderer) {
@@ -1699,9 +1660,6 @@ export class Editor {
         }
     }
 
-    /**
-     *
-     */
     unsetStyle(className: EditorStyle): void {
         const renderer = this.renderer;
         if (renderer) {
@@ -1725,9 +1683,6 @@ export class Editor {
         this.renderer.setFontSize(fontSize);
     }
 
-    /**
-     *
-     */
     private $highlightBrackets(): void {
         const session = this.sessionOrThrow();
         if (session.$bracketHighlight) {
@@ -1764,9 +1719,6 @@ export class Editor {
         }, 50);
     }
 
-    /**
-     *
-     */
     private $highlightTags(): void {
 
         if (this.$highlightTagPending) {
@@ -2020,10 +1972,7 @@ export class Editor {
         this.eventBus._signal("changeSelection");
     }
 
-    /**
-     *
-     */
-    public $updateHighlightActiveLine(): void {
+    $updateHighlightActiveLine(): void {
 
         const session = this.sessionOrThrow();
         const renderer = this.renderer;
@@ -2062,9 +2011,6 @@ export class Editor {
         }
     }
 
-    /**
-     *
-     */
     private onSelectionChange(event: any, unused: any): void {
 
         const session = this.sessionOrThrow();
@@ -2211,7 +2157,7 @@ export class Editor {
     /**
      * Called whenever a text "cut" happens.
      */
-    public onCut(): void {
+    onCut(): void {
         const cutCommand = this.commands.getCommandByName(COMMAND_NAME_CUT);
         if (cutCommand) {
             this.commands.exec(cutCommand, this);
@@ -2233,7 +2179,7 @@ export class Editor {
     /**
      * Called whenever a text "copy" happens.
      */
-    public onCopy(): void {
+    onCopy(): void {
         const copyCommand = this.commands.getCommandByName(COMMAND_NAME_COPY);
         if (copyCommand) {
             this.commands.exec(copyCommand, this);
@@ -2400,9 +2346,6 @@ export class Editor {
         }
     }
 
-    /**
-     *
-     */
     on(eventName: EditorEventName, callback: (data: any, editor: Editor) => any, capturing?: boolean) {
         this.eventBus.on(eventName, callback, capturing);
         return () => {
@@ -2466,7 +2409,7 @@ export class Editor {
     /**
      *
      */
-    public onCommandKey(e: KeyboardEvent, hashId: number, keyCode: number): void {
+    onCommandKey(e: KeyboardEvent, hashId: number, keyCode: number): void {
         this.keyBinding.onCommandKey(e, hashId, keyCode);
     }
 
@@ -2612,9 +2555,6 @@ export class Editor {
         return this.$highlightActiveLine;
     }
 
-    /**
-     *
-     */
     setHighlightGutterLine(highlightGutterLine: boolean): void {
         const renderer = this.renderer;
         if (renderer) {
@@ -2622,9 +2562,6 @@ export class Editor {
         }
     }
 
-    /**
-     *
-     */
     getHighlightGutterLine(): boolean {
         return this.renderer.getHighlightGutterLine();
     }
@@ -2653,9 +2590,6 @@ export class Editor {
         this.renderer.setAnimatedScroll(animatedScroll);
     }
 
-    /**
-     *
-     */
     getAnimatedScroll(): boolean {
         return this.renderer.getAnimatedScroll();
     }
@@ -2687,9 +2621,6 @@ export class Editor {
         this.renderer.setShowLineNumbers(showLineNumbers);
     }
 
-    /**
-     *
-     */
     getShowLineNumbers(): boolean {
         return this.renderer.getShowLineNumbers();
     }
@@ -2701,9 +2632,6 @@ export class Editor {
         this.renderer.setDisplayIndentGuides(displayIndentGuides);
     }
 
-    /**
-     *
-     */
     getDisplayIndentGuides(): boolean {
         return this.renderer.getDisplayIndentGuides();
     }
@@ -3101,9 +3029,6 @@ export class Editor {
     }
 
     // TODO: move out of core when we have good mechanism for managing extensions.
-    /**
-     *
-     */
     sortLines(): void {
         const session = this.sessionOrThrow();
         const rows: FirstAndLast = this.$getSelectedRows();
@@ -3138,9 +3063,6 @@ export class Editor {
         session.modeOrThrow().toggleCommentLines(state, session, rows.first, rows.last);
     }
 
-    /**
-     *
-     */
     toggleBlockComment(): void {
         const session = this.sessionOrThrow();
         const cursor = this.getCursorPosition();
@@ -3240,9 +3162,6 @@ export class Editor {
         this.clearSelection();
     }
 
-    /**
-     *
-     */
     duplicateSelection(): void {
         const session = this.sessionOrThrow();
         const selection = this.selection;
@@ -3392,16 +3311,10 @@ export class Editor {
         this.renderer.hideComposition();
     }
 
-    /**
-     *
-     */
     getFirstVisibleRow(): number {
         return this.renderer.getFirstVisibleRow();
     }
 
-    /**
-     *
-     */
     getLastVisibleRow(): number {
         return this.renderer.getLastVisibleRow();
     }
@@ -3673,9 +3586,6 @@ export class Editor {
         return this.selectionOrThrow().index;
     }
 
-    /**
-     *
-     */
     getSelectionRange(): OrientedRange {
         return this.selectionOrThrow().getRange();
     }
@@ -4178,7 +4088,7 @@ export class Editor {
      * Returns the end position of the change.
      * This method triggers a change events in the document for removal and insertion.
      */
-    public replaceRange(range: RangeBasic, newText: string): Position {
+    replaceRange(range: RangeBasic, newText: string): Position {
         return this.sessionOrThrow().replace(range, newText);
     }
 
@@ -4222,9 +4132,6 @@ export class Editor {
         return replaced;
     }
 
-    /**
-     * 
-     */
     private $tryReplace(range: RangeBasic, replacementMe: string): RangeBasic | null {
         const session = this.sessionOrThrow();
         const input = session.getTextRange(range);
@@ -4263,9 +4170,6 @@ export class Editor {
         return this.renderer.updateFull(force);
     }
 
-    /**
-     *
-     */
     getLastSearchOptions(): SearchOptions {
         return this.$search.getOptions();
     }
@@ -4399,9 +4303,6 @@ export class Editor {
         this.find(needle, { skipCurrent: true, backwards: true }, animate);
     }
 
-    /**
-     *
-     */
     revealRange(range: Range, animate?: boolean): void {
         const session = this.sessionOrThrow();
 
@@ -4419,9 +4320,6 @@ export class Editor {
         }
     }
 
-    /**
-     *
-     */
     undo(): void {
         const session = this.sessionOrThrow();
 
@@ -4434,9 +4332,6 @@ export class Editor {
         }
     }
 
-    /**
-     *
-     */
     redo(): void {
         const session = this.sessionOrThrow();
 
@@ -4769,9 +4664,6 @@ export class MouseHandler implements IGestureHandler {
         return this.editor.renderer.screenToTextCoordinates(this.clientX, this.clientY);
     }
 
-    /**
-     * 
-     */
     captureMouse(ev: EditorMouseEvent, mouseMoveHandler?: (mouseEvent: MouseEvent) => void): void {
         this.clientX = ev.clientX;
         this.clientY = ev.clientY;
@@ -4857,7 +4749,7 @@ export class MouseHandler implements IGestureHandler {
         this.editor.on("nativecontextmenu", stop);
     }
 
-    select() {
+    select(): void {
         const editor = this.editor;
         let cursor = editor.renderer.screenToTextCoordinates(this.clientX, this.clientY);
 

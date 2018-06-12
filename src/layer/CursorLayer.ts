@@ -250,11 +250,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         return { left: cursorLeft, top: cursorTop };
     }
 
-    /**
-     *
-     */
-    public update(config: CursorConfig): void {
-
+    update(config: CursorConfig): void {
         this.config = config;
 
         // Selection markers is a concept from multi selection.
