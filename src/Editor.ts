@@ -34,7 +34,6 @@ import { TextAndSelection } from "./TextAndSelection";
 import { EventEmitterClass } from "./lib/EventEmitterClass";
 import { Command } from "./commands/Command";
 import { CommandManager } from "./commands/CommandManager";
-import * as DefaultCommands from "./commands/DefaultCommands";
 import { TokenIterator } from "./TokenIterator";
 import { COMMAND_NAME_AUTO_COMPLETE } from './editor_protocol';
 import { COMMAND_NAME_BACKSPACE } from './editor_protocol';
@@ -75,6 +74,8 @@ import { RangeWithCollapseChildren } from './RangeBasic';
 import { RangeSelectionMarker } from './RangeBasic';
 import { TokenWithIndex } from './Token';
 import { UndoManager } from './UndoManager';
+import { onMouseDown as multiSelectOnMouseDown } from './mouse/MultiSelectHandler';
+
 
 const search = new Search();
 const DRAG_OFFSET = 0; // pixels
@@ -318,24 +319,10 @@ export class Editor {
 
     private $onSelectionChangeCursor: (event: any, selection: Selection) => void;
 
-    /**
-     * 
-     */
     private removeChangeSelectionHandler: (() => void) | undefined;
 
-    /**
-     * 
-     */
-    public exitMultiSelectMode: () => void;
-
-    /**
-     * 
-     */
     private readonly uuid = `${Math.random()}`;
 
-    /**
-     * Creates a new `Editor` object.
-     */
     constructor(renderer: Renderer | undefined, session: EditSession | undefined) {
         refChange('start');
         refChange(this.uuid, 'Editor', +1);
@@ -422,9 +409,9 @@ export class Editor {
                 isAvailable: function (editor: Editor) { return editor && editor.inMultiSelectMode; }
             }]);
 
-            const onMultiSelectExec = function (e: { command: Command<Editor>, editor: Editor, args: any }) {
+            const onMultiSelectExec = function (e: { command: Command<Editor>, target: Editor, args: any }) {
                 const command = e.command;
-                const editor = e.editor;
+                const editor = e.target;
                 if (!editor.multiSelect) {
                     return;
                 }
@@ -554,6 +541,9 @@ export class Editor {
         });
 
         this.setSession(session);
+
+        this.on("mousedown", multiSelectOnMouseDown);
+
     }
 
     getContainer(): HTMLElement {
@@ -749,6 +739,11 @@ export class Editor {
         return rangeSelectionMarker;
     }
 
+    updateSelectionMarkers(): void {
+        this.renderer.updateCursor();
+        this.renderer.updateBackMarkers();
+    }
+
     /**
      *
      */
@@ -878,6 +873,13 @@ export class Editor {
             // FIXME: Who cares and why don't we return an array?
             return result;
         }
+    }
+
+    exitMultiSelectMode(): void {
+        if (!this.inMultiSelectMode || this.inVirtualSelectionMode) {
+            return;
+        }
+        this.multiSelect.toSingleRange();
     }
 
     getLine(row: number): string {
@@ -2408,11 +2410,12 @@ export class Editor {
         };
     }
 
-    /**
-     *
-     */
     off(eventName: EditorEventName, callback: (data: any, source: Editor) => any, capturing?: boolean): void {
         this.eventBus.off(eventName, callback/*, capturing*/);
+    }
+
+    once(eventName: EditorEventName, callback: (data: any, editor: Editor) => any) {
+        this.eventBus.once(eventName, callback);
     }
 
     setDefaultHandler(eventName: EditorEventName, callback: (data: any, source: Editor) => any) {
@@ -4625,31 +4628,31 @@ export interface IGestureHandler {
 /**
  * The allowed values of the state property of the MouseHandler.
  */
-type MouseHandlerState = 'focusWait' | 'select' | 'selectAll' | 'selectByLines' | 'selectByWords' | '';
+export type MouseHandlerState = 'focusWait' | 'select' | 'selectAll' | 'selectByLines' | 'selectByWords' | '';
 
-class MouseHandler implements IGestureHandler {
-    public editor: Editor;
-    public $scrollSpeed = 2;
-    public $dragDelay = 0;
+export class MouseHandler implements IGestureHandler {
+    editor: Editor;
+    $scrollSpeed = 2;
+    $dragDelay = 0;
     private $dragEnabled = true;
-    public $focusTimout = 0;
-    public $tooltipFollowsMouse = true;
+    $focusTimout = 0;
+    $tooltipFollowsMouse = true;
     private state: MouseHandlerState;
     private clientX: number;
     private clientY: number;
-    public isMousePressed: boolean;
+    isMousePressed: boolean;
     /**
      * The function to call to release a captured mouse.
      */
     private releaseMouse: ((event: MouseEvent | undefined) => void) | null;
     // private mouseEvent: EditorMouseEvent;
-    public mousedownEvent: EditorMouseEvent;
+    mousedownEvent: EditorMouseEvent;
     // private $mouseMoved: boolean;
     // private $onCaptureMouseMove: ((event: MouseEvent) => void) | null;
-    public $clickSelection: OrientedRange | null = null;
-    public $lastScrollTime: number;
-    public selectByLines: () => void;
-    public selectByWords: () => void;
+    $clickSelection: OrientedRange | null = null;
+    $lastScrollTime: number;
+    selectByLines: () => void;
+    selectByWords: () => void;
     constructor(editor: Editor) {
         // FIXME: Did I mention that `this`, `new`, `class`, `bind` are the 4 horsemen?
         // FIXME: Function Scoping is the answer.

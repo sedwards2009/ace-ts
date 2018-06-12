@@ -1256,5 +1256,92 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         return true;
     }
     */
+    /**
+     * 
+     * Gets list of ranges composing rectangular block on the screen
+     * 
+     * @param {Cursor} screenCursor The cursor to use
+     * @param {Anchor} screenAnchor The anchor to use
+     * @param {Boolean} includeEmptyLines If true, this includes ranges inside the block which are empty due to clipping
+     * @returns {Range}
+     * @method Selection.rectangularRangeBlock
+     **/
+    rectangularRangeBlock(screenCursor: Position, screenAnchor: Position, includeEmptyLines: boolean): Range[] {
+        const rectSel = [];
+
+        let startColumn = 0;
+        let endColumn = 0;
+        const xBackwards = screenCursor.column < screenAnchor.column;
+        if (xBackwards) {
+            startColumn = screenCursor.column;
+            endColumn = screenAnchor.column;
+        } else {
+            startColumn = screenAnchor.column;
+            endColumn = screenCursor.column;
+        }
+
+        let startRow = 0;
+        let endRow = 0;
+        const yBackwards = screenCursor.row < screenAnchor.row;
+        if (yBackwards) {
+            startRow = screenCursor.row;
+            endRow = screenAnchor.row;
+        } else {
+            startRow = screenAnchor.row;
+            endRow = screenCursor.row;
+        }
+
+        if (startColumn < 0) {
+            startColumn = 0;
+        }
+        if (startRow < 0) {
+            startRow = 0;
+        }
+
+        if (startRow == endRow) {
+            includeEmptyLines = true;
+        }
+
+        let docEnd: Position;
+        for (let row = startRow; row <= endRow; row++) {
+            const range = Range.fromPoints(
+                this.session.screenToDocumentPosition(row, startColumn),
+                this.session.screenToDocumentPosition(row, endColumn)
+            );
+            if (range.isEmpty()) {
+                if (docEnd && equalPositions(range.end, docEnd)) {
+                    break;
+                }
+                docEnd = range.end;
+            }
+            range.cursor = xBackwards ? range.start : range.end;
+            rectSel.push(range);
+        }
+
+        if (yBackwards) {
+            rectSel.reverse();
+        }
+
+        let start: number;
+        if (!includeEmptyLines) {
+            let end = rectSel.length - 1;
+            while (rectSel[end].isEmpty() && end > 0) {
+                end--;
+            }
+            if (end > 0) {
+                start = 0;
+                while (rectSel[start].isEmpty()) {
+                    start++;
+                }
+            }
+            for (let i = end; i >= start; i--) {
+                if (rectSel[i].isEmpty()) {
+                    rectSel.splice(i, 1);
+                }
+            }
+        }
+
+        return rectSel;
+    }
 }
 
