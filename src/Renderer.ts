@@ -34,7 +34,7 @@ import { ScrollBarEvent } from './events/ScrollBarEvent';
 import { EditorRenderer } from './EditorRenderer';
 import { refChange } from './refChange';
 
-const editorCss = require("./css/editor.css");
+let editorCss: string = null;
 
 const CHANGE_CURSOR = 1;
 const CHANGE_MARKER = 2;
@@ -98,6 +98,10 @@ export type RendererEventName = 'afterRender'
     | 'resize'
     | 'scrollbarVisibilityChanged'
     | 'themeLoaded';
+
+export interface RendererOptions {
+    injectCss?: boolean;
+}
 
 /**
  * The class that is responsible for drawing everything you see on the screen!
@@ -280,7 +284,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Constructs a new `Renderer` within the `container` specified.
      */
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, options?: RendererOptions) {
         refChange('start');
         refChange(this.uuid, 'Renderer', +1);
         this.eventBus = new EventEmitterClass<RendererEventName, any, Renderer>(this);
@@ -288,9 +292,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.container = container || <HTMLDivElement>createElement("div");
         this.container.dir = 'ltr';
 
-        // // Imports CSS once per DOM document ('ace_editor' serves as an identifier).
-        ensureHTMLStyleElement(editorCss, "ace_editor", container.ownerDocument);
-
+        if (options.injectCss !== false) {
+            // Imports CSS once per DOM document ('ace_editor' serves as an identifier).
+            if (editorCss == null) {
+                editorCss = require("./css/editor.css");
+            }
+            ensureHTMLStyleElement(editorCss, "ace_editor", container.ownerDocument);
+        }
         addCssClass(this.container, "ace_editor");
 
         this.$gutter = createElement("div") as HTMLDivElement;
