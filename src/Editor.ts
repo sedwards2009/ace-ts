@@ -1645,6 +1645,10 @@ export class Editor {
     resize(force?: boolean): void {
         this.renderer.onResize(force);
     }
+    
+    updateFontSize(): void {
+        this.renderer.updateFontSize();
+    }
 
     /**
      * @returns The set theme
