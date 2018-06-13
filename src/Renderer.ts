@@ -101,22 +101,21 @@ export type RendererEventName = 'afterRender'
 
 export interface RendererOptions {
     injectCss?: boolean;
+    fontSize?: string;
 }
 
 /**
  * The class that is responsible for drawing everything you see on the screen!
  */
 export class Renderer implements Disposable, EventBus<RendererEventName, any, Renderer>, EditorRenderer, OptionsProvider {
-    /**
-     * 
-     */
+
     private readonly uuid = `${Math.random()}`;
 
-    public textarea: HTMLTextAreaElement;
-    public container: HTMLElement;
-    public scrollLeft = 0;
-    public scrollTop = 0;
-    public layerConfig = {
+    textarea: HTMLTextAreaElement;
+    container: HTMLElement;
+    scrollLeft = 0;
+    scrollTop = 0;
+    layerConfig = {
         width: 1,
         padding: 0,
         firstRow: 0,
@@ -131,41 +130,26 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         gutterOffset: 1
     };
 
-    /**
-     *
-     */
     private $maxLines: number;
     private $minLines: number;
 
     /**
      * FIXME: Leaky. ListViewPopup and showErrorMarker use this property.
      */
-    public readonly cursorLayer: CursorLayer;
-
-    /**
-     *
-     */
-    public readonly $gutterLayer: GutterLayer;
-
-    /**
-     *
-     */
+    readonly cursorLayer: CursorLayer;
+    readonly $gutterLayer: GutterLayer;
     private readonly $markerFront: MarkerLayer;
-
-    /**
-     *
-     */
     private readonly $markerBack: MarkerLayer;
 
     /**
      * FIXME: Leaky. ListViewPopup uses this property.
      */
-    public readonly textLayer: TextLayer;
+    readonly textLayer: TextLayer;
 
     /**
      * Used by TokenTooltip...
      */
-    public $padding = 0;
+    $padding = 0;
 
     private $frozen = false;
 
@@ -184,10 +168,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     private $timer: number | undefined;
 
-    public $keepTextAreaAtCursor: boolean | null = true;
-    public $gutter: HTMLDivElement;
-    public scroller: HTMLDivElement;
-    public content: HTMLDivElement;
+    $keepTextAreaAtCursor: boolean | null = true;
+    $gutter: HTMLDivElement;
+    scroller: HTMLDivElement;
+    content: HTMLDivElement;
 
     /**
      * This is the element that is created by the text layer.
@@ -197,19 +181,16 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private $horizScroll: boolean;
     private $vScroll: boolean;
-    public scrollBarH: HScrollBar;
-    public scrollBarV: VScrollBar;
+    scrollBarH: HScrollBar;
+    scrollBarV: VScrollBar;
     private scrollBarHscrollUnhook: () => void;
     private scrollBarVscrollUnhook: () => void;
 
-    /**
-     *
-     */
-    public $scrollAnimation: { from: number; to: number; steps: number[] } | null;
+    $scrollAnimation: { from: number; to: number; steps: number[] } | null;
     /**
      * ScrollBar width in pixels.
      */
-    public $scrollbarWidth: number;
+    $scrollbarWidth: number;
     private session: EditSession | undefined;
     private eventBus: EventEmitterClass<RendererEventName, any, Renderer>;
 
@@ -222,9 +203,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         h: 0
     };
 
-    /**
-     * 
-     */
     private fontMetrics: FontMetrics | undefined;
 
     /**
@@ -238,18 +216,15 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * A cache of various sizes TBA.
      */
-    public $size: { height: number; width: number; scrollerHeight: number; scrollerWidth: number; $dirty: boolean };
+    $size: { height: number; width: number; scrollerHeight: number; scrollerWidth: number; $dirty: boolean };
 
     private $loop: RenderLoop;
     private $changedLines: { firstRow: number; lastRow: number; } | null;
-    /**
-     * 
-     */
     private $changes = 0;
     private resizing: number;
     private $gutterLineHighlight: HTMLDivElement;
     // FIXME: Why do we have two?
-    public gutterWidth: number;
+    gutterWidth: number;
     private $gutterWidth: number;
 
     /**
@@ -262,12 +237,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * The character width, in pixels.
      */
-    public characterWidth: number;
-
-    /**
-     *
-     */
-    public lineHeight: number;
+    characterWidth: number;
+    lineHeight: number;
 
     private $extraHeight: number;
     private $composition: { keepTextAreaAtCursor: boolean | null; cssText: string } | null;
@@ -284,7 +255,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Constructs a new `Renderer` within the `container` specified.
      */
-    constructor(container: HTMLElement, options?: RendererOptions) {
+    constructor(container: HTMLElement, options: RendererOptions={}) {
         refChange('start');
         refChange(this.uuid, 'Renderer', +1);
         this.eventBus = new EventEmitterClass<RendererEventName, any, Renderer>(this);
@@ -367,7 +338,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$loop.schedule(CHANGE_FULL);
 
         this.setPadding(4);
-        this.setFontSize("16px");
+        this.setFontSize(options.fontSize === undefined ? "16px" : options.fontSize);
         this.setShowFoldWidgets(true);
         this.updateCharacterSize();
     }
@@ -912,16 +883,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.onGutterResize();
     }
 
-    /**
-     *
-     */
     getFadeFoldWidgets(): boolean {
         return this.fadeFoldWidgets;
     }
 
-    /**
-     *
-     */
     setFadeFoldWidgets(fadeFoldWidgets: boolean): void {
         setCssClass(this.$gutter, "ace_fade-fold-widgets", fadeFoldWidgets);
     }
@@ -931,8 +896,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     setFontSize(fontSize: string | null): void {
-        this.container.style.fontSize = fontSize;
-        this.updateFontSize();
+        if (fontSize != null) {
+            this.container.style.fontSize = fontSize;
+            this.updateFontSize();
+        }
     }
 
     setHighlightGutterLine(highlightGutterLine: boolean): void {
@@ -955,9 +922,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return this.$highlightGutterLine;
     }
 
-    /**
-     *
-     */
     getPixelPosition(position?: Position | null, onScreen?: boolean): PixelPosition {
         return this.cursorLayer.getPixelPosition(position, onScreen);
     }
@@ -1216,9 +1180,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$frozen = false;
     }
 
-    /**
-     *
-     */
     private $renderChanges(changes: number, forceChanges: boolean): number | undefined {
 
         if (this.$changes) {
@@ -1631,16 +1592,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
     }
 
-    /**
-     *
-     */
     getScrollTop(): number {
         return this.sessionOrThrow().getScrollTop();
     }
 
-    /**
-     *
-     */
     getScrollLeft(): number {
         return this.sessionOrThrow().getScrollLeft();
     }
