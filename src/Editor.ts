@@ -4430,7 +4430,7 @@ export class Editor {
         };
     }
 
-    private resetCursorStyle(): void {
+    protected resetCursorStyle(): void {
         const style = this.$cursorStyle || "ace";
         const cursorLayer = this.renderer.cursorLayer;
         if (!cursorLayer) {
