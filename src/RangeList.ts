@@ -8,6 +8,7 @@ import { isEmpty } from "./RangeHelpers";
 import { EditSession } from "./EditSession";
 import { comparePositions } from "./Position";
 import { Position } from "./Position";
+import { Delta } from "./Delta";
 
 export class RangeList<R extends RangeBasic> {
 
@@ -185,18 +186,9 @@ export class RangeList<R extends RangeBasic> {
      * @param e
      * @param session
      */
-    private $onChange(e: { data: { action: string; range: R } }, unused: EditSession): void {
-        const changeRange: R = e.data.range;
-        let start: Position;
-        let end: Position;
-        if (e.data.action[0] === "i") {
-            start = changeRange.start;
-            end = changeRange.end;
-        }
-        else {
-            end = changeRange.start;
-            start = changeRange.end;
-        }
+    private $onChange(delta: Delta): void {
+        let start = delta.start;
+        let end = delta.end;
         const startRow = start.row;
         const endRow = end.row;
         const lineDif = endRow - startRow;
