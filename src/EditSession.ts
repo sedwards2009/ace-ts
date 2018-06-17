@@ -136,56 +136,41 @@ export type EditSessionEventName =
     | 'session' // When the EditSession constructor completes. Who cares?
     | 'tokenizerUpdate';
 
-/**
- *
- */
 export class EditSession {
     private firstLineNumber_ = 1;
-    public gutterRenderer: GutterRenderer;
-    public $breakpoints: string[] = [];
-    public $decorations: string[] = [];
+    gutterRenderer: GutterRenderer;
+    $breakpoints: string[] = [];
+    $decorations: string[] = [];
     private $frontMarkers: { [id: number]: Marker } = {};
-    public $backMarkers: { [id: number]: Marker } = {};
+    $backMarkers: { [id: number]: Marker } = {};
     private $markerId = 1;
 
-    /**
-     *
-     */
-    public $undoSelect = true;
+    $undoSelect = true;
 
     private $deltas: { group: ('doc' | 'fold'); deltas: Delta[] | { action: string; folds: Fold[] }[] }[];
     private $deltasDoc: Delta[];
     private $deltasFold: { action: string; folds: Fold[] }[];
     private $fromUndo: boolean;
 
-    public widgetManager: LineWidgetManager;
+    widgetManager: LineWidgetManager;
     private $updateFoldWidgets: (delta: Delta, editSession: EditSession) => any;
-    /**
-     * 
-     */
     private readonly foldLines_: FoldLine[] = [];
-    /**
-     * 
-     */
-    public foldWidgets: (FoldWidget | null)[] | null;
+    foldWidgets: (FoldWidget | null)[] | null;
     /**
      * May return "start" or "end".
      */
-    public getFoldWidget: (row: number) => FoldWidget;
-    public getFoldWidgetRange: (row: number, forceMultiline?: boolean) => RangeWithCollapseChildren;
-    public _changedWidgets: LineWidget[];
+    getFoldWidget: (row: number) => FoldWidget;
+    getFoldWidgetRange: (row: number, forceMultiline?: boolean) => RangeWithCollapseChildren;
+    _changedWidgets: LineWidget[];
 
     // Emacs
-    public $useEmacsStyleLineStart: boolean;
+    $useEmacsStyleLineStart: boolean;
 
     // Emacs
-    public $selectLongWords: boolean;
+    $selectLongWords: boolean;
 
-    public doc: Document | undefined;
+    doc: Document | undefined;
 
-    /**
-     *
-     */
     private $defaultUndoManager = {
         undo: function () {
             // Do nothing.
@@ -200,58 +185,38 @@ export class EditSession {
 
     private $undoManager: UndoManager;
     private $informUndoManager: DelayedCall;
-    public bgTokenizer: BackgroundTokenizer;
-    public traceTokenizer = false;
-    public $modified: boolean;
+    bgTokenizer: BackgroundTokenizer;
+    traceTokenizer = false;
+    $modified: boolean;
 
-    /**
-     *
-     */
-    public selection: Selection | undefined;
+    selection: Selection | undefined;
 
     // TODO: Why do we need to have a separate single and multi-selection?
 
-    /**
-     *
-     */
-    public multiSelect: Selection | undefined;
-
-    /**
-     *
-     */
-    public $selectionMarkers: RangeSelectionMarker[];
-
-    /**
-     *
-     */
-    public selectionMarkerCount: number;
+    multiSelect: Selection | undefined;
+    $selectionMarkers: RangeSelectionMarker[];
+    selectionMarkerCount: number;
 
     private $docRowCache: number[];
     private $wrapData: number[][];
     private $screenRowCache: number[];
     private $rowLengthCache: (number | null)[];
     private $overwrite = false;
-    public $searchHighlight: SearchHighlight;
+    $searchHighlight: SearchHighlight;
     private $annotations: Annotation[];
     // TODO: '$autoNewLine' is declared but its value is never read.
     // private $autoNewLine: string;
 
-    /**
-     *
-     */
     private eventBus: EventEmitterClass<EditSessionEventName, any, EditSession>;
 
     // private readonly changeModeBus = new EventEmitterClass<'changeMode', {}, EditSession>(this);
-    // public readonly changeModeEvents = this.changeModeBus.events('changeMode');
+    // readonly changeModeEvents = this.changeModeBus.events('changeMode');
 
     /**
      * Determines whether the worker will be started.
      */
     private $useWorker = true;
 
-    /**
-     *
-     */
     // private $modes: { [path: string]: LanguageMode } = {};
 
     /**
@@ -264,47 +229,47 @@ export class EditSession {
      */
     private $worker: Disposable | null;
 
-    public tokenRe: RegExp;
-    public nonTokenRe: RegExp;
-    public $scrollTop = 0;
+    tokenRe: RegExp;
+    nonTokenRe: RegExp;
+    $scrollTop = 0;
     private $scrollLeft = 0;
     private $wrap: boolean | number | string;
     private $wrapAsCode: boolean;
     private $wrapLimit = 80;
-    public $useWrapMode = false;
+    $useWrapMode = false;
     private $wrapLimitRange: { min: number | null; max: number | null } = {
         min: null,
         max: null
     };
-    public $updating: boolean;
+    $updating: boolean;
     private $onChange = this.onChange.bind(this);
     private removeDocumentChangeListener: (() => void) | undefined;
     private $syncInformUndoManager: () => void;
-    public mergeUndoDeltas: boolean;
+    mergeUndoDeltas: boolean;
     private $useSoftTabs = true;
     private $tabSize = 4;
     private screenWidth: number;
-    public lineWidgets: (LineWidget | undefined)[] | null = null;
+    lineWidgets: (LineWidget | undefined)[] | null = null;
     private lineWidgetsWidth: number;
-    public lineWidgetWidth: number | null;
-    public $getWidgetScreenLength: () => number;
+    lineWidgetWidth: number | null;
+    $getWidgetScreenLength: () => number;
     /**
      * This is a marker identifier for which XML or HTML tag to highlight.
      * FIXME: Some inconsistency in the use of null versus void 0.
      */
-    public $tagHighlight: number | null;
+    $tagHighlight: number | null;
     /**
      * This is a marker identifier for which bracket market to highlight.
      */
-    public $bracketHighlight: number | undefined;
+    $bracketHighlight: number | undefined;
     /**
      * This is really a Range with an added marker id.
      */
-    public $highlightLineMarker: RangeSelectionMarker | null;
+    $highlightLineMarker: RangeSelectionMarker | null;
     /**
      * A number is a marker identifier, null indicates that no such marker exists. 
      */
-    public $selectionMarker: number | null = null;
+    $selectionMarker: number | null = null;
     private $bracketMatcher = new BracketMatch(this);
     private refCount = 1;
 
@@ -372,16 +337,10 @@ export class EditSession {
 
     // TODO: Provide an Observable for each type of change.
 
-    /**
-     * 
-     */
     on(eventName: EditSessionEventName, callback: (event: any, session: EditSession) => void): () => void {
         return this.eventBus.on(eventName, callback, false);
     }
 
-    /**
-     *
-     */
     off(eventName: EditSessionEventName, callback: (event: any, session: EditSession) => void): void {
         this.eventBus.off(eventName, callback);
     }
@@ -437,13 +396,10 @@ export class EditSession {
      * Returns the `Document` associated with this session.
      * The returned document is not reference counted, and so should not be released.
      */
-    public getDocument(): Document | undefined {
+    getDocument(): Document | undefined {
         return this.doc;
     }
 
-    /**
-     *
-     */
     private $resetRowCache(docRow: number): void {
         if (!docRow) {
             this.$docRowCache = [];
@@ -528,7 +484,7 @@ export class EditSession {
      *
      * @param text The new text to place in the document.
      */
-    public setValue(text: string): void {
+    setValue(text: string): void {
         if (this.doc) {
             this.doc.setValue(text);
         }
@@ -547,7 +503,7 @@ export class EditSession {
     /**
      * Returns the current Document as a string.
      */
-    public toString(): string {
+    toString(): string {
         return this.getValue();
     }
 
@@ -555,7 +511,7 @@ export class EditSession {
      * Returns a copy of all lines in the document.
      * These lines do not include the line terminator.
      */
-    public getAllLines(): string[] {
+    getAllLines(): string[] {
         if (this.doc) {
             return this.doc.getAllLines();
         }
@@ -568,7 +524,7 @@ export class EditSession {
      * Returns the current Document as a string.
      * This method is a direct pass-through to the underlying document with no other side-effects.
      */
-    public getValue(): string {
+    getValue(): string {
         if (this.doc) {
             return this.doc.getValue();
         }
@@ -577,7 +533,7 @@ export class EditSession {
         }
     }
 
-    public selectionOrThrow(): Selection {
+    selectionOrThrow(): Selection {
         if (this.selection) {
             return this.selection;
         }
@@ -589,14 +545,14 @@ export class EditSession {
     /**
      * Returns the current selection, which may not be defined!
      */
-    public getSelection(): Selection | undefined {
+    getSelection(): Selection | undefined {
         return this.selection;
     }
 
     /**
      * Sets the current selection.
      */
-    public setSelection(selection: Selection | undefined): void {
+    setSelection(selection: Selection | undefined): void {
         this.selection = selection;
     }
 
@@ -604,7 +560,7 @@ export class EditSession {
      * Returns the state of background tokenization and the end of a row.
      * Returns nothing if there is no background tokenizer.
      */
-    public getState(row: number): string {
+    getState(row: number): string {
         if (row >= 0) {
             return this.bgTokenizerOrThrow().getState(row);
         }
@@ -618,7 +574,7 @@ export class EditSession {
      * Returns a list of objects of the tokenized rows.
      * Throws an Error if there is no background tokenizer.
      */
-    public getTokens(row: number): HighlighterToken[] {
+    getTokens(row: number): HighlighterToken[] {
         return this.bgTokenizerOrThrow().getTokens(row);
     }
 
@@ -636,7 +592,7 @@ export class EditSession {
      * Returns null if there is no token.
      * Returns nothing if the background tokenizer is not running.
      */
-    public getTokenAt(row: number, column?: number): TokenWithIndex | null | undefined {
+    getTokenAt(row: number, column?: number): TokenWithIndex | null | undefined {
         if (this.bgTokenizer) {
             const tokens = this.bgTokenizer.getTokens(row);
             if (tokens) {
@@ -675,7 +631,7 @@ export class EditSession {
     /**
      * Sets the undo manager.
      */
-    public setUndoManager(undoManager: UndoManager): void {
+    setUndoManager(undoManager: UndoManager): void {
         this.$undoManager = undoManager;
         this.$deltas = [];
         this.$deltasDoc = [];
@@ -719,7 +675,7 @@ export class EditSession {
     /**
      * Starts a new group in undo history.
      */
-    public markUndoGroup(): void {
+    markUndoGroup(): void {
         if (this.$syncInformUndoManager) {
             this.$syncInformUndoManager();
         }
@@ -728,7 +684,7 @@ export class EditSession {
     /**
      * Returns the current undo manager.
      */
-    public getUndoManager(): UndoManager {
+    getUndoManager(): UndoManager {
         // FIXME: Want simple API, don't want to cast.
         return this.$undoManager || <UndoManager>this.$defaultUndoManager;
     }
@@ -737,7 +693,7 @@ export class EditSession {
      * Returns the current value for tabs.
      * If the user is using soft tabs, this will be a series of spaces (defined by [[EditSession.getTabSize `getTabSize()`]]); otherwise it's simply `'\t'`.
      */
-    public getTabString(): string {
+    getTabString(): string {
         if (this.getUseSoftTabs()) {
             return stringRepeat(" ", this.getTabSize());
         }
@@ -750,7 +706,7 @@ export class EditSession {
      * Pass `true` to enable the use of soft tabs.
      * Soft tabs means you're using spaces instead of the tab character (`'\t'`).
      */
-    public setUseSoftTabs(useSoftTabs: boolean): EditSession {
+    setUseSoftTabs(useSoftTabs: boolean): EditSession {
         this.$useSoftTabs = useSoftTabs;
         return this;
     }
@@ -758,7 +714,7 @@ export class EditSession {
     /**
      * Returns `true` if soft tabs are being used, `false` otherwise.
      */
-    public getUseSoftTabs(): boolean {
+    getUseSoftTabs(): boolean {
         if (this.$mode) {
             return this.$useSoftTabs && !this.$mode.$indentWithTabs;
         }
@@ -772,7 +728,7 @@ export class EditSession {
      * For example, passing in `4` transforms the soft tabs to be equivalent to four spaces.
      * This function also emits the `changeTabSize` event.
      */
-    public setTabSize(tabSize: number): void {
+    setTabSize(tabSize: number): void {
         if (isNaN(tabSize) || this.$tabSize === tabSize) return;
 
         this.$modified = true;
@@ -787,7 +743,7 @@ export class EditSession {
      * @method getTabSize
      * @returns {number}
      */
-    public getTabSize(): number {
+    getTabSize(): number {
         return this.$tabSize;
     }
 
@@ -796,7 +752,7 @@ export class EditSession {
      *
      * @param position The position to check.
      */
-    public isTabStop(position: Position): boolean {
+    isTabStop(position: Position): boolean {
         return this.$useSoftTabs && (position.column % this.$tabSize === 0);
     }
 
@@ -807,7 +763,7 @@ export class EditSession {
      *
      * @param overwrite Defines whether or not to set overwrites.
      */
-    public setOverwrite(overwrite: boolean): void {
+    setOverwrite(overwrite: boolean): void {
         this.$overwrite = overwrite;
         this._signal("changeOverwrite");
     }
@@ -815,14 +771,14 @@ export class EditSession {
     /**
      * Returns `true` if overwrites are enabled; `false` otherwise.
      */
-    public getOverwrite(): boolean {
+    getOverwrite(): boolean {
         return this.$overwrite;
     }
 
     /**
      * Sets the value of overwrite to the opposite of whatever it currently is.
      */
-    public toggleOverwrite(): void {
+    toggleOverwrite(): void {
         this.setOverwrite(!this.$overwrite);
     }
 
@@ -832,7 +788,7 @@ export class EditSession {
      * @param row The row number.
      * @param className The class to add.
      */
-    public addGutterDecoration(row: number, className: string): void {
+    addGutterDecoration(row: number, className: string): void {
         if (!this.$decorations[row]) {
             this.$decorations[row] = "";
         }
@@ -849,7 +805,7 @@ export class EditSession {
      * @param row The row number.
      * @param className The class to add.
      */
-    public removeGutterDecoration(row: number, className: string): void {
+    removeGutterDecoration(row: number, className: string): void {
         this.$decorations[row] = (this.$decorations[row] || "").replace(" " + className, "");
         /**
          * @event changeBreakpoint
@@ -860,7 +816,7 @@ export class EditSession {
     /**
      * Returns an array of strings, indicating the breakpoint class (if any) applied to each row.
      */
-    public getBreakpoints(): string[] {
+    getBreakpoints(): string[] {
         return this.$breakpoints;
     }
 
@@ -870,7 +826,7 @@ export class EditSession {
      *
      * @param rows An array of row indices
      */
-    public setBreakpoints(rows: number[]): void {
+    setBreakpoints(rows: number[]): void {
         this.$breakpoints = [];
         for (let i = 0; i < rows.length; i++) {
             this.$breakpoints[rows[i]] = "ace_breakpoint";
@@ -885,7 +841,7 @@ export class EditSession {
      * Removes all breakpoints on the rows.
      * This function also emites the `'changeBreakpoint'` event.
      */
-    public clearBreakpoints(): void {
+    clearBreakpoints(): void {
         this.$breakpoints = [];
         /**
          * @event changeBreakpoint
@@ -900,7 +856,7 @@ export class EditSession {
      * @param row A row index
      * @param className Class of the breakpoint.
      */
-    public setBreakpoint(row: number, className: string): void {
+    setBreakpoint(row: number, className: string): void {
         if (className === undefined)
             className = "ace_breakpoint";
         if (className)
@@ -919,7 +875,7 @@ export class EditSession {
      *
      * @param row A row index
      */
-    public clearBreakpoint(row: number): void {
+    clearBreakpoint(row: number): void {
         delete this.$breakpoints[row];
         /**
          * @event changeBreakpoint
@@ -931,7 +887,7 @@ export class EditSession {
      * Adds a new marker to the given `Range`, returning the new marker id.
      * If `inFront` is `true`, a front marker is defined, and the `'changeFrontMarker'` event fires; otherwise, the `'changeBackMarker'` event fires.
      */
-    public addMarker(range: OrientedRange, clazz: string, type: MarkerType = 'line', renderer?: MarkerRenderer | null, inFront?: boolean): number {
+    addMarker(range: OrientedRange, clazz: string, type: MarkerType = 'line', renderer?: MarkerRenderer | null, inFront?: boolean): number {
         const id = this.$markerId++;
 
         if (range) {
@@ -1003,7 +959,7 @@ export class EditSession {
      *
      * markerId is a number representing a marker.
      */
-    public removeMarker(markerId: number): void {
+    removeMarker(markerId: number): void {
         const marker: Marker = this.$frontMarkers[markerId] || this.$backMarkers[markerId];
         if (!marker) {
             return;
@@ -1020,14 +976,11 @@ export class EditSession {
      * Returns an array containing the IDs of all the markers, either front or back.
      * inFront If `true`, indicates you only want front markers; `false` indicates only back markers.
      */
-    public getMarkers(inFront: boolean): { [id: number]: Marker } {
+    getMarkers(inFront: boolean): { [id: number]: Marker } {
         return inFront ? this.$frontMarkers : this.$backMarkers;
     }
 
-    /**
-     *
-     */
-    public highlight(re: RegExp | null | undefined): void {
+    highlight(re: RegExp | null | undefined): void {
         if (!this.$searchHighlight) {
             const highlight = new SearchHighlight(null, "ace_selected-word", "text");
             this.$searchHighlight = this.addDynamicMarker(highlight);
@@ -1035,10 +988,7 @@ export class EditSession {
         this.$searchHighlight.setRegexp(re);
     }
 
-    /**
-     *
-     */
-    public highlightLines(startRow: number, endRow: number, clazz = "ace_step", inFront?: boolean): Range {
+    highlightLines(startRow: number, endRow: number, clazz = "ace_step", inFront?: boolean): Range {
         const range: Range = new Range(startRow, 0, endRow, Infinity);
         range.markerId = this.addMarker(range, clazz, "fullLine", undefined, inFront);
         return range;
@@ -1048,19 +998,19 @@ export class EditSession {
      * Sets annotations for the `EditSession`.
      * This functions emits the `'changeAnnotation'` event.
      */
-    public setAnnotations(annotations: Annotation[]): void {
+    setAnnotations(annotations: Annotation[]): void {
         this.$annotations = annotations;
         this.eventBus._signal("changeAnnotation", {});
     }
 
-    public onWorkerCompleted(annotations: Annotation[]): void {
+    onWorkerCompleted(annotations: Annotation[]): void {
         this.eventBus._emit(workerCompleted, { data: annotations });
     }
 
     /**
      * Returns the annotations for the `EditSession`.
      */
-    public getAnnotations(): Annotation[] {
+    getAnnotations(): Annotation[] {
         return this.$annotations || [];
     }
 
@@ -1069,7 +1019,7 @@ export class EditSession {
      * This function also triggers the `'changeAnnotation'` event.
      * This is called by the language modes when the worker terminates.
      */
-    public clearAnnotations(): void {
+    clearAnnotations(): void {
         this.setAnnotations([]);
     }
 
@@ -1078,7 +1028,7 @@ export class EditSession {
      *
      * @param text A block of text.
      */
-    public $detectNewLine(text: string): void {
+    $detectNewLine(text: string): void {
         const match = text.match(/^.*?(\r?\n)/m);
         if (match) {
             // this.$autoNewLine = match[1];
@@ -1091,7 +1041,7 @@ export class EditSession {
     /**
      * Given a starting row and column, this method returns the `Range` of the first word boundary it finds.
      */
-    public getWordRange(row: number, column: number): OrientedRange {
+    getWordRange(row: number, column: number): OrientedRange {
         const line: string = this.getLine(row);
 
         let inToken = false;
@@ -1133,7 +1083,7 @@ export class EditSession {
      * @param row The row number to start from.
      * @param column The column number to start from.
      */
-    public getAWordRange(row: number, column: number): RangeBasic {
+    getAWordRange(row: number, column: number): RangeBasic {
         const wordRange = this.getWordRange(row, column);
         const line = this.getLine(wordRange.end.row);
 
@@ -1150,7 +1100,7 @@ export class EditSession {
      * The returned Document is a weak reference.
      * TODO: This should not be a public method; Document should be an implementation detail.
      */
-    public docOrThrow(): Document {
+    docOrThrow(): Document {
         if (this.doc) {
             return this.doc;
         }
@@ -1159,11 +1109,11 @@ export class EditSession {
         }
     }
 
-    public setNewLineMode(newLineMode: NewLineMode): void {
+    setNewLineMode(newLineMode: NewLineMode): void {
         this.docOrThrow().setNewLineMode(newLineMode);
     }
 
-    public getNewLineMode(): NewLineMode {
+    getNewLineMode(): NewLineMode {
         return this.docOrThrow().getNewLineMode();
     }
 
@@ -1172,7 +1122,7 @@ export class EditSession {
      *
      * @param useWorker Set to `true` to use a worker.
      */
-    public setUseWorker(useWorker: boolean): void {
+    setUseWorker(useWorker: boolean): void {
         this.$useWorker = useWorker;
 
         this.$stopWorker();
@@ -1186,7 +1136,7 @@ export class EditSession {
     /**
      * Returns `true` if workers are being used.
      */
-    public getUseWorker(): boolean { return this.$useWorker; }
+    getUseWorker(): boolean { return this.$useWorker; }
 
     /**
      * Reloads all the tokens on the current session.
@@ -1210,7 +1160,7 @@ export class EditSession {
      * @param mode Set a new language mode instance or module name.
      * @param callback
      */
-    public setLanguageMode(mode: LanguageMode, callback: (err: any) => any): void {
+    setLanguageMode(mode: LanguageMode, callback: (err: any) => any): void {
 
         if (this.$mode === mode) {
             setTimeout(callback, 0);
@@ -1275,9 +1225,6 @@ export class EditSession {
         this.eventBus._emit("changeMode");
     }
 
-    /**
-     *
-     */
     private $stopWorker(): void {
         if (this.$worker) {
             this.$worker.dispose();
@@ -1285,7 +1232,7 @@ export class EditSession {
         this.$worker = null;
     }
 
-    public modeOrThrow(): LanguageMode {
+    modeOrThrow(): LanguageMode {
         if (this.$mode) {
             return this.$mode;
         }
@@ -1294,9 +1241,6 @@ export class EditSession {
         }
     }
 
-    /**
-     *
-     */
     private $startWorker(callback: (err: any) => any): void {
         try {
             if (this.$mode) {
@@ -1325,14 +1269,14 @@ export class EditSession {
      * Returns the current language mode.
      * @returns The current language mode.
      */
-    public getMode(): LanguageMode | null {
+    getMode(): LanguageMode | null {
         return this.$mode;
     }
 
     /**
      * This function sets the scroll top value. It also emits the `'changeScrollTop'` event.
      */
-    public setScrollTop(scrollTop: number): void {
+    setScrollTop(scrollTop: number): void {
         // TODO: should we force integer lineheight instead? scrollTop = Math.round(scrollTop); 
         if (this.$scrollTop === scrollTop || isNaN(scrollTop)) {
             return;
@@ -1344,14 +1288,14 @@ export class EditSession {
     /**
      * Returns the value of the distance between the top of the editor and the topmost part of the visible content.
      */
-    public getScrollTop(): number {
+    getScrollTop(): number {
         return this.$scrollTop;
     }
 
     /**
      * Sets the value of the distance between the left of the editor and the leftmost part of the visible content.
      */
-    public setScrollLeft(scrollLeft: number): void {
+    setScrollLeft(scrollLeft: number): void {
         // scrollLeft = Math.round(scrollLeft);
         if (this.$scrollLeft === scrollLeft || isNaN(scrollLeft))
             return;
@@ -1366,23 +1310,20 @@ export class EditSession {
     /**
      * Returns the value of the distance between the left of the editor and the leftmost part of the visible content.
      */
-    public getScrollLeft(): number {
+    getScrollLeft(): number {
         return this.$scrollLeft;
     }
 
     /**
      * Returns the width of the screen.
      */
-    public getScreenWidth(): number {
+    getScreenWidth(): number {
         this.$computeWidth();
         if (this.lineWidgets)
             return Math.max(this.getLineWidgetMaxWidth(), this.screenWidth);
         return this.screenWidth;
     }
 
-    /**
-     *
-     */
     private getLineWidgetMaxWidth(): number {
         if (this.lineWidgetsWidth != null) return this.lineWidgetsWidth;
         let width = 0;
@@ -1396,7 +1337,7 @@ export class EditSession {
         return this.lineWidgetWidth = width;
     }
 
-    public $computeWidth(force?: boolean): number | undefined {
+    $computeWidth(force?: boolean): number | undefined {
         const doc = this.docOrThrow();
         if (this.$modified || force) {
             this.$modified = false;
@@ -1446,7 +1387,7 @@ export class EditSession {
      *
      * @param row The row to retrieve from.
      */
-    public getLine(row: number): string {
+    getLine(row: number): string {
         if (this.doc) {
             return this.doc.getLine(row);
         }
@@ -1459,14 +1400,14 @@ export class EditSession {
      * Returns a COPY of the lines between and including `firstRow` and `lastRow`.
      * These lines do not include the line terminator.
      */
-    public getLines(firstRow: number, lastRow: number): string[] {
+    getLines(firstRow: number, lastRow: number): string[] {
         return this.docOrThrow().getLines(firstRow, lastRow);
     }
 
     /**
      * Returns the number of rows in the document.
      */
-    public getLength(): number {
+    getLength(): number {
         return this.docOrThrow().getLength();
     }
 
@@ -1475,7 +1416,7 @@ export class EditSession {
      * If the range is omitted, the range corresponding to the selection is used.
      * Throws an exception if neither range nor selection are available.
      */
-    public getTextRange(range?: RangeBasic): string {
+    getTextRange(range?: RangeBasic): string {
         const doc = this.docOrThrow();
         if (range) {
             return doc.getTextRange(range);
@@ -1488,11 +1429,11 @@ export class EditSession {
         }
     }
 
-    public indexToPosition(index: number, startRow?: number): Position {
+    indexToPosition(index: number, startRow?: number): Position {
         return this.docOrThrow().indexToPosition(index, startRow);
     }
 
-    public positionToIndex(position: Position, startRow?: number): number {
+    positionToIndex(position: Position, startRow?: number): number {
         return this.docOrThrow().positionToIndex(position, startRow);
     }
 
@@ -1502,15 +1443,15 @@ export class EditSession {
      * Triggers a 'change' event on the document.
      * Throws if the document is not defined.
      */
-    public insert(position: Position, text: string): Position {
+    insert(position: Position, text: string): Position {
         return this.docOrThrow().insert(position, text);
     }
 
-    public insertInLine(position: Readonly<Position>, text: string): Position {
+    insertInLine(position: Readonly<Position>, text: string): Position {
         return this.docOrThrow().insertInLine(position, text);
     }
 
-    public removeInLine(row: number, startColumn: number, endColumn: number): Position {
+    removeInLine(row: number, startColumn: number, endColumn: number): Position {
         return this.docOrThrow().removeInLine(row, startColumn, endColumn);
     }
 
@@ -1519,7 +1460,7 @@ export class EditSession {
      * Triggers a 'change' event in the document.
      * Throws if the document is not defined.
      */
-    public remove(range: RangeBasic): Position {
+    remove(range: RangeBasic): Position {
         return this.docOrThrow().remove(range);
     }
 
@@ -1539,7 +1480,7 @@ export class EditSession {
      * @param deltaSets An array of previous changes.
      * @param dontSelect If `true`, doesn't select the range of where the change occured.
      */
-    public undoChanges(deltaSets: DeltaGroup[], dontSelect?: boolean): Range | undefined | null {
+    undoChanges(deltaSets: DeltaGroup[], dontSelect?: boolean): Range | undefined | null {
         if (!deltaSets.length) {
             return void 0;
         }
@@ -1575,7 +1516,7 @@ export class EditSession {
      * @param deltaSets An array of previous changes
      * @param dontSelect
      */
-    public redoChanges(deltaSets: DeltaGroup[], dontSelect?: boolean): Range | undefined | null {
+    redoChanges(deltaSets: DeltaGroup[], dontSelect?: boolean): Range | undefined | null {
         if (!deltaSets.length) {
             return void 0;
         }
@@ -1605,7 +1546,7 @@ export class EditSession {
      *
      * @param enable If `true`, selects the range of the reinserted change.
      */
-    public setUndoSelect(enable: boolean): void {
+    setUndoSelect(enable: boolean): void {
         this.$undoSelect = enable;
     }
 
@@ -1675,7 +1616,7 @@ export class EditSession {
      * Returns the end position of the change.
      * This method triggers a change events in the document for removal and insertion.
      */
-    public replace(range: RangeBasic, newText: string): Position {
+    replace(range: RangeBasic, newText: string): Position {
         return this.docOrThrow().replace(range, newText);
     }
 
@@ -1688,7 +1629,7 @@ export class EditSession {
      * @param copy {boolean}
      * @returns {Range} The new range where the text was moved to.
      */
-    public moveText(fromRange: Range, toPosition: Position, copy: boolean): Range {
+    moveText(fromRange: Range, toPosition: Position, copy: boolean): Range {
         const text = this.getTextRange(fromRange);
         const folds = this.getFoldsInRange(fromRange);
         let rowDiff: number;
@@ -1745,7 +1686,7 @@ export class EditSession {
      * @param endRow Ending row
      * @param indentString The indent token
      */
-    public indentRows(startRow: number, endRow: number, indentString: string): void {
+    indentRows(startRow: number, endRow: number, indentString: string): void {
         indentString = indentString.replace(/\t/g, this.getTabString());
         for (let row = startRow; row <= endRow; row++)
             this.insert({ row: row, column: 0 }, indentString);
@@ -1756,7 +1697,7 @@ export class EditSession {
      *
      * @param range A range of rows.
      */
-    public outdentRows(range: RangeBasic): void {
+    outdentRows(range: RangeBasic): void {
         const rowRange = collapseRows(range);
         const deleteRange = new Range(0, 0, 0, 0);
         const size = this.getTabSize();
@@ -1826,7 +1767,7 @@ export class EditSession {
      * @param lastRow {number} The final row to move up.
      * @returns {number} If `firstRow` is less-than or equal to 0, this function returns 0. Otherwise, on success, it returns -1.
      */
-    public moveLinesUp(firstRow: number, lastRow: number): number {
+    moveLinesUp(firstRow: number, lastRow: number): number {
         return this.$moveLines(firstRow, lastRow, -1);
     }
 
@@ -1839,7 +1780,7 @@ export class EditSession {
      * @returns {number} If `firstRow` is less-than or equal to 0, this function returns 0.
      * Otherwise, on success, it returns -1.
      */
-    public moveLinesDown(firstRow: number, lastRow: number): number {
+    moveLinesDown(firstRow: number, lastRow: number): number {
         return this.$moveLines(firstRow, lastRow, 1);
     }
 
@@ -1850,7 +1791,7 @@ export class EditSession {
      * @param lastRow The final row to duplicate
      * @returns Returns the number of new rows added; in other words, `lastRow - firstRow + 1`.
      */
-    public duplicateLines(firstRow: number, lastRow: number): number {
+    duplicateLines(firstRow: number, lastRow: number): number {
         return this.$moveLines(firstRow, lastRow, 0);
     }
 
@@ -1867,10 +1808,7 @@ export class EditSession {
         return Math.min(doc.getLine(row).length, column);
     }
 
-    /**
-     *
-     */
-    public $clipPositionToDocument(row: number, column: number): Position {
+    $clipPositionToDocument(row: number, column: number): Position {
         const doc = this.docOrThrow();
         column = Math.max(0, column);
 
@@ -1892,10 +1830,7 @@ export class EditSession {
         return { row: row, column: column };
     }
 
-    /**
-     *
-     */
-    public $clipRangeToDocument(range: RangeBasic): RangeBasic {
+    $clipRangeToDocument(range: RangeBasic): RangeBasic {
         const doc = this.docOrThrow();
         if (range.start.row < 0) {
             range.start.row = 0;
@@ -1928,7 +1863,7 @@ export class EditSession {
      *
      * @param useWrapMode Enable (or disable) wrap mode
      */
-    public setUseWrapMode(useWrapMode: boolean): void {
+    setUseWrapMode(useWrapMode: boolean): void {
         if (useWrapMode !== this.$useWrapMode) {
             this.$useWrapMode = useWrapMode;
             this.$modified = true;
@@ -1987,7 +1922,7 @@ export class EditSession {
      *
      * @param desiredLimit The new wrap limit
      */
-    public adjustWrapLimit(desiredLimit: number, $printMargin: number): boolean {
+    adjustWrapLimit(desiredLimit: number, $printMargin: number): boolean {
         let limits = this.$wrapLimitRange;
         if (typeof limits.max === 'number' && limits.max < 0) {
             limits = { min: $printMargin, max: $printMargin };
@@ -2022,11 +1957,11 @@ export class EditSession {
     /**
      * Returns the value of wrap limit.
      */
-    public getWrapLimit(): number {
+    getWrapLimit(): number {
         return this.$wrapLimit;
     }
 
-    public setWrapType(wrapType: 'auto' | 'code' | 'text') {
+    setWrapType(wrapType: 'auto' | 'code' | 'text') {
         if (this.$mode) {
             const value: boolean = (wrapType === 'auto') ? this.$mode.wrap !== 'text' : wrapType !== 'text';
             if (value !== this.$wrapAsCode) {
@@ -2047,14 +1982,14 @@ export class EditSession {
      *
      * @param limit The maximum line length in chars, for soft wrapping lines.
      */
-    public setWrapLimit(limit: number): void {
+    setWrapLimit(limit: number): void {
         this.setWrapLimitRange(limit, limit);
     }
 
     /**
      * Returns an object that defines the minimum and maximum of the wrap limit.
      */
-    public getWrapLimitRange(): { min: number | null; max: number | null } {
+    getWrapLimitRange(): { min: number | null; max: number | null } {
         // Avoid unexpected mutation by returning a copy
         return {
             min: this.$wrapLimitRange.min,
@@ -2062,9 +1997,6 @@ export class EditSession {
         };
     }
 
-    /**
-     *
-     */
     protected _updateInternalDataOnChange(delta: Delta): Fold[] {
         const doc = this.docOrThrow();
         const useWrapMode = this.$useWrapMode;
@@ -2185,7 +2117,7 @@ export class EditSession {
         this.$rowLengthCache[lastRow] = null;
     }
 
-    public $updateWrapData(firstRow: number, lastRow: number) {
+    $updateWrapData(firstRow: number, lastRow: number) {
         const doc = this.docOrThrow();
         const lines = doc.getAllLines();
         const tabSize = this.getTabSize();
@@ -2400,7 +2332,7 @@ export class EditSession {
      * The first position indicates the number of columns for `str` on screen.<br/>
      * The second value contains the position of the document column that this function read until.
      */
-    public $getStringScreenWidth(str: string, maxScreenColumn?: number, screenColumn?: number): number[] {
+    $getStringScreenWidth(str: string, maxScreenColumn?: number, screenColumn?: number): number[] {
         if (maxScreenColumn === 0)
             return [0, 0];
         if (maxScreenColumn == null)
@@ -2453,7 +2385,7 @@ export class EditSession {
     /**
      * Returns number of screen rows in a wrapped line.
      */
-    public getRowLength(row: number): number {
+    getRowLength(row: number): number {
         const h = this.getLineWidgetRowCount(row);
         if (!this.$useWrapMode || !this.$wrapData[row]) {
             return 1 + h;
@@ -2463,10 +2395,7 @@ export class EditSession {
         }
     }
 
-    /**
-     *
-     */
-    public getRowLineCount(row: number): number {
+    getRowLineCount(row: number): number {
         if (!this.$useWrapMode || !this.$wrapData[row]) {
             return 1;
         }
@@ -2475,10 +2404,7 @@ export class EditSession {
         }
     }
 
-    /**
-     *
-     */
-    public getRowWrapIndent(screenRow: number): number {
+    getRowWrapIndent(screenRow: number): number {
         if (this.$useWrapMode) {
             const pos = this.screenToDocumentPosition(screenRow, Number.MAX_VALUE);
             const splits: number[] = this.$wrapData[pos.row];
@@ -2493,7 +2419,7 @@ export class EditSession {
     /**
      * Returns the position (on screen) for the last character in the provided screen row.
      */
-    public getScreenLastRowColumn(screenRow: number): number {
+    getScreenLastRowColumn(screenRow: number): number {
         const pos = this.screenToDocumentPosition(screenRow, Number.MAX_VALUE);
         return this.documentToScreenColumn(pos.row, pos.column);
     }
@@ -2501,7 +2427,7 @@ export class EditSession {
     /**
      * For the given document row and column, this returns the column position of the last screen row.
      */
-    public getDocumentLastRowColumn(docRow: number, docColumn: number): number {
+    getDocumentLastRowColumn(docRow: number, docColumn: number): number {
         const screenRow = this.documentToScreenRow(docRow, docColumn);
         return this.getScreenLastRowColumn(screenRow);
     }
@@ -2509,7 +2435,7 @@ export class EditSession {
     /**
      * For the given document row and column, this returns the document position of the last row.
      */
-    public getDocumentLastRowColumnPosition(docRow: number, docColumn: number): Position {
+    getDocumentLastRowColumnPosition(docRow: number, docColumn: number): Position {
         const screenRow = this.documentToScreenRow(docRow, docColumn);
         return this.screenToDocumentPosition(screenRow, Number.MAX_VALUE / 10);
     }
@@ -2519,7 +2445,7 @@ export class EditSession {
      *
      * @param row
      */
-    public getRowSplitData(row: number): number[] | undefined {
+    getRowSplitData(row: number): number[] | undefined {
         if (!this.$useWrapMode) {
             return undefined;
         }
@@ -2531,16 +2457,16 @@ export class EditSession {
     /**
      * The distance to the next tab stop at the specified screen column.
      */
-    public getScreenTabSize(screenColumn: number): number {
+    getScreenTabSize(screenColumn: number): number {
         return this.$tabSize - screenColumn % this.$tabSize;
     }
 
-    public screenToDocumentRow(screenRow: number, screenColumn: number): number {
+    screenToDocumentRow(screenRow: number, screenColumn: number): number {
         return this.screenToDocumentPosition(screenRow, screenColumn).row;
     }
 
 
-    public screenToDocumentColumn(screenRow: number, screenColumn: number): number {
+    screenToDocumentColumn(screenRow: number, screenColumn: number): number {
         return this.screenToDocumentPosition(screenRow, screenColumn).column;
     }
 
@@ -2553,7 +2479,7 @@ export class EditSession {
      * @param screenColumn {number} The screen column to check
      * @returns {Position} The object returned has two properties: `row` and `column`.
      */
-    public screenToDocumentPosition(screenRow: number, screenColumn: number): Position {
+    screenToDocumentPosition(screenRow: number, screenColumn: number): Position {
         if (screenRow < 0) {
             return { row: 0, column: 0 };
         }
@@ -2654,7 +2580,7 @@ export class EditSession {
      * @param docColumn {number} The document column to check
      * @returns {Position} The object returned by this method has two properties: `row` and `column`.
      */
-    public documentToScreenPosition(docRow: number, docColumn: number): Position {
+    documentToScreenPosition(docRow: number, docColumn: number): Position {
 
         if (typeof docRow !== 'number') {
             throw new TypeError("docRow must be a number");
@@ -2768,7 +2694,7 @@ export class EditSession {
      * @param {Number} docColumn
      * @returns {Number}
      */
-    public documentToScreenColumn(docRow: number, docColumn: number): number {
+    documentToScreenColumn(docRow: number, docColumn: number): number {
         return this.documentToScreenPosition(docRow, docColumn).column;
     }
 
@@ -2780,14 +2706,11 @@ export class EditSession {
      * @param {Number} docColumn
      * @returns {number}
      */
-    public documentToScreenRow(docRow: number, docColumn: number): number {
+    documentToScreenRow(docRow: number, docColumn: number): number {
         return this.documentToScreenPosition(docRow, docColumn).row;
     }
 
-    /**
-     *
-     */
-    public documentToScreenRange(range: RangeBasic): Range {
+    documentToScreenRange(range: RangeBasic): Range {
         const screenPosStart = this.documentToScreenPosition(range.start.row, range.start.column);
         const screenPosEnd = this.documentToScreenPosition(range.end.row, range.end.column);
         return new Range(screenPosStart.row, screenPosStart.column, screenPosEnd.row, screenPosEnd.column);
@@ -2796,7 +2719,7 @@ export class EditSession {
     /**
      * Returns the length of the screen.
      */
-    public getScreenLength(): number {
+    getScreenLength(): number {
         let screenRows = 0;
         // let fold: FoldLine = null;
         if (!this.$useWrapMode) {
@@ -2835,30 +2758,18 @@ export class EditSession {
         return screenRows;
     }
 
-    /**
-     *
-     */
     findMatchingBracket(position: Position, chr?: string): Position | null {
         return this.$bracketMatcher.findMatchingBracket(position, chr);
     }
 
-    /**
-     *
-     */
     getBracketRange(position: Position): OrientedRange | null {
         return this.$bracketMatcher.getBracketRange(position);
     }
 
-    /**
-     *
-     */
     findOpeningBracket(bracket: string, position: Position, typeRe?: RegExp): Position | null {
         return this.$bracketMatcher.findOpeningBracket(bracket, position, typeRe);
     }
 
-    /**
-     *
-     */
     findClosingBracket(bracket: string, position: Position, typeRe?: RegExp): Position | null {
         return this.$bracketMatcher.findClosingBracket(bracket, position, typeRe);
     }
@@ -3330,9 +3241,6 @@ export class EditSession {
         this._signal("changeBreakpoint");
     }
 
-    /**
-     *
-     */
     unfold(location?: number | Position | RangeBasic, expandInner?: boolean): Fold[] | undefined {
         let range: RangeBasic;
         let folds: Fold[];
@@ -3547,9 +3455,6 @@ export class EditSession {
         return void 0;
     }
 
-    /**
-     *
-     */
     foldAll(startRow?: number, endRow?: number, depth?: number): void {
         if (depth === void 0) {
             depth = 100000; // JSON.stringify doesn't handle Infinity
@@ -3660,9 +3565,6 @@ export class EditSession {
         }
     }
 
-    /**
-     * 
-     */
     onFoldWidgetClick(row: number, e: EditorMouseEvent) {
         const domEvent = e.domEvent;
         const options = {
@@ -3681,9 +3583,6 @@ export class EditSession {
         }
     }
 
-    /**
-     * 
-     */
     private $toggleFoldWidget(row: number, options: { children?: boolean; all?: boolean; siblings?: boolean }): RangeWithCollapseChildren | undefined {
         // Dead code
         if (!this.getFoldWidget) {
@@ -3788,9 +3687,6 @@ export class EditSession {
         }
     }
 
-    /**
-     *
-     */
     tokenizerUpdateFoldWidgets = (event: { data: FirstAndLast }) => {
         const rows = event.data;
         if (rows.first !== rows.last) {
@@ -3835,4 +3731,3 @@ export class EditSession {
         return "off";
     }
 }
-

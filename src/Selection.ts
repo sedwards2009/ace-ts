@@ -41,60 +41,31 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
     private session: EditSession | null;
     private doc: Document | null | undefined;
 
-    /**
-     *
-     */
-    public lead: Anchor;
-
-    /**
-     *
-     */
-    public anchor: Anchor;
+    lead: Anchor;
+    anchor: Anchor;
 
     private selectionLead: Anchor;
     private selectionAnchor: Anchor;
     private $isEmpty: boolean;
     private $keepDesiredColumnOnChange: boolean;
 
-    /**
-     *
-     */
-    public $desiredColumn: number | null;
-
-    /**
-     *
-     */
-    public index: number;
-
-    /**
-     *
-     */
-    public _eventRegistry: {};
-
-    /**
-     *
-     */
-    public inMultiSelectMode: boolean;
-
-    /**
-     *
-     */
-    public rangeCount = 0;
+    $desiredColumn: number | null;
+    index: number;
+    _eventRegistry: {};
+    inMultiSelectMode: boolean;
+    rangeCount = 0;
 
     /**
      * List of ranges in reverse addition order.
      */
-    public ranges: OrientedRange[] = [];
+    ranges: OrientedRange[] = [];
 
     /**
      * Automatically sorted list of ranges.
      */
-    public rangeList = new RangeList<OrientedRange>();
+    rangeList = new RangeList<OrientedRange>();
 
-    /**
-     *
-     */
-    public inVirtualMode: boolean;
+    inVirtualMode: boolean;
 
     private eventBus: EventEmitterClass<SelectionEventName, any, Selection>;
 
@@ -393,11 +364,11 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
      * @param The range of text to select
      * @param reverse Indicates if the range should go backwards (`true`) or not
      */
-    public setRange(range: RangeBasic, reverse?: boolean): void {
+    setRange(range: RangeBasic, reverse?: boolean): void {
         this.setSelectionRange(range, reverse);
     }
 
-    public setSelectionRange(range: Readonly<RangeBasic>, reverse?: boolean): void {
+    setSelectionRange(range: Readonly<RangeBasic>, reverse?: boolean): void {
         if (reverse) {
             this.setSelectionAnchor(range.end.row, range.end.column);
             this.selectTo(range.start.row, range.start.column);
@@ -412,7 +383,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         this.$desiredColumn = null;
     }
 
-    public $moveSelection(mover: (this: Selection) => any): void {
+    $moveSelection(mover: (this: Selection) => any): void {
         const lead = this.lead;
         if (this.$isEmpty) {
             this.setSelectionAnchor(lead.row, lead.column);
@@ -1101,10 +1072,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         }
     }
 
-    /**
-     *
-     */
-    public toSingleRange(range?: OrientedRange): void {
+    toSingleRange(range?: OrientedRange): void {
         range = range || this.ranges[0];
         const removed = this.rangeList.removeAll();
         if (removed.length) {
@@ -1118,7 +1086,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
     /** 
      * Adds a range to a selection by entering multiselect mode, if necessary.
      */
-    public addRange(range: OrientedRange, $blockChangeEvents?: boolean): boolean | void {
+    addRange(range: OrientedRange, $blockChangeEvents?: boolean): boolean | void {
 
         if (!range) {
             return;

@@ -52,35 +52,21 @@ export type AnchorEventName = 'change';
  */
 export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anchor>, Position {
 
-    /**
-     *
-     */
-    public row: number;
+    row: number;
+    column: number;
 
-    /**
-     *
-     */
-    public column: number;
-
-    /**
-     *
-     */
     private document: Document;
 
     /**
      * Callback function for when the document changes.
-     *
      */
     private documentChangeHandler: (delta: Delta, doc: Document) => void;
 
     /**
      * Experimental: Allows anchor to stick to the next on the left.
      */
-    public insertRight: boolean;
+    insertRight: boolean;
 
-    /**
-     *
-     */
     private readonly eventBus: EventEmitterClass<AnchorEventName, AnchorChangeEvent, Anchor>;
 
     /**
@@ -97,7 +83,6 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      * @param column The starting column position.
      */
     constructor(doc: Document, row: number, column: number) {
-
         this.eventBus = new EventEmitterClass<AnchorEventName, AnchorChangeEvent, Anchor>(this);
 
         this.documentChangeHandler = (delta: Delta, doc: Document): void => {
@@ -112,23 +97,21 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
         };
 
         this.attach(doc);
-
         this.setPosition(row, column);
-
         this.insertRight = false;
     }
 
     /**
      * Returns an object identifying the `row` and `column` position of the current anchor.
      */
-    public getPosition(): Position {
+    getPosition(): Position {
         return this.clipPositionToDocument(this.row, this.column);
     }
 
     /**
      * Returns the current document.
      */
-    public getDocument(): Document {
+    getDocument(): Document {
         return this.document;
     }
 
@@ -140,7 +123,7 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      * @param column The column index to move the anchor to
      * @param noClip Identifies if you want the position to be clipped.
      */
-    public setPosition(row: number, column: number, noClip?: boolean): void {
+    setPosition(row: number, column: number, noClip?: boolean): void {
         let pos: Position;
         if (noClip) {
             pos = { row: row, column: column };
@@ -169,14 +152,11 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
     /**
      * When called, the `'change'` event listener is removed.
      */
-    public detach(): void {
+    detach(): void {
         this.document.removeChangeListener(this.documentChangeHandler);
     }
 
-    /**
-     *
-     */
-    public attach(doc?: Document): void {
+    attach(doc?: Document): void {
         this.document = doc || this.document;
         this.document.addChangeListener(this.documentChangeHandler);
     }
@@ -185,7 +165,7 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      * @param eventName
      * @param callback
      */
-    public on(eventName: AnchorEventName, callback: (event: AnchorChangeEvent, source: Anchor) => any): () => void {
+    on(eventName: AnchorEventName, callback: (event: AnchorChangeEvent, source: Anchor) => any): () => void {
         return this.eventBus.on(eventName, callback, false);
     }
 
@@ -193,7 +173,7 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      * @param eventName
      * @param callback
      */
-    public off(eventName: AnchorEventName, callback: (event: AnchorChangeEvent, source: Anchor) => any): void {
+    off(eventName: AnchorEventName, callback: (event: AnchorChangeEvent, source: Anchor) => any): void {
         this.eventBus.off(eventName, callback, false);
     }
 
@@ -204,7 +184,6 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      * @param  column The column index to clip the anchor to.
      */
     private clipPositionToDocument(row: number, column: number): Position {
-
         const pos: Position = { column: 0, row: 0 };
 
         if (row >= this.document.getLength()) {
@@ -227,4 +206,3 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
         return pos;
     }
 }
-
