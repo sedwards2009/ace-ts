@@ -13,7 +13,7 @@ export { HighlighterToken } from './mode/Highlighter';
 export { LanguageMode } from './LanguageMode';
 export { Position } from './Position';
 export { Range } from './Range';
-export { RangeBasic } from './RangeBasic';
+export { OrientedRange, RangeBasic } from './RangeBasic';
 export { Renderer } from './Renderer';
 export { TextMode } from './mode/TextMode';
 export { TokenWithIndex } from './Token';
