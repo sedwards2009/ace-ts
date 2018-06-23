@@ -1,17 +1,52 @@
-define(function(require, exports, module) {
+/**
+ * Copyright (c) 2010, Ajax.org B.V.
+ * Copyright (c) 2018, Simon Edwards
+ * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
+ */
 "use strict";
 
-var modes = [];
+export class Mode {
+    name: string;
+    caption: string;
+    mode: string;
+    extensions: string;
+    extRe: RegExp;
+
+    constructor(name: string, caption: string, extensions: string) {
+        this.name = name;
+        this.caption = caption;
+        this.mode = "ace/mode/" + name;
+        this.extensions = extensions;
+        let re: string;
+        if (/\^/.test(extensions)) {
+            re = extensions.replace(/\|(\^)?/g, function(a, b) {
+                return "$|" + (b ? "^" : "^.*\\.");
+            }) + "$";
+        } else {
+            re = "^.*\\.(" + extensions + ")$";
+        }
+
+        this.extRe = new RegExp(re, "gi");
+    }
+
+    supportsFile(filename: string): boolean {
+        return filename.match(this.extRe) != null;
+    }
+}
+
+export const modes: Mode[] = [];
+export const modesByName: {[name: string]: Mode; } = {};
+
 /**
  * Suggests a mode based on the file extension present in the given path
  * @param {string} path The path to the file
  * @returns {object} Returns an object containing information about the
  *  suggested mode.
  */
-function getModeForPath(path) {
-    var mode = modesByName.text;
-    var fileName = path.split(/[\/\\]/).pop();
-    for (var i = 0; i < modes.length; i++) {
+export function getModeForPath(path) {
+    let mode = modesByName.text;
+    const fileName = path.split(/[\/\\]/).pop();
+    for (let i = 0; i < modes.length; i++) {
         if (modes[i].supportsFile(fileName)) {
             mode = modes[i];
             break;
@@ -20,28 +55,8 @@ function getModeForPath(path) {
     return mode;
 }
 
-var Mode = function(name, caption, extensions) {
-    this.name = name;
-    this.caption = caption;
-    this.mode = "ace/mode/" + name;
-    this.extensions = extensions;
-    if (/\^/.test(extensions)) {
-        var re = extensions.replace(/\|(\^)?/g, function(a, b){
-            return "$|" + (b ? "^" : "^.*\\.");
-        }) + "$";
-    } else {
-        var re = "^.*\\.(" + extensions + ")$";
-    }
-
-    this.extRe = new RegExp(re, "gi");
-};
-
-Mode.prototype.supportsFile = function(filename) {
-    return filename.match(this.extRe);
-};
-
 // todo firstlinematch
-var supportedModes = {
+const supportedModes = {
     ABAP:        ["abap"],
     ActionScript:["as"],
     ADA:         ["ada|adb"],
@@ -158,7 +173,7 @@ var supportedModes = {
     YAML:        ["yaml|yml"]
 };
 
-var nameOverrides = {
+const nameOverrides = {
     ObjectiveC: "Objective-C",
     CSharp: "C#",
     golang: "Go",
@@ -167,21 +182,13 @@ var nameOverrides = {
     HTML_Ruby: "HTML (Ruby)",
     FTL: "FreeMarker"
 };
-var modesByName = {};
-for (var name in supportedModes) {
-    var data = supportedModes[name];
-    var displayName = (nameOverrides[name] || name).replace(/_/g, " ");
-    var filename = name.toLowerCase();
-    var mode = new Mode(filename, displayName, data[0]);
+
+
+for (let name in supportedModes) {
+    const data = supportedModes[name];
+    const displayName = (nameOverrides[name] || name).replace(/_/g, " ");
+    const filename = name.toLowerCase();
+    const mode = new Mode(filename, displayName, data[0]);
     modesByName[filename] = mode;
     modes.push(mode);
 }
-
-module.exports = {
-    getModeForPath: getModeForPath,
-    modes: modes,
-    modesByName: modesByName
-};
-
-});
-

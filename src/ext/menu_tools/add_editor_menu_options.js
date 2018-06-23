@@ -57,7 +57,7 @@ define(function(require, exports, module) {
  * @param {ace.Editor} editor An instance of the ace editor.
  */
 module.exports.addEditorMenuOptions = function addEditorMenuOptions (editor) {
-    var modelist = require('../modelist');
+    var modelist = require('../ModeList');
     var themelist = require('../themelist');
     editor.menuOptions = {
         setNewLineMode: [{

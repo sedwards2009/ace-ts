@@ -25,6 +25,10 @@ export { commands as DefaultCommands } from './commands/DefaultCommands';
 export { Command } from './commands/Command';
 export { commands as MultiSelectCommands } from './commands/MultiSelectCommands';
 
+import * as ModeListModule from './ext/ModeList';
+export const ModeList = ModeListModule;
+
+
 /**
  * The main class required to set up an Ace instance in the browser.
  *
