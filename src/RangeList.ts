@@ -181,11 +181,6 @@ export class RangeList<R extends RangeBasic> {
         this.session = null;
     }
 
-    /**
-     * FIXME: The session appears to be unused. This is a strange coupling.
-     * @param e
-     * @param session
-     */
     private $onChange(delta: Delta): void {
         let start = delta.start;
         let end = delta.end;
