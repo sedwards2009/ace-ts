@@ -21,7 +21,6 @@ import { RangeBasic } from "../RangeBasic";
 import { Range } from "../Range";
 import { TextAndSelection } from "../TextAndSelection";
 import { WorkerClient } from "../worker/WorkerClient";
-import { LanguageModeId } from '../LanguageMode';
 import { LanguageMode } from '../LanguageMode';
 import { EditSession } from '../EditSession';
 import { Editor } from '../Editor';
@@ -115,15 +114,8 @@ export type LineCommentStart = '' | ';' | '//' | '--' | '%' | '#';
  *
  */
 export class TextMode implements LanguageMode {
-    /**
-     *
-     */
-    public modes: LanguageMode[];
-
-    /**
-     * 
-     */
-    public wrap: 'auto' | 'code' | 'text' = 'text';
+    modes: LanguageMode[];
+    wrap: 'auto' | 'code' | 'text' = 'text';
 
     /**
      * The factory for creating a Highlighter.
@@ -134,20 +126,14 @@ export class TextMode implements LanguageMode {
     protected $behaviour = new Behaviour();
     protected $defaultBehaviour = new CstyleBehaviour();
 
-    /**
-     *
-     */
-    public tokenRe = new RegExp("^["
+    tokenRe = new RegExp("^["
         + packages.L
         + packages.Mn + packages.Mc
         + packages.Nd
         + packages.Pc + "\\$_]+", "g"
     );
 
-    /**
-     *
-     */
-    public nonTokenRe = new RegExp("^(?:[^"
+    nonTokenRe = new RegExp("^(?:[^"
         + packages.L
         + packages.Mn + packages.Mc
         + packages.Nd
@@ -159,31 +145,20 @@ export class TextMode implements LanguageMode {
      */
     protected lineCommentStart: LineCommentStart | string[] = "";
     protected blockComment: BlockComment;
-    public $id: LanguageModeId = "Text";
+    $id = "Text";
     private $tokenizer: Tokenizer<HighlighterToken, HighlighterStackElement, HighlighterStack>;
     private $highlightRules: Highlighter;
     private $keywordList: string[];
     private $embeds: string[];
     private $modes: { [path: string]: LanguageMode };
     private completionKeywords: string[];
-    public $highlightRuleConfig = {};
-    public $indentWithTabs: boolean;
-    public foldingRules: FoldMode;
-    public getMatching: (session: EditSession) => Range;
-
-    /**
-     *
-     */
+    $highlightRuleConfig = {};
+    $indentWithTabs: boolean;
+    foldingRules: FoldMode;
+    getMatching: (session: EditSession) => Range;
     protected workerUrl: string;
-
-    /**
-     *
-     */
     protected scriptImports: string[] = [];
 
-    /**
-     *
-     */
     constructor(workerUrl = '', scriptImports: string[] = []) {
         if (typeof workerUrl === 'string') {
             this.workerUrl = workerUrl;
@@ -194,9 +169,6 @@ export class TextMode implements LanguageMode {
         this.scriptImports = scriptImports;
     }
 
-    /**
-     *
-     */
     getTokenizer(): Tokenizer<HighlighterToken, HighlighterStackElement, HighlighterStack> {
         if (!this.$tokenizer) {
             this.$highlightRules = this.$highlightRules || new this.HighlightRules(this.$highlightRuleConfig);
@@ -205,10 +177,7 @@ export class TextMode implements LanguageMode {
         return this.$tokenizer;
     }
 
-    /**
-     *
-     */
-    public toggleCommentLines(state: string, session: EditSession, startRow: number, endRow: number): void {
+    toggleCommentLines(state: string, session: EditSession, startRow: number, endRow: number): void {
         let ignoreBlankLines = true;
         let shouldRemove = true;
         let minIndent = Infinity;
@@ -351,9 +320,6 @@ export class TextMode implements LanguageMode {
         iter(shouldRemove ? uncomment : comment);
     }
 
-    /**
-     *
-     */
     toggleBlockComment(state: string, session: EditSession, range: RangeBasic, cursor: Position): void {
         let comment = this.blockComment;
         if (!comment)
@@ -461,9 +427,6 @@ export class TextMode implements LanguageMode {
         }
     }
 
-    /**
-     *
-     */
     createWorker(session: EditSession, callback: (err: any, worker?: WorkerClient) => void): void {
         // TextMode does not create a worker.
         callback(void 0);
@@ -621,4 +584,3 @@ export class TextMode implements LanguageMode {
         });
     }
 }
-
