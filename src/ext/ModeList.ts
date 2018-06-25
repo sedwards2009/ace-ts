@@ -37,6 +37,7 @@ export class Mode {
 }
 
 export const modesByName: {[name: string]: Mode; } = {};
+const modesByMimeType: {[name: string]: Mode; } = {};
 
 /**
  * Suggests a mode based on the file extension present in the given path
@@ -58,6 +59,10 @@ export function getModeForPath(path) {
 
 export function getModeByName(name: string): Mode {
     return modesByName[name] || null;
+}
+
+export function getModeByMimeType(mimeType: string): Mode {
+    return modesByMimeType[mimeType] || null;
 }
 
 const modes: Mode[] = [
@@ -181,4 +186,7 @@ const modes: Mode[] = [
 
 for (let mode of modes) {
     modesByName[mode.name] = mode;
+    for (let mimeType of mode.mimeTypes) {
+        modesByMimeType[mimeType] = mode;
+    }
 }
