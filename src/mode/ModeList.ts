@@ -13,10 +13,10 @@ export class Mode {
     extRe: RegExp;
     mimeTypes: string[];
 
-    constructor(name: string, caption: string, extensions: string, mimeTypes: string[]) {
+    constructor(name: string, caption: string, extensions: string, mimeTypes: string[], jsFile?: string) {
         this.name = name;
         this.caption = caption;
-        this.mode = "ace/mode/" + name;
+        this.mode = "./mode/" + (jsFile == null ? name : jsFile);
         this.extensions = extensions;
         this.mimeTypes = mimeTypes;
         let re: string;
@@ -70,19 +70,20 @@ const modes: Mode[] = [
     // new Mode("actionscript", "ActionScript", "as", ["text/x-actionscript"]),
     // new Mode("ada", "ADA", "ada|adb|ads", ["text/x-ada"]),
     // new Mode("apache_conf", "Apache Conf", "^htaccess|^htgroups|^htpasswd|^conf|htaccess|htgroups|htpasswd", ["application/x-apache-conf"]),
-    new Mode("asciidoc", "AsciiDoc", "asciidoc", ["text/x-asciidoc"]),
+    new Mode("asciidoc", "AsciiDoc", "asciidoc", ["text/x-asciidoc"], "AsciiDocMode"),
     // new Mode("assembly_x86", "Assembly x86", "asm", ["text/x-asm"]),
     // new Mode("autohotkey", "AutoHotKey", "ahk", ["application/vnd.autohotkey"]),
     // new Mode("batchfile", "BatchFile", "bat|cmd", ["application/bat", "application/x-bat", "application/x-msdos-program"]),
     // new Mode("c9search", "C9Search", "c9search_results", []),
-    // new Mode("c_cpp", "C and C++", "cpp|c|cc|cxx|h|hh|hpp", ["text/x-csrc", "text/x-c++src"]),
+    new Mode("c_cpp", "C and C++", "cpp|c|cc|cxx|h|hh|hpp", ["text/x-csrc", "text/x-c++src"], "CppMode"),
     // new Mode("cirru", "Cirru", "cirru|cr", []),
-    new Mode("clojure", "Clojure", "clj|cljs", ["text/x-clojure"]),
+    new Mode("clojure", "Clojure", "clj|cljs", ["text/x-clojure"], "ClojureMode"),
     // new Mode("cobol", "Cobol", "CBL|COB", ["text/x-cobol"]),
     // new Mode("coffee", "CoffeeScript", "coffee|cf|cson|^Cakefile", ["application/vnd.coffeescript", "text/coffeescript", "text/x-coffeescript"]),
     // new Mode("coldfusion", "ColdFusion", "cfm", ["application/vnd.coldfusion", "text/x-coldfusion"]),
     // new Mode("csharp", "C#", "cs", ["text/x-csharp"]),
     new Mode("css", "CSS", "css", ["text/css"]),
+    new Mode("csv", "CSV", "csv", ["text/csv"], "CsvMode"),
     // new Mode("curly", "Curly", "curly", []),
     new Mode("d", "D", "d|di", ["text/x-d"]),
     new Mode("dart", "Dart", "dart", ["application/dart", "text/x-dart"]),
@@ -97,8 +98,8 @@ const modes: Mode[] = [
     new Mode("gcode", "Gcode", "gcode", ["text/x-gcode"]),
     new Mode("gherkin", "Gherkin", "feature", ["text/x-feature"]),
     new Mode("gitignore", "Gitignore", "^.gitignore", ["text/x-gitignore"]),
-    new Mode("glsl", "Glsl", "glsl|frag|vert", ["text/x-glsl"]),
-    new Mode("golang", "Go", "go", ["text/x-go"]),
+    new Mode("glsl", "Glsl", "glsl|frag|vert", ["text/x-glsl"], "GlslMode"),
+    new Mode("golang", "Go", "go", ["text/x-go"], "GoLangMode"),
     new Mode("groovy", "Groovy", "groovy", ["text/x-groovy"]),
     new Mode("haml", "HAML", "haml", ["text/x-haml"]),
     new Mode("handlebars", "Handlebars", "hbs|handlebars|tpl|mustache", ["text/x-handlebars"]),
@@ -111,8 +112,8 @@ const modes: Mode[] = [
     // new Mode("jack", "Jack", "jack", []),
     new Mode("jade", "Jade", "jade", ["text/x-jade"]),
     new Mode("java", "Java", "java", ["text/x-java", "text/x-java-source"]),
-    new Mode("javascript", "JavaScript", "js|jsm", ["text/javascript", "text/ecmascript", "application/javascript", "application/x-javascript", "application/ecmascript"]),
-    new Mode("json", "JSON", "json", ["application/json", "application/x-json"]),
+    new Mode("javascript", "JavaScript", "js|jsm", ["text/javascript", "text/ecmascript", "application/javascript", "application/x-javascript", "application/ecmascript"], "JavaScriptMode"),
+    new Mode("json", "JSON", "json", ["application/json", "application/x-json"], "JsonMode"),
     new Mode("jsoniq", "JSONiq", "jq", ["text/x-jsoniq"]),
     new Mode("jsp", "JSP", "jsp", ["text/x-jsp"]),
     new Mode("jsx", "JSX", "jsx", ["text/jsx"]),
@@ -128,7 +129,7 @@ const modes: Mode[] = [
     new Mode("luapage", "LuaPage", "lp", ["text/x-luapage"]),
     new Mode("lucene", "Lucene", "lucene", ["text/x-lucene"]),
     new Mode("makefile", "Makefile", "^Makefile|^GNUmakefile|^makefile|^OCamlMakefile|make", ["application/vnd.make"]),
-    new Mode("markdown", "Markdown", "md|markdown", ["text/x-markdown"]),
+    new Mode("markdown", "Markdown", "md|markdown", ["text/x-markdown"], "MarkdownMode"),
     new Mode("matlab", "MATLAB", "matlab", ["text/x-matlab"]),
     new Mode("mel", "MEL", "mel", ["application/x-maya-embedded-language"]),
     new Mode("mushcode", "MUSHCode", "mc|mush", ["text/x-mushcode"]),
@@ -146,7 +147,7 @@ const modes: Mode[] = [
     new Mode("properties", "Properties", "properties", ["text/x-java-properties"]),
     new Mode("protobuf", "Protobuf", "proto", ["text/x-protobuf"]),
     // PureScript
-    new Mode("python", "Python", "py", ["text/x-python"]),
+    new Mode("python", "Python", "py", ["text/x-python"], "PythonMode"),
     new Mode("r", "R", "r", ["text/x-rsrc"]),
     new Mode("rdoc", "RDoc", "Rd", ["application/vnd.rdoc"]),
     new Mode("rhtml", "RHTML", "Rhtml", ["application/x-httpd-eruby"]),
@@ -165,22 +166,22 @@ const modes: Mode[] = [
     new Mode("space", "Space", "space", ["text/x-space"]),
     new Mode("sql", "SQL", "sql", ["text/x-sql"]),
     // new Mode("stylus", "Stylus", "styl|stylus", ["text/x-styl"]),
-    new Mode("svg", "SVG", "svg", ["image/svg+xml"]),
+    new Mode("svg", "SVG", "svg", ["image/svg+xml"], "SvgMode"),
     new Mode("tcl", "Tcl", "tcl", ["text/x-tcl"]),
     new Mode("tex", "Tex", "tex", ["application/x-tex"]),
-    new Mode("text", "Text", "txt", ["text/plain"]),
+    new Mode("text", "Text", "txt", ["text/plain"], "TextMode"),
     new Mode("textile", "Textile", "textile", ["text/x-textile"]),
     // new Mode("toml", "Toml", "toml", ["text/x-toml"]),
     // new Mode("twig", "Twig", "twig", ["text/x-twig"]),
-    new Mode("typescript", "TypeScript", "ts|typescript|str", ["application/typescript"]),
+    new Mode("typescript", "TypeScript", "ts|typescript|str", ["application/typescript"], "TypeScriptMode"),
     // new Mode("vala", "Vala", "vala", ["text/x-vala"]),
     // new Mode("vbscript", "VBScript", "vbs|vb", ["text/vbscript"]),
     // new Mode("velocity", "Velocity", "vm", ["text/velocity"]),
     // new Mode("verilog", "Verilog", "v|vh|sv|svh", ["text/x-verilog"]),
     // new Mode("vhdl", "VHDL", "vhd|vhdl", ["text/x-vhdl"]),
-    new Mode("xml", "XML", "xml|rdf|rss|wsdl|xslt|atom|mathml|mml|xul|xbl", ["application/xml", "text/xml"]),
+    new Mode("xml", "XML", "xml|rdf|rss|wsdl|xslt|atom|mathml|mml|xul|xbl", ["application/xml", "text/xml"], "XmlMode"),
     new Mode("xquery", "XQuery", "xq", ["application/xquery"]),
-    new Mode("yaml", "YAML", "yaml|yml", ["text/x-yaml", "text/yaml"]),
+    new Mode("yaml", "YAML", "yaml|yml", ["text/x-yaml", "text/yaml"], "YamlMode"),
 
 ];
 

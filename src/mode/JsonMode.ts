@@ -53,3 +53,4 @@ export class JsonMode extends TextMode {
     }
 }
 
+export const Mode = JsonMode;

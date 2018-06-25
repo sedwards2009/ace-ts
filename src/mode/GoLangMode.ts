@@ -63,4 +63,4 @@ export class GoLangMode extends TextMode {
     */
 }
 
-
+export const Mode = GoLangMode;

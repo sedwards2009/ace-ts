@@ -47,6 +47,7 @@ import { RangeSelectionMarker } from './RangeBasic';
 import { TokenWithIndex } from './Token';
 import { FoldMode } from './mode/folding/FoldMode';
 import { TextMode } from './mode/TextMode';
+import { Mode } from './mode/ModeList';
 
 
 // "Tokens"
@@ -273,7 +274,7 @@ export class EditSession {
     private $bracketMatcher = new BracketMatch(this);
     private refCount = 1;
 
-    constructor(doc: string | Document, mode: LanguageMode = new TextMode(), callback = defaultModeCallback) {
+    constructor(doc: string | Document, mode: LanguageMode | Mode = new TextMode(), callback = defaultModeCallback) {
         if ((typeof doc !== 'string') && !(doc instanceof Document)) {
             throw new TypeError('doc must be an Document');
         }
@@ -1160,7 +1161,14 @@ export class EditSession {
      * @param mode Set a new language mode instance or module name.
      * @param callback
      */
-    setLanguageMode(mode: LanguageMode, callback: (err: any) => any): void {
+    setLanguageMode(languageModeOrMode: LanguageMode | Mode, callback: (err: any) => any): void {
+        let mode: LanguageMode;
+        if (languageModeOrMode instanceof Mode) {
+            const modeModule = require(languageModeOrMode.mode);
+            mode = new modeModule.Mode();
+        } else {
+            mode = languageModeOrMode;
+        }
 
         if (this.$mode === mode) {
             setTimeout(callback, 0);

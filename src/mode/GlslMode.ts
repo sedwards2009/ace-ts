@@ -31,3 +31,4 @@ export class GlslMode extends CppMode {
     }
 }
 
+export const Mode = GlslMode;

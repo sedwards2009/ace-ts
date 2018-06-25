@@ -40,3 +40,4 @@ export class AsciiDocMode extends TextMode {
     }
 }
 
+export const Mode = AsciiDocMode;

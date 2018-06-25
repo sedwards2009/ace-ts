@@ -31,3 +31,4 @@ export class XmlMode extends TextMode {
     }
 }
 
+export const Mode = XmlMode;

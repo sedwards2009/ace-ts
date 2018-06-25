@@ -584,3 +584,4 @@ export class TextMode implements LanguageMode {
         });
     }
 }
+export const Mode = TextMode;

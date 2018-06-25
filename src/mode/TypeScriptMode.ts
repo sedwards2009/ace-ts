@@ -33,3 +33,4 @@ export class TypeScriptMode extends JavaScriptMode {
     }
 }
 
+export const Mode = TypeScriptMode;

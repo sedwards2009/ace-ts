@@ -98,3 +98,4 @@ export class PythonMode extends TextMode {
     }
 }
 
+export const Mode = PythonMode;

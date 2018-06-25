@@ -111,3 +111,4 @@ export class ClojureMode extends TextMode {
     }
 }
 
+export const Mode = ClojureMode;

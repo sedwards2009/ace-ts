@@ -89,3 +89,4 @@ export class JavaScriptMode extends TextMode {
     }
 }
 
+export const Mode = JavaScriptMode;

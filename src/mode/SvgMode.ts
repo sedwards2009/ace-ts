@@ -31,3 +31,4 @@ export class SvgMode extends XmlMode {
     }
 }
 
+export const Mode = SvgMode;

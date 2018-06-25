@@ -49,3 +49,4 @@ export class YamlMode extends TextMode {
     }
 }
 
+export const Mode = YamlMode;

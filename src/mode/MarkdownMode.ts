@@ -61,3 +61,4 @@ export class MarkdownMode extends TextMode {
     }
 }
 
+export const Mode = MarkdownMode;

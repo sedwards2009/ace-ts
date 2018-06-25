@@ -94,7 +94,7 @@ export class WorkerClient implements EventBus<string, MessageEvent, WorkerClient
             return;
         }
 
-        // importScrupts only takes fully qualified URLs.
+        // importScripts only takes fully qualified URLs.
         const workerUrl = qualifyURL(this.workerUrl);
         try {
             // The worker thread will not be started until we post a message to it (below).
