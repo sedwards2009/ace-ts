@@ -25,7 +25,7 @@ export { commands as DefaultCommands } from './commands/DefaultCommands';
 export { Command } from './commands/Command';
 export { commands as MultiSelectCommands } from './commands/MultiSelectCommands';
 
-import * as ModeListModule from './ext/ModeList';
+import * as ModeListModule from './mode/ModeList';
 export const ModeList = ModeListModule;
 
 
