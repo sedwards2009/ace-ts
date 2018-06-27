@@ -7,15 +7,15 @@
 
 export class Mode {
     name: string;
-    caption: string;
+    friendlyName: string;
     mode: string;
     extensions: string;
     extRe: RegExp;
     mimeTypes: string[];
 
-    constructor(name: string, caption: string, extensions: string, mimeTypes: string[], jsFile?: string) {
+    constructor(name: string, friendlyName: string, extensions: string, mimeTypes: string[], jsFile?: string) {
         this.name = name;
-        this.caption = caption;
+        this.friendlyName = friendlyName;
         this.mode = "./mode/" + (jsFile == null ? name : jsFile);
         this.extensions = extensions;
         this.mimeTypes = mimeTypes;
