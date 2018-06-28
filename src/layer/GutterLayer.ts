@@ -38,26 +38,21 @@ function onCreateCell(element: HTMLDivElement) {
 
     return element;
 }
-/**
- *
- */
+
 export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEventName, number, GutterLayer> {
 
-    /**
-     *
-     */
-    public gutterWidth = 0;
+    gutterWidth = 0;
     private oldLastRow: number;
 
     /**
      * GutterLayer annotations are different from the Annotation type.
      * 
      */
-    public $annotations: ({ className: string | undefined; text: string[] } | null)[] = [];
+    $annotations: ({ className: string | undefined; text: string[] } | null)[] = [];
     /**
      * Gutter cells indexed by screen row.
      */
-    public $cells: GutterCell[] = [];
+    $cells: GutterCell[] = [];
     private $fixedWidth = false;
     private $showLineNumbers = true;
     private $showFoldWidgets = true;
@@ -65,18 +60,12 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
     private $cursorRow: number;
     private $cursorCell: Cell;
     private config: GutterConfig;
-    /**
-     * 
-     */
     private $renderer: GutterRenderer | boolean | string = "";
     private session: EditSession;
-    public $padding: Padding | null;
+    $padding: Padding | null;
     private readonly eventBus = new EventEmitterClass<GutterLayerEventName, any, GutterLayer>(this);
     private readonly $lines: Lines;
 
-    /**
-     *
-     */
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_gutter-layer");
         refChange(this.uuid, 'GutterLayer', +1);
@@ -100,16 +89,10 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
         };
     }
 
-    /**
-     *
-     */
     off(eventName: GutterLayerEventName, callback: (event: any, source: GutterLayer) => any): void {
         this.eventBus.off(eventName, callback);
     }
 
-    /**
-     *
-     */
     setSession(session: EditSession): void {
         if (this.session) {
             this.session.off("change", this.$updateAnnotations);
@@ -120,9 +103,6 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
         }
     }
 
-    /**
-     *
-     */
     setAnnotations(annotations: Annotation[]): void {
         // iterate over sparse array
         this.$annotations = [];
@@ -176,9 +156,6 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
         }
     }
 
-    /**
-     *
-     */
     update(config: GutterConfig): void {
         const session = this.session;
         const firstRow = config.firstRow;
@@ -516,19 +493,14 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
         this.$highlightGutterLine = highlightGutterLine;
     }
 
-    /**
-     *
-     */
     setShowLineNumbers(showLineNumbers: boolean): void {
+        this.$showLineNumbers = showLineNumbers;
         this.$renderer = !showLineNumbers && {
             getWidth: function () { return 0; },
             getText: function () { return ""; }
         };
     }
 
-    /**
-     *
-     */
     getShowLineNumbers(): boolean {
         return this.$showLineNumbers;
     }
@@ -548,9 +520,6 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
         this.$padding = null;
     }
 
-    /**
-     *
-     */
     getShowFoldWidgets(): boolean {
         return this.$showFoldWidgets;
     }
@@ -597,4 +566,3 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
         return void 0;
     }
 }
-
