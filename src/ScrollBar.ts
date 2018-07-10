@@ -29,28 +29,27 @@ export type ScrollBarEventName = 'scroll';
  * An abstract class representing a native scrollbar control.
  */
 export class ScrollBar implements EventBus<ScrollBarEventName, ScrollBarEvent, ScrollBar>, Disposable {
-    /**
-     * 
-     */
+
     protected readonly uuid = `${Math.random()}`;
     /**
      * The `element` div property is a child of the `parent` div property
      * on which the scrollbar is constructed. 
      */
-    public element: HTMLDivElement;
+    element: HTMLDivElement;
+
     /**
      * The `inner` div property is a child of the `element` div property. 
      */
-    public inner: HTMLDivElement;
+    protected inner: HTMLDivElement;
+
     /**
      * Determines how the scrollbar reports its dimensions.
      * If not visible, the dimensions are reported as zero.
      */
     protected isVisible: boolean;
-    /**
-     * 
-     */
-    public skipEvent: boolean;
+
+    skipEvent: boolean;
+    
     /**
      * Adjusts the height of the vertical scrollbar to satisfy IE limitations. 
      * This is reset when the scrollbar is made visible.

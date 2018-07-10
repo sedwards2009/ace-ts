@@ -4585,15 +4585,6 @@ export class MouseHandler implements IGestureHandler {
             addListener(mouseTarget, "click", this.onMouseEvent.bind(this, "click"));
             addListener(mouseTarget, "mousemove", this.onMouseMove.bind(this, "mousemove"));
             addMultiMouseDownListener(mouseTarget, [400, 300, 250], this, "onMouseEvent");
-            if (renderer.scrollBarV) {
-                addMultiMouseDownListener(renderer.scrollBarV.inner, [400, 300, 250], this, "onMouseEvent");
-                addMultiMouseDownListener(renderer.scrollBarH.inner, [400, 300, 250], this, "onMouseEvent");
-                if (isIE) {
-                    addListener(renderer.scrollBarV.element, "mousedown", onMouseDown);
-                    // TODO: I wonder if we should be responding to mousedown (by symmetry)?
-                    addListener(renderer.scrollBarH.element, "mousemove", onMouseDown);
-                }
-            }
 
             // We hook 'mousewheel' using the portable 
             addMouseWheelListener(editor.container, this.emitEditorMouseWheelEvent.bind(this, "mousewheel"));
