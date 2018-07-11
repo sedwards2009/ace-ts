@@ -3,14 +3,17 @@
   "version": "0.1.0",
   "description": "Ace editor but using TypeScript",
   "scripts": {
-    "build": "node build_scripts/build.js"
+    "build": "node build_scripts/build.js",
+    "package": "yarn run build && node build_scripts/build_package.js"
   },
   "main": "build/index.js",
   "typings": "build/index.d.ts",
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "rollup": "^0.59.1",
     "shelljs": "^0.8.2",
+    "tar": "^4.4.4",
     "typescript": "2.8.3"
   }
 }
