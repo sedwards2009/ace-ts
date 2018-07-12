@@ -4,7 +4,7 @@
   "description": "Ace editor but using TypeScript",
   "scripts": {
     "build": "node build_scripts/build.js",
-    "package": "yarn run build && node build_scripts/build_package.js"
+    "package": "yarn run build && yarn pack"
   },
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -15,5 +15,6 @@
     "shelljs": "^0.8.2",
     "tar": "^4.4.4",
     "typescript": "2.8.3"
-  }
+  },
+  "files": ["package.json", "README.md", "build"]
 }
