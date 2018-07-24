@@ -66,3 +66,4 @@ export class CssMode extends TextMode {
     }
 }
 
+export const Mode = CssMode;

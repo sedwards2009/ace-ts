@@ -99,3 +99,4 @@ export class HtmlMode extends TextMode {
     }
 }
 
+export const Mode = HtmlMode;
