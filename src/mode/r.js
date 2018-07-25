@@ -38,12 +38,12 @@
 define(function(require, exports, module) {
    "use strict";
 
-   var Range = require("../range").Range;
+   var Range = require("../Range").Range;
    var oop = require("../lib/oop");
-   var TextMode = require("./text").Mode;
-   var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+   var TextMode = require("./TextMode").Mode;
+   var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
    var RHighlightRules = require("./r_highlight_rules").RHighlightRules;
-   var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+   var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
    var unicode = require("../unicode");
 
    var Mode = function()

@@ -32,13 +32,13 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var LogiQLHighlightRules = require("./logiql_highlight_rules").LogiQLHighlightRules;
 var FoldMode = require("./folding/coffee").FoldMode;
 var TokenIterator = require("../token_iterator").TokenIterator;
-var Range = require("../range").Range;
-var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+var Range = require("../Range").Range;
+var CstyleBehaviour = require("./behaviour/CstyleBehaviour").CstyleBehaviour;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
 
 var Mode = function() {
     this.HighlightRules = LogiQLHighlightRules;

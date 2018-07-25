@@ -2,11 +2,11 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var PowershellHighlightRules = require("./powershell_highlight_rules").PowershellHighlightRules;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
+var CstyleBehaviour = require("./behaviour/CstyleBehaviour").CstyleBehaviour;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = PowershellHighlightRules;

@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var HtmlMode = require("./html").Mode;
 var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var DjangoHighlightRules = function(){
     this.$rules = {

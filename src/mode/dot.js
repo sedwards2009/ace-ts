@@ -2,10 +2,10 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+var TextMode = require("./TextMode").Mode;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
 var DotHighlightRules = require("./dot_highlight_rules").DotHighlightRules;
-var DotFoldMode = require("./folding/cstyle").FoldMode;
+var DotFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = DotHighlightRules;

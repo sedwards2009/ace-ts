@@ -3,7 +3,7 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var GroovyHighlightRules = function() {
 

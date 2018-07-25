@@ -32,10 +32,10 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var OcamlHighlightRules = require("./ocaml_highlight_rules").OcamlHighlightRules;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var Range = require("../range").Range;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
+var Range = require("../Range").Range;
 
 var Mode = function() {
     this.HighlightRules = OcamlHighlightRules;

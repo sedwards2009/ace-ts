@@ -32,11 +32,11 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var TextMode = require("./TextMode").Mode;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 var TclHighlightRules = require("./tcl_highlight_rules").TclHighlightRules;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var Range = require("../range").Range;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
+var Range = require("../Range").Range;
 
 var Mode = function() {
     this.HighlightRules = TclHighlightRules;

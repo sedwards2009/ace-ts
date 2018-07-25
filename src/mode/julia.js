@@ -41,10 +41,10 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var JuliaHighlightRules = require("./julia_highlight_rules").JuliaHighlightRules;
 // TODO: pick appropriate fold mode
-var FoldMode = require("./folding/cstyle").FoldMode;
+var FoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = JuliaHighlightRules;

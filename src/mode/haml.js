@@ -41,7 +41,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var HamlHighlightRules = require("./haml_highlight_rules").HamlHighlightRules;
 var FoldMode = require("./folding/coffee").FoldMode;
 

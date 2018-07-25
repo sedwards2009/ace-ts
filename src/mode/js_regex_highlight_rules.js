@@ -2,7 +2,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var escape = "\\\\(?:u[\\da-fA-F]{4}|x[\\da-fA-F]{2}|.)";
 var quantifier = "({\\d+\\b,?\\d*}|[+*?])(\\??)";

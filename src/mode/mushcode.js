@@ -32,10 +32,10 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var MushCodeRules = require("./mushcode_highlight_rules").MushCodeRules;
 var PythonFoldMode = require("./folding/pythonic").FoldMode;
-var Range = require("../range").Range;
+var Range = require("../Range").Range;
 
 var Mode = function() {
     this.HighlightRules = MushCodeRules;

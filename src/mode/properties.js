@@ -32,7 +32,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var PropertiesHighlightRules = require("./properties_highlight_rules").PropertiesHighlightRules;
 
 var Mode = function() {

@@ -32,10 +32,10 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var LuaHighlightRules = require("./lua_highlight_rules").LuaHighlightRules;
 var LuaFoldMode = require("./folding/lua").FoldMode;
-var Range = require("../range").Range;
+var Range = require("../Range").Range;
 var WorkerClient = require("../worker/worker_client").WorkerClient;
 
 var Mode = function() {

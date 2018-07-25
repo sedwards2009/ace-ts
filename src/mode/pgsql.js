@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var TextMode = require("../mode/text").Mode;
 var PgsqlHighlightRules = require("./pgsql_highlight_rules").PgsqlHighlightRules;
-var Range = require("../range").Range;
+var Range = require("../Range").Range;
 
 var Mode = function() {
     this.HighlightRules = PgsqlHighlightRules;

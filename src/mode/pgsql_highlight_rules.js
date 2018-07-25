@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var lang = require("../lib/lang");
 var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 // Syntax highlighting for pl/languages and json.
 var PerlHighlightRules = require("./perl_highlight_rules").PerlHighlightRules;
 var PythonHighlightRules = require("./python_highlight_rules").PythonHighlightRules;

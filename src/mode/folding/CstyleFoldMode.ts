@@ -5,7 +5,7 @@
  */
 import { Range } from "../../Range";
 import { RangeBasic } from "../../RangeBasic";
-import { FoldMode } from "./FoldMode";
+import { FoldMode as FoldModeBase } from "./FoldMode";
 import { EditSession } from "../../EditSession";
 import { FoldStyle } from "../../FoldStyle";
 import { isMultiLine } from "../../RangeHelpers";
@@ -13,7 +13,7 @@ import { isMultiLine } from "../../RangeHelpers";
 /**
  *
  */
-export class CstyleFoldMode extends FoldMode {
+export class CstyleFoldMode extends FoldModeBase {
     foldingStartMarker: RegExp = /(\{|\[)[^\}\]]*$|^\s*(\/\*)/;
     foldingStopMarker: RegExp = /^[^\[\{]*(\}|\])|^[\s\*]*(\*\/)/;
 
@@ -114,4 +114,4 @@ export class CstyleFoldMode extends FoldMode {
         return new Range(startRow, startColumn, endRow, session.getLine(endRow).length);
     }
 }
-
+export const FoldMode = CstyleFoldMode;

@@ -31,7 +31,7 @@
 define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 var stringEscape =  "\\\\(x[0-9A-Fa-f]{2}|[0-7]{3}|[\\\\abfnrtv'\"]|U[0-9A-Fa-f]{8}|u[0-9A-Fa-f]{4})";
 
 var GherkinHighlightRules = function() {

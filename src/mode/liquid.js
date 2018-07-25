@@ -31,10 +31,10 @@
 define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var LiquidHighlightRules = require("./liquid_highlight_rules").LiquidHighlightRules;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var Range = require("../range").Range;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
+var Range = require("../Range").Range;
 
 var Mode = function() {
     this.HighlightRules = LiquidHighlightRules;

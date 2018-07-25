@@ -32,9 +32,9 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var SqlHighlightRules = require("./sql_highlight_rules").SqlHighlightRules;
-var Range = require("../range").Range;
+var Range = require("../Range").Range;
 
 var Mode = function() {
     this.HighlightRules = SqlHighlightRules;

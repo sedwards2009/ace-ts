@@ -43,7 +43,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var CMode = require("./c_cpp").Mode;
 var ProtobufHighlightRules = require("./protobuf_highlight_rules").ProtobufHighlightRules;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     CMode.call(this);

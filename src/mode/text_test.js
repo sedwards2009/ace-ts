@@ -36,7 +36,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var EditSession = require("../edit_session").EditSession;
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var assert = require("../test/assertions");
 
 module.exports = {

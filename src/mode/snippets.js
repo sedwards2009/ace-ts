@@ -2,8 +2,8 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextMode = require("./TextMode").Mode;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var SnippetHighlightRules = function() {
 

@@ -41,7 +41,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 var MarkdownHighlightRules = require("./markdown_highlight_rules").MarkdownHighlightRules;
 var SassHighlightRules = require("./scss_highlight_rules").ScssHighlightRules;
 var LessHighlightRules = require("./less_highlight_rules").LessHighlightRules;

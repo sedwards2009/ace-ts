@@ -33,9 +33,9 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var JSMode = require("./javascript").Mode;
 var SJSHighlightRules = require("./sjs_highlight_rules").SJSHighlightRules;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
+var CstyleBehaviour = require("./behaviour/CstyleBehaviour").CstyleBehaviour;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = SJSHighlightRules;

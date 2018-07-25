@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var SJSHighlightRules = function() {
     var parent = new JavaScriptHighlightRules({noES6: true});

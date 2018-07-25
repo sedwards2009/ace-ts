@@ -32,12 +32,12 @@ define(function(require, exports, module) {
 
 var WorkerClient = require("../worker/worker_client").WorkerClient;
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextMode = require("./TextMode").Mode;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 var JSONiqLexer = require("./xquery/jsoniq_lexer").JSONiqLexer;
-var Range = require("../range").Range;
+var Range = require("../Range").Range;
 var XQueryBehaviour = require("./behaviour/xquery").XQueryBehaviour;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 var Anchor = require("../anchor").Anchor;
 var LanguageTools = require("../ext/language_tools");
 

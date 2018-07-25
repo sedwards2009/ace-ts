@@ -41,7 +41,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var PascalHighlightRules = require("./pascal_highlight_rules").PascalHighlightRules;
 // TODO: pick appropriate fold mode
 var FoldMode = require("./folding/coffee").FoldMode;

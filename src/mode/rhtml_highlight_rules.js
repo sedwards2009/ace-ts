@@ -41,7 +41,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var RHighlightRules = require("./r_highlight_rules").RHighlightRules;
 var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var RHtmlHighlightRules = function() {
     HtmlHighlightRules.call(this);

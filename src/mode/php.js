@@ -32,14 +32,14 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var PhpHighlightRules = require("./php_highlight_rules").PhpHighlightRules;
 var PhpLangHighlightRules = require("./php_highlight_rules").PhpLangHighlightRules;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var Range = require("../range").Range;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
+var Range = require("../Range").Range;
 var WorkerClient = require("../worker/worker_client").WorkerClient;
-var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var CstyleBehaviour = require("./behaviour/CstyleBehaviour").CstyleBehaviour;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 var unicode = require("../unicode");
 
 var Mode = function(opts) {

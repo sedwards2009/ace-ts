@@ -31,7 +31,7 @@
 define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var GherkinHighlightRules = require("./gherkin_highlight_rules").GherkinHighlightRules;
 
 var Mode = function() {

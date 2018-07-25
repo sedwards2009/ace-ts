@@ -37,7 +37,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var SchemeHighlightRules = require("./scheme_highlight_rules").SchemeHighlightRules;
 
 var Mode = function() {

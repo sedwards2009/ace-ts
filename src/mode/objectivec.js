@@ -41,9 +41,9 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var ObjectiveCHighlightRules = require("./objectivec_highlight_rules").ObjectiveCHighlightRules;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = ObjectiveCHighlightRules;

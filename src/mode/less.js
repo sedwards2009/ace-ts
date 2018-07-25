@@ -32,11 +32,11 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var TextMode = require("./text").Mode;
+var TextMode = require("./TextMode").Mode;
 var LessHighlightRules = require("./less_highlight_rules").LessHighlightRules;
-var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
 var CssBehaviour = require("./behaviour/css").CssBehaviour;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = LessHighlightRules;

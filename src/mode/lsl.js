@@ -32,11 +32,11 @@ define(function(require, exports, module) {
 "use strict";
 
 var Rules = require("./lsl_highlight_rules").LSLHighlightRules;
-var Outdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var Range = require("../range").Range;
-var TextMode = require("./text").Mode;
-var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var Outdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
+var Range = require("../Range").Range;
+var TextMode = require("./TextMode").Mode;
+var CstyleBehaviour = require("./behaviour/CstyleBehaviour").CstyleBehaviour;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 var oop = require("../lib/oop");
 
 var Mode = function() {

@@ -34,7 +34,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var ShMode = require("./sh").Mode;
 var DockerfileHighlightRules = require("./dockerfile_highlight_rules").DockerfileHighlightRules;
-var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
     ShMode.call(this);
