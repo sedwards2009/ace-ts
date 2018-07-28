@@ -33,11 +33,15 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
 
 var LiquidHighlightRules = function() {
-    HtmlHighlightRules.call(this);
-
+    // This work-around is needed to combine this old style code with the superclass which uses JS 'class'.
+    var newThis = new HtmlHighlightRules();
+    LiquidHighlightRules_OldConstructor.call(newThis);
+    return newThis;
+}
+function LiquidHighlightRules_OldConstructor() {
     // see: https://developer.mozilla.org/en/Liquid/Reference/Global_Objects
     var functions = (
       // Standard Filters

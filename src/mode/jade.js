@@ -39,7 +39,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var TextMode = require("./TextMode").Mode;
 var JadeHighlightRules = require("./jade_highlight_rules").JadeHighlightRules;
-var FoldMode = require("./folding/coffee").FoldMode;
+var FoldMode = require("./folding/CoffeeFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = JadeHighlightRules;

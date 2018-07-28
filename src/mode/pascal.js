@@ -44,7 +44,7 @@ var oop = require("../lib/oop");
 var TextMode = require("./TextMode").Mode;
 var PascalHighlightRules = require("./pascal_highlight_rules").PascalHighlightRules;
 // TODO: pick appropriate fold mode
-var FoldMode = require("./folding/coffee").FoldMode;
+var FoldMode = require("./folding/CoffeeFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = PascalHighlightRules;

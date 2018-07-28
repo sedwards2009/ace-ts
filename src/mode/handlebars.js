@@ -4,18 +4,19 @@ define(function(require, exports, module) {
   "use strict";
 
 var oop = require("../lib/oop");
-var HtmlMode = require("./html").Mode;
+var HtmlMode = require("./HtmlMode").Mode;
 var HandlebarsHighlightRules = require("./handlebars_highlight_rules").HandlebarsHighlightRules;
-var HtmlBehaviour = require("./behaviour/html").HtmlBehaviour;
-var HtmlFoldMode = require("./folding/html").FoldMode;
+var HtmlBehaviour = require("./behaviour/HtmlBehaviour").HtmlBehaviour;
+var HtmlFoldMode = require("./folding/HtmlFoldMode").FoldMode;
 
 var Mode = function() {
-    HtmlMode.call(this);
-    this.HighlightRules = HandlebarsHighlightRules;
-    this.$behaviour = new HtmlBehaviour();
+    var newThis = new HtmlMode();
+    newThis.HighlightRules = HandlebarsHighlightRules;
+    newThis.$behaviour = new HtmlBehaviour();
 
     
-    this.foldingRules = new HtmlFoldMode();
+    newThis.foldingRules = new HtmlFoldMode();
+    return newThis;
 };
 
 oop.inherits(Mode, HtmlMode);

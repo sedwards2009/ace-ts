@@ -34,8 +34,8 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var TextMode = require("./TextMode").Mode;
 var LogiQLHighlightRules = require("./logiql_highlight_rules").LogiQLHighlightRules;
-var FoldMode = require("./folding/coffee").FoldMode;
-var TokenIterator = require("../token_iterator").TokenIterator;
+var FoldMode = require("./folding/CoffeeFoldMode").FoldMode;
+var TokenIterator = require("../TokenIterator").TokenIterator;
 var Range = require("../Range").Range;
 var CstyleBehaviour = require("./behaviour/CstyleBehaviour").CstyleBehaviour;
 var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;

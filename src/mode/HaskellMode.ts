@@ -29,3 +29,4 @@ export class HaskellMode extends TextMode {
     }
 }
 
+export const Mode = HaskellMode;

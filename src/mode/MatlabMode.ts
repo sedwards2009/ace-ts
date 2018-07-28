@@ -20,3 +20,4 @@ export class MatlabMode extends TextMode {
 }
 
 
+export const Mode = MatlabMode;

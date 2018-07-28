@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010, Ajax.org B.V.
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -14,7 +14,7 @@
  *     * Neither the name of Ajax.org B.V. nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,61 +28,64 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-define(function(require, exports, module) {
 "use strict";
+  
+import { FoldMode as BaseFoldMode } from "./FoldMode";
+import { Range } from "../../Range";
+import { EditSession } from "../../EditSession";
+import { FoldStyle } from "../../FoldStyle";
+import { FoldWidget } from "../../FoldWidget";
+  
 
-var oop = require("../../lib/oop");
-var BaseFoldMode = require("./FoldMode").FoldMode;
-var Range = require("../../Range").Range;
-
-var FoldMode = exports.FoldMode = function() {};
-oop.inherits(FoldMode, BaseFoldMode);
-
-(function() {
-
-    this.getFoldWidgetRange = function(session, foldStyle, row) {
-        var range = this.indentationBlock(session, row);
-        if (range)
+export class CoffeeFoldMode extends BaseFoldMode {
+    getFoldWidgetRange(session, foldStyle, row): Range {
+        const range = this.indentationBlock(session, row);
+        if (range) {
             return range;
+        }
 
-        var re = /\S/;
-        var line = session.getLine(row);
-        var startLevel = line.search(re);
-        if (startLevel == -1 || line[startLevel] != "##")
-            return;
+        const re = /\S/;
+        let line = session.getLine(row);
+        const startLevel = line.search(re);
+        if (startLevel == -1 || line[startLevel] != "#") {
+            return undefined;
+        }
 
-        var startColumn = line.length;
-        var maxRow = session.getLength();
-        var startRow = row;
-        var endRow = row;
+        const startColumn = line.length;
+        const maxRow = session.getLength();
+        const startRow = row;
+        let endRow = row;
 
         while (++row < maxRow) {
             line = session.getLine(row);
-            var level = line.search(re);
+            const level = line.search(re);
 
-            if (level == -1)
+            if (level == -1) {
                 continue;
+            }
 
-            if (line[level] != "##")
+            if (line[level] != "#") {
                 break;
+            }
 
             endRow = row;
         }
 
         if (endRow > startRow) {
-            var endColumn = session.getLine(endRow).length;
+            const endColumn = session.getLine(endRow).length;
             return new Range(startRow, startColumn, endRow, endColumn);
         }
-    };
-
-    // must return "" if there's no fold, to enable caching
-    this.getFoldWidget = function(session, foldStyle, row) {
-        var line = session.getLine(row);
-        var indent = line.search(/\S/);
-        var next = session.getLine(row + 1);
-        var prev = session.getLine(row - 1);
-        var prevIndent = prev.search(/\S/);
-        var nextIndent = next.search(/\S/);
+        return undefined;
+    }
+  
+      // must return "" if there's no fold, to enable caching
+    getFoldWidget(session: EditSession, foldStyle: FoldStyle, row: number): FoldWidget {
+        const line = session.getLine(row);
+        const indent = line.search(/\S/);
+        const next = session.getLine(row + 1);
+        const prev = session.getLine(row - 1);
+        const prevIndent = prev.search(/\S/);
+        const nextIndent = next.search(/\S/);
 
         if (indent == -1) {
             session.foldWidgets[row - 1] = prevIndent!= -1 && prevIndent < nextIndent ? "start" : "";
@@ -91,12 +94,12 @@ oop.inherits(FoldMode, BaseFoldMode);
 
         // documentation comments
         if (prevIndent == -1) {
-            if (indent == nextIndent && line[indent] == "##" && next[indent] == "##") {
+            if (indent == nextIndent && line[indent] == "#" && next[indent] == "#") {
                 session.foldWidgets[row - 1] = "";
                 session.foldWidgets[row + 1] = "";
                 return "start";
             }
-        } else if (prevIndent == indent && line[indent] == "##" && prev[indent] == "##") {
+        } else if (prevIndent == indent && line[indent] == "#" && prev[indent] == "#") {
             if (session.getLine(row - 2).search(/\S/) == -1) {
                 session.foldWidgets[row - 1] = "start";
                 session.foldWidgets[row + 1] = "";
@@ -104,17 +107,16 @@ oop.inherits(FoldMode, BaseFoldMode);
             }
         }
 
-        if (prevIndent!= -1 && prevIndent < indent)
+        if (prevIndent!= -1 && prevIndent < indent) {
             session.foldWidgets[row - 1] = "start";
-        else
+        } else {
             session.foldWidgets[row - 1] = "";
-
-        if (indent < nextIndent)
+        }
+        if (indent < nextIndent) {
             return "start";
-        else
+        } else {
             return "";
-    };
-
-}).call(FoldMode.prototype);
-
-});
+        }
+    }
+}
+export const FoldMode = CoffeeFoldMode;

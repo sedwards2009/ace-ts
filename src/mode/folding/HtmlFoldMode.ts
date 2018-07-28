@@ -11,9 +11,6 @@ export interface HtmlElementsMap {
     [name: string]: number;
 }
 
-/**
- *
- */
 export class HtmlFoldMode extends MixedFoldMode {
     /**
      * @param voidElements
@@ -24,3 +21,4 @@ export class HtmlFoldMode extends MixedFoldMode {
     }
 }
 
+export const FoldMode = HtmlFoldMode;

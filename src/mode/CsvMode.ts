@@ -53,3 +53,4 @@ export class CsvMode extends TextMode {
     }
 }
 
+export const Mode = CsvMode;

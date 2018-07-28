@@ -34,7 +34,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var TextMode = require("./TextMode").Mode;
 var MushCodeRules = require("./mushcode_highlight_rules").MushCodeRules;
-var PythonFoldMode = require("./folding/pythonic").FoldMode;
+var PythonFoldMode = require("./folding/PythonFoldMode").FoldMode;
 var Range = require("../Range").Range;
 
 var Mode = function() {

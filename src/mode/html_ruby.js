@@ -34,19 +34,20 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var HtmlRubyHighlightRules = require("./html_ruby_highlight_rules").HtmlRubyHighlightRules;
-var HtmlMode = require("./html").Mode;
-var JavaScriptMode = require("./javascript").Mode;
-var CssMode = require("./css").Mode;
+var HtmlMode = require("./HtmlMode").Mode;
+var JavaScriptMode = require("./JavaScriptMode").Mode;
+var CssMode = require("./CssMode").Mode;
 var RubyMode = require("./ruby").Mode;
 
 var Mode = function() {
-    HtmlMode.call(this);   
-    this.HighlightRules = HtmlRubyHighlightRules;    
-    this.createModeDelegates({
+    var newThis = new HtmlMode();
+    newThis.HighlightRules = HtmlRubyHighlightRules;    
+    newThis.createModeDelegates({
         "js-": JavaScriptMode,
         "css-": CssMode,
         "ruby-": RubyMode
     });
+    return newThis;
 };
 oop.inherits(Mode, HtmlMode);
 

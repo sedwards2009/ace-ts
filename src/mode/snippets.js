@@ -94,7 +94,7 @@ oop.inherits(SnippetGroupHighlightRules, TextHighlightRules);
 
 exports.SnippetGroupHighlightRules = SnippetGroupHighlightRules;
 
-var FoldMode = require("./folding/coffee").FoldMode;
+var FoldMode = require("./folding/CoffeeFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = SnippetGroupHighlightRules;

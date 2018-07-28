@@ -21,3 +21,4 @@ export class LatexMode extends TextMode {
     }
 }
 
+export const Mode = LatexMode;

@@ -41,12 +41,13 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlMode = require("./html").Mode;
+var HtmlMode = require("./HtmlMode").Mode;
 var SoyTemplateHighlightRules = require("./soy_template_highlight_rules").SoyTemplateHighlightRules;
 
 var Mode = function() {
-    HtmlMode.call(this);
-    this.HighlightRules = SoyTemplateHighlightRules;
+    var newThis =  new HtmlMode();
+    newThis.HighlightRules = SoyTemplateHighlightRules;
+    return newThis;
 };
 oop.inherits(Mode, HtmlMode);
 

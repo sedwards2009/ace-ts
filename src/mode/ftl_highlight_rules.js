@@ -32,7 +32,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var FtlLangHighlightRules = function () {
@@ -131,7 +131,11 @@ var FtlLangHighlightRules = function () {
 oop.inherits(FtlLangHighlightRules, TextHighlightRules);
 
 var FtlHighlightRules = function() {
-    HtmlHighlightRules.call(this);
+    var newThis = new HtmlHighlightRules();
+    FtlHighlightRules_OldSchool.call(newThis);
+    return newThis;
+}
+function FtlHighlightRules_OldSchool() {
 
     var directives = "assign|attempt|break|case|compress|default|elseif|else|escape|fallback|function|flush|"
         + "ftl|global|if|import|include|list|local|lt|macro|nested|noescape|noparse|nt|recover|recurse|return|rt|"

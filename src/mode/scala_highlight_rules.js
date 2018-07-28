@@ -2,7 +2,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
+var DocCommentHighlightRules = require("./DocCommentHighlightRules").DocCommentHighlightRules;
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var ScalaHighlightRules = function() {

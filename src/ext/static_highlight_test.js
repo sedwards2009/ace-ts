@@ -9,7 +9,7 @@ define(function(require, exports, module) {
 var assert = require("assert");
 var highlighter = require("./static_highlight");
 var JavaScriptMode = require("../mode/javascript").Mode;
-var TextMode = require("../mode/text").Mode;
+var TextMode = require("../mode/TextMode").Mode;
 
 // Execution ORDER: test.setUpSuite, setUp, testFn, tearDown, test.tearDownSuite
 module.exports = {

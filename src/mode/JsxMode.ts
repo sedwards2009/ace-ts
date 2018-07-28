@@ -55,3 +55,4 @@ export class JsxMode extends TextMode {
     }
 }
 
+export const Mode = JsxMode;

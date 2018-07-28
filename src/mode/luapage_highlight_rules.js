@@ -4,12 +4,15 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
 var LuaHighlightRules = require("./lua_highlight_rules").LuaHighlightRules;
 
 var LuaPageHighlightRules = function() {
-    HtmlHighlightRules.call(this);
-
+    var newThis = new HtmlHighlightRules();
+    LuaPageHighlightRules_OldConstructor.call(newThis);
+    return newThis;
+}
+function LuaPageHighlightRules_OldConstructor() {
     var startRules = [
         {
             token: "keyword",

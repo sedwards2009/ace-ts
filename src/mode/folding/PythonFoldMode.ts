@@ -4,13 +4,10 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { Range } from "../../Range";
-import { FoldMode } from "./FoldMode";
+import { FoldMode  as FoldModeBase } from "./FoldMode";
 import { EditSession } from "../../EditSession";
 
-/**
- *
- */
-export class PythonFoldMode extends FoldMode {
+export class PythonFoldMode extends FoldModeBase {
     foldingStartMarker: RegExp;
     constructor(markers: string) {
         super();
@@ -32,3 +29,4 @@ export class PythonFoldMode extends FoldMode {
     }
 }
 
+export const FoldMode = PythonFoldMode;

@@ -5,8 +5,8 @@ define(function(require, exports, module){
     var indenter, prototype = extend$((import$(LiveScriptMode, superclass).displayName = 'LiveScriptMode', LiveScriptMode), superclass).prototype, constructor = LiveScriptMode;
     function LiveScriptMode(){
       var that;
-      this.$tokenizer = new (require('../tokenizer')).Tokenizer(LiveScriptMode.Rules);
-      if (that = require('../mode/matching_brace_outdent')) {
+      this.$tokenizer = new (require('../Tokenizer')).Tokenizer(LiveScriptMode.Rules);
+      if (that = require('../mode/MatchingBraceOutdent')) {
         this.$outdent = new that.MatchingBraceOutdent;
       }
       this.$id = "ace/mode/livescript";
@@ -49,7 +49,7 @@ define(function(require, exports, module){
       return (ref$ = this.$outdent) != null ? ref$.autoOutdent(doc, row) : void 8;
     };
     return LiveScriptMode;
-  }(require('../mode/text').Mode));
+  }(require('./TextMode').Mode));
   keywordend = '(?![$\\w]|-[A-Za-z]|\\s*:(?![:=]))';
   stringfill = {
     token: 'string',

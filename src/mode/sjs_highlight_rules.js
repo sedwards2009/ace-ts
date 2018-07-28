@@ -32,7 +32,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
+var JavaScriptHighlightRules = require("./JavaScriptHighlightRules").JavaScriptHighlightRules;
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var SJSHighlightRules = function() {
@@ -117,7 +117,7 @@ var SJSHighlightRules = function() {
             regex: "\\|",
             next: "no_regex",
         }
-    ].concat(this.$rules.function_arguments);
+    ];
 
     this.$rules.bstring = [
         {

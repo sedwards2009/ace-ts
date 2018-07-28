@@ -32,12 +32,15 @@ define(function(require, exports, module) {
     "use strict";
 
     var oop = require("../lib/oop");
-    var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+    var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
     var RubyHighlightRules = require("./ruby_highlight_rules").RubyHighlightRules;
 
     var HtmlRubyHighlightRules = function() {
-        HtmlHighlightRules.call(this);
-
+        var newThis = new HtmlHighlightRules();
+        HtmlRubyHighlightRules_OldConstructor.call(newThis);
+        return newThis;
+    }
+    function HtmlRubyHighlightRules_OldConstructor() {
         var startRules = [
             {
                 regex: "<%%|%%>",

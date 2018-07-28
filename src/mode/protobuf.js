@@ -41,14 +41,16 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var CMode = require("./c_cpp").Mode;
+var CMode = require("./CppMode").Mode;
 var ProtobufHighlightRules = require("./protobuf_highlight_rules").ProtobufHighlightRules;
 var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
-    CMode.call(this);
-    this.foldingRules = new CStyleFoldMode();
-    this.HighlightRules = ProtobufHighlightRules;
+    // This work-around is needed to combine this old style code with the superclass which uses JS 'class'.
+    var newThis = new CMode();
+    newThis.foldingRules = new CStyleFoldMode();
+    newThis.HighlightRules = ProtobufHighlightRules;
+    return newThis;
 };
 oop.inherits(Mode, CMode);
 

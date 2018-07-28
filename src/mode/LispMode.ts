@@ -15,3 +15,4 @@ export class LispMode extends TextMode {
     }
 }
 
+export const Mode = LispMode;

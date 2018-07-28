@@ -35,7 +35,7 @@ var oop = require("../lib/oop");
 var TextMode = require("./TextMode").Mode;
 var ScssHighlightRules = require("./scss_highlight_rules").ScssHighlightRules;
 var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
-var CssBehaviour = require("./behaviour/css").CssBehaviour;
+var CssBehaviour = require("./behaviour/CssBehaviour").CssBehaviour;
 var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {

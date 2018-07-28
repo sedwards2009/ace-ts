@@ -36,7 +36,7 @@ var TextMode = require("./TextMode").Mode;
 var LuaHighlightRules = require("./lua_highlight_rules").LuaHighlightRules;
 var LuaFoldMode = require("./folding/lua").FoldMode;
 var Range = require("../Range").Range;
-var WorkerClient = require("../worker/worker_client").WorkerClient;
+var WorkerClient = require("../worker/WorkerClient").WorkerClient;
 
 var Mode = function() {
     this.HighlightRules = LuaHighlightRules;

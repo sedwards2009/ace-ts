@@ -36,7 +36,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var lang = require("../lib/lang");
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
-var LaTeXHighlightRules = require("./latex_highlight_rules");
+var LaTeXHighlightRules = require("./LatexHighlightRules");
 
 var RDocHighlightRules = function() {
 

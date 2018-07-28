@@ -39,7 +39,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlMode = require("./html").Mode;
+var HtmlMode = require("./HtmlMode").Mode;
 
 var RHtmlHighlightRules = require("./rhtml_highlight_rules").RHtmlHighlightRules;
 /* Make life easier, don't do these right now 
@@ -48,9 +48,9 @@ var RCodeModel = require("mode/r_code_model").RCodeModel;
 */
 
 var Mode = function(doc, session) {
-   HtmlMode.call(this);
-   this.$session = session;
-   this.HighlightRules = RHtmlHighlightRules;
+   var newThis = new HtmlMode();
+   newThis.$session = session;
+   newThis.HighlightRules = RHtmlHighlightRules;
 
    /* Or these.
    this.codeModel = new RCodeModel(doc, this.$tokenizer, /^r-/,
@@ -61,6 +61,7 @@ var Mode = function(doc, session) {
          /^<!--\s*begin.rcode\s*(?:.*)/,
          /^\s*end.rcode\s*-->/,
          true); */
+    return newThis;
 };
 oop.inherits(Mode, HtmlMode);
 

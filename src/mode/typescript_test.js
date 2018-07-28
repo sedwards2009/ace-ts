@@ -37,7 +37,7 @@ define(function(require, exports, module) {
 
 var EditSession = require("../edit_session").EditSession;
 var Tokenizer = require("../tokenizer").Tokenizer;
-var JavaScriptMode = require("./javascript").Mode;
+var JavaScriptMode = require("./JavaScriptMode").Mode;
 var assert = require("../test/assertions");
 
 module.exports = {

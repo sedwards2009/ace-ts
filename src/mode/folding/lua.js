@@ -32,9 +32,9 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
-var BaseFoldMode = require("./fold_mode").FoldMode;
-var Range = require("../../range").Range;
-var TokenIterator = require("../../token_iterator").TokenIterator;
+var BaseFoldMode = require("./FoldMode").FoldMode;
+var Range = require("../../Range").Range;
+var TokenIterator = require("../../TokenIterator").TokenIterator;
 
 
 var FoldMode = exports.FoldMode = function() {};

@@ -32,8 +32,8 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
-var Range = require("../../range").Range;
-var CFoldMode = require("./cstyle").FoldMode;
+var Range = require("../../Range").Range;
+var CFoldMode = require("./CstyleFoldMode").FoldMode;
 
 var FoldMode = exports.FoldMode = function(commentRegex) {
     if (commentRegex) {

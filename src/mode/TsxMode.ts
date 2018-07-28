@@ -16,3 +16,4 @@ export class TsxMode extends TypeScriptMode {
     }
 }
 
+export const Mode = TsxMode;

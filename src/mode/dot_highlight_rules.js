@@ -4,7 +4,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var lang = require("../lib/lang");
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
-var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
+var DocCommentHighlightRules = require("./DocCommentHighlightRules").DocCommentHighlightRules;
 
 var DotHighlightRules = function() {
 

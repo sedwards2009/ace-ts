@@ -33,12 +33,15 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
-var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
+var JavaScriptHighlightRules = require("./JavaScriptHighlightRules").JavaScriptHighlightRules;
 
 var EjsHighlightRules = function(start, end) {
-    HtmlHighlightRules.call(this);
-    
+    var newThis = new HtmlHighlightRules();
+    EjsHighlightRules_OldConstructor.call(newThis, start, end);
+    return newThis;
+};
+function EjsHighlightRules_OldConstructor(start, end) {
     if (!start)
         start = "(?:<%|<\\?|{{)";
     if (!end)
@@ -84,19 +87,19 @@ exports.EjsHighlightRules = EjsHighlightRules;
 
 
 var oop = require("../lib/oop");
-var HtmlMode = require("./html").Mode;
-var JavaScriptMode = require("./javascript").Mode;
-var CssMode = require("./css").Mode;
-var RubyMode = require("./ruby").Mode;
+var HtmlMode = require("./HtmlMode").Mode;
+var JavaScriptMode = require("./JavaScriptMode").Mode;
+var CssMode = require("./CssMode").Mode;
 
 var Mode = function() {
-    HtmlMode.call(this);
-    this.HighlightRules = EjsHighlightRules;    
-    this.createModeDelegates({
+    var newThis = new HtmlMode();
+    newThis.HighlightRules = EjsHighlightRules;    
+    newThis.createModeDelegates({
         "js-": JavaScriptMode,
         "css-": CssMode,
         "ejs-": JavaScriptMode
     });
+    return newThis;
 };
 oop.inherits(Mode, HtmlMode);
 

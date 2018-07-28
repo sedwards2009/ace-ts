@@ -38,11 +38,14 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
 
 var SoyTemplateHighlightRules = function() {
-    HtmlHighlightRules.call(this);
-
+    var newThis = new HtmlHighlightRules();
+    SoyTemplateHighlightRules_OldConstructor.call(newThis);
+    return newThis;
+};
+function SoyTemplateHighlightRules_OldConstructor() {
     // regexp must not have capturing parentheses. Use (?:) instead.
     // regexps are ordered -> the first match is used
 
@@ -339,7 +342,7 @@ var SoyTemplateHighlightRules = function() {
     }
     
     this.normalizeRules();
-};
+}
 
 SoyTemplateHighlightRules.metaData = { comment: 'SoyTemplate',
       fileTypes: [ 'soy' ],

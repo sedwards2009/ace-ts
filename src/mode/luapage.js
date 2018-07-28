@@ -2,17 +2,19 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlMode = require("./html").Mode;
+var HtmlMode = require("./HtmlMode").Mode;
 var LuaMode = require("./lua").Mode;
 var LuaPageHighlightRules = require("./luapage_highlight_rules").LuaPageHighlightRules;
 
 var Mode = function() {
-    HtmlMode.call(this);
+    // This work-around is needed to combine this old style code with the superclass which uses JS 'class'.
+    var newThis = new HtmlMode();
     
-    this.HighlightRules = LuaPageHighlightRules;
-    this.createModeDelegates({
+    newThis.HighlightRules = LuaPageHighlightRules;
+    newThis.createModeDelegates({
         "lua-": LuaMode
     });
+    return newThis;
 };
 oop.inherits(Mode, HtmlMode);
 

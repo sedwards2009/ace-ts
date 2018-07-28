@@ -22,3 +22,4 @@ export class PureScriptMode extends TextMode {
     }
 }
 
+export const Mode = PureScriptMode;

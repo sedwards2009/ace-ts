@@ -34,7 +34,7 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var TextMode = require("./TextMode").Mode;
 var SassHighlightRules = require("./sass_highlight_rules").SassHighlightRules;
-var FoldMode = require("./folding/coffee").FoldMode;
+var FoldMode = require("./folding/CoffeeFoldMode").FoldMode;
 
 var Mode = function() {
     this.HighlightRules = SassHighlightRules;

@@ -59,7 +59,7 @@ export class TextHighlightRules implements Highlighter {
      */
     $rules: { [stateName: string]: HighlighterRule[] };
 
-    private readonly $embeds: string[] = [];
+    private $embeds: string[];
 
     $keywordList: string[];
 
@@ -67,6 +67,8 @@ export class TextHighlightRules implements Highlighter {
      *
      */
     constructor() {
+        // Note: Beware! All of the JS based subclasses of this class do not call this constructor from theirs!
+        //       This also means that any initialisation of instance variables above is not done!
 
         // regexp must not have capturing parentheses
         // regexps are ordered -> the first match is used
@@ -155,6 +157,9 @@ export class TextHighlightRules implements Highlighter {
             }
         }
 
+        if ( ! this.$embeds) {
+            this.$embeds = [];
+        }
         this.$embeds.push(prefix);
     }
 

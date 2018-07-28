@@ -2,12 +2,13 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var JavaScriptMode = require("./javascript").Mode;
+var JavaScriptMode = require("./JavaScriptMode").Mode;
 var GroovyHighlightRules = require("./groovy_highlight_rules").GroovyHighlightRules;
 
 var Mode = function() {
-    JavaScriptMode.call(this);
-    this.HighlightRules = GroovyHighlightRules;
+    var newThis = new JavaScriptMode();
+    newThis.HighlightRules = GroovyHighlightRules;
+    return newThis;
 };
 oop.inherits(Mode, JavaScriptMode);
 

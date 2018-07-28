@@ -104,7 +104,7 @@ patch(
 );
 
 patch(
-    require("../mode/text").Mode.prototype, "getTokenizer",
+    require("../mode/TextMode").Mode.prototype, "getTokenizer",
     /Tokenizer/,
     "TokenizerModule.Tokenizer"
 );

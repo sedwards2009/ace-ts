@@ -41,14 +41,15 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var CMode = require("./c_cpp").Mode;
+var CMode = require("./CppMode").Mode;
 var DartHighlightRules = require("./dart_highlight_rules").DartHighlightRules;
 var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
 
 var Mode = function() {
-    CMode.call(this);
-    this.HighlightRules = DartHighlightRules;
-    this.foldingRules = new CStyleFoldMode();
+    var newThis = new CMode();
+    newThis.HighlightRules = DartHighlightRules;
+    newThis.foldingRules = new CStyleFoldMode();
+    return newThis;
 };
 oop.inherits(Mode, CMode);
 

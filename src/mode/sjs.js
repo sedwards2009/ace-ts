@@ -31,7 +31,7 @@
 define(function(require, exports, module) {
 "use strict";
 var oop = require("../lib/oop");
-var JSMode = require("./javascript").Mode;
+var JSMode = require("./JavaScriptMode").Mode;
 var SJSHighlightRules = require("./sjs_highlight_rules").SJSHighlightRules;
 var MatchingBraceOutdent = require("./MatchingBraceOutdent").MatchingBraceOutdent;
 var CstyleBehaviour = require("./behaviour/CstyleBehaviour").CstyleBehaviour;

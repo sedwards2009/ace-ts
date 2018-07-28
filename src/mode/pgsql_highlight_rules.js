@@ -32,13 +32,13 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var lang = require("../lib/lang");
-var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
+var DocCommentHighlightRules = require("./DocCommentHighlightRules").DocCommentHighlightRules;
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 // Syntax highlighting for pl/languages and json.
 var PerlHighlightRules = require("./perl_highlight_rules").PerlHighlightRules;
-var PythonHighlightRules = require("./python_highlight_rules").PythonHighlightRules;
-var JsonHighlightRules = require("./json_highlight_rules").JsonHighlightRules;
-var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
+var PythonHighlightRules = require("./PythonHighlightRules").PythonHighlightRules;
+var JsonHighlightRules = require("./JsonHighlightRules").JsonHighlightRules;
+var JavaScriptHighlightRules = require("./JavaScriptHighlightRules").JavaScriptHighlightRules;
 
 var PgsqlHighlightRules = function() {
 

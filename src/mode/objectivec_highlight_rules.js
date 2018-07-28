@@ -2,9 +2,9 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
-var C_Highlight_File = require("./c_cpp_highlight_rules");
-var CHighlightRules = C_Highlight_File.c_cppHighlightRules;
+var DocCommentHighlightRules = require("./DocCommentHighlightRules").DocCommentHighlightRules;
+var C_Highlight_File = require("./CppHighlightRules");
+var CHighlightRules = C_Highlight_File.CppHighlightRules;
 
 var ObjectiveCHighlightRules = function() {
 

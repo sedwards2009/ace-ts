@@ -30,16 +30,15 @@
 define(function(require, exports, module) {
 "use strict";
 
-var WorkerClient = require("../worker/worker_client").WorkerClient;
+var WorkerClient = require("../worker/WorkerClient").WorkerClient;
 var oop = require("../lib/oop");
 var TextMode = require("./TextMode").Mode;
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 var JSONiqLexer = require("./xquery/jsoniq_lexer").JSONiqLexer;
 var Range = require("../Range").Range;
-var XQueryBehaviour = require("./behaviour/xquery").XQueryBehaviour;
+var XQueryBehaviour = require("./behaviour/XQueryBehaviour").XQueryBehaviour;
 var CStyleFoldMode = require("./folding/CstyleFoldMode").FoldMode;
-var Anchor = require("../anchor").Anchor;
-var LanguageTools = require("../ext/language_tools");
+var Anchor = require("../Anchor").Anchor;
 
 var Mode = function() {
     this.$tokenizer   = new JSONiqLexer();
@@ -52,14 +51,12 @@ oop.inherits(Mode, TextMode);
 
 (function() {
 
-    LanguageTools.addCompleter({
-        getCompletions: function(editor, session, pos, prefix, callback) {
-            session.$worker.emit("complete", { data: { pos: pos, prefix: prefix } });
-            session.$worker.on("complete", function(e){
-                callback(null, e.data);
-            });
-        }
-    });
+    this.getCompletions = function(editor, session, pos, prefix, callback) {
+        session.$worker.emit("complete", { data: { pos: pos, prefix: prefix } });
+        session.$worker.on("complete", function(e){
+            callback(null, e.data);
+        });
+    };
 
     this.getNextLineIndent = function(state, line, tab) {
         var indent = this.$getIndent(line);

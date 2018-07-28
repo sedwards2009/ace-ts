@@ -40,12 +40,15 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var RHighlightRules = require("./r_highlight_rules").RHighlightRules;
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
 
 var RHtmlHighlightRules = function() {
-    HtmlHighlightRules.call(this);
-
+    var newThis = new HtmlHighlightRules();
+    RHtmlHighlightRules_OldConstructor.call(newThis);
+    return newThis;
+}
+function RHtmlHighlightRules_OldConstructor() {
     this.$rules["start"].unshift({
         token: "support.function.codebegin",
         regex: "^<" + "!--\\s*begin.rcode\\s*(?:.*)",

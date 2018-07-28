@@ -42,11 +42,10 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
-var MarkdownHighlightRules = require("./markdown_highlight_rules").MarkdownHighlightRules;
+var MarkdownHighlightRules = require("./MarkdownHighlightRules").MarkdownHighlightRules;
 var SassHighlightRules = require("./scss_highlight_rules").ScssHighlightRules;
 var LessHighlightRules = require("./less_highlight_rules").LessHighlightRules;
-var CoffeeHighlightRules = require("./coffee_highlight_rules").CoffeeHighlightRules;
-var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
+var JavaScriptHighlightRules = require("./JavaScriptHighlightRules").JavaScriptHighlightRules;
 
 function mixin_embed(tag, prefix) {
     return { 

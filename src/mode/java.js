@@ -2,12 +2,13 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var JavaScriptMode = require("./javascript").Mode;
+var JavaScriptMode = require("./JavaScriptMode").Mode;
 var JavaHighlightRules = require("./java_highlight_rules").JavaHighlightRules;
 
 var Mode = function() {
-    JavaScriptMode.call(this);
-    this.HighlightRules = JavaHighlightRules;
+    var newThis = new JavaScriptMode();
+    newThis.HighlightRules = JavaHighlightRules;
+    return newThis;
 };
 oop.inherits(Mode, JavaScriptMode);
 

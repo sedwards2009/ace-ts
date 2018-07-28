@@ -4,14 +4,18 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
 
 function pop2(currentState, stack) {
     stack.splice(0, 3);
     return stack.shift() || "start";
 }
 var HandlebarsHighlightRules = function() {
-    HtmlHighlightRules.call(this);
+    var newThis = new HtmlHighlightRules();
+    HandlebarsHighlightRules_OldConstructor.call(newThis);
+    return newThis;
+}
+function HandlebarsHighlightRules_OldConstructor() {
     var hbs = {
         regex : "(?={{)",
         push : "handlebars"

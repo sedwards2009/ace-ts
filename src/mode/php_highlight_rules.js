@@ -33,9 +33,9 @@ define(function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var lang = require("../lib/lang");
-var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
+var DocCommentHighlightRules = require("./DocCommentHighlightRules").DocCommentHighlightRules;
 var TextHighlightRules = require("./TextHighlightRules").TextHighlightRules;
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var HtmlHighlightRules = require("./HtmlHighlightRules").HtmlHighlightRules;
 
 var PhpLangHighlightRules = function() {
     var docComment = DocCommentHighlightRules;
@@ -1052,7 +1052,11 @@ oop.inherits(PhpLangHighlightRules, TextHighlightRules);
 
 
 var PhpHighlightRules = function() {
-    HtmlHighlightRules.call(this);
+    var newThis = new HtmlHighlightRules();
+    PhpHighlightRules_oldConstructor.call(newThis);
+    return newThis;
+};
+function PhpHighlightRules_oldConstructor() {
 
     var startRules = [
         {

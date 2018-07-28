@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
-var Range = require("../../range").Range;
+var Range = require("../../Range").Range;
 var BaseFoldMode = require("./fold_mode").FoldMode;
 
 var FoldMode = exports.FoldMode = function() {};
