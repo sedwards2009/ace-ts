@@ -9,6 +9,7 @@ import { Document } from './Document';
 import { Position } from './Position';
 import { EventEmitterClass } from './lib/EventEmitterClass';
 import { EventBus } from "./EventBus";
+import { Origin } from './OriginEnum';
 
 function pointsInOrder(this: void, point1: Position, point2: Position, equalPointsInOrder: boolean): boolean {
     const bColIsAfter = equalPointsInOrder ? point1.column <= point2.column : point1.column < point2.column;
@@ -93,7 +94,7 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
                 return;
             }
             const point: Position = getTransformedPoint(delta, { row: this.row, column: this.column }, this.insertRight);
-            this.setPosition(point.row, point.column, true);
+            this.setPosition(point.row, point.column, Origin.INTERNAL, true);
         };
 
         this.attach(doc);
@@ -123,7 +124,7 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      * @param column The column index to move the anchor to
      * @param noClip Identifies if you want the position to be clipped.
      */
-    setPosition(row: number, column: number, noClip?: boolean): void {
+    setPosition(row: number, column: number, origin=Origin.INTERNAL, noClip=false): void {
         let pos: Position;
         if (noClip) {
             pos = { row: row, column: column };
@@ -135,18 +136,17 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
         if (this.row === pos.row && this.column === pos.column) {
             return;
         }
-        else {
-            const old: Position = { row: this.row, column: this.column };
 
-            this.row = pos.row;
-            this.column = pos.column;
+        const old: Position = { row: this.row, column: this.column };
 
-            /**
-             * Fires whenever the anchor position changes.
-             */
-            const event: AnchorChangeEvent = { oldPosition: old, position: pos };
-            this.eventBus._signal("change", event);
-        }
+        this.row = pos.row;
+        this.column = pos.column;
+
+        /**
+         * Fires whenever the anchor position changes.
+         */
+        const event: AnchorChangeEvent = { oldPosition: old, position: pos, origin };
+        this.eventBus._signal("change", event);
     }
 
     /**

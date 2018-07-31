@@ -24,6 +24,8 @@ export { VScrollBar } from './VScrollBar';
 export { commands as DefaultCommands } from './commands/DefaultCommands';
 export { Command } from './commands/Command';
 export { commands as MultiSelectCommands } from './commands/MultiSelectCommands';
+export { SelectionChangeEvent } from './events/SelectionChangeEvent';
+export { Origin } from './OriginEnum';
 
 import * as ModeListModule from './mode/ModeList';
 export const ModeList = ModeListModule;

@@ -75,6 +75,8 @@ import { RangeSelectionMarker } from './RangeBasic';
 import { TokenWithIndex } from './Token';
 import { UndoManager } from './UndoManager';
 import { onMouseDown as multiSelectOnMouseDown } from './mouse/MultiSelectHandler';
+import { Origin } from "./OriginEnum";
+import { SelectionChangeEvent } from "./events/SelectionChangeEvent";
 
 
 const search = new Search();
@@ -451,8 +453,7 @@ export class Editor {
                         renderer.updateCursor();
                         renderer.updateBackMarkers();
                     }
-
-                    this._emit("changeSelection");
+                    this._emitChangeSelection();
                 }
             };
 
@@ -496,10 +497,10 @@ export class Editor {
 
             if (session && session.selection && this.inMultiSelectMode !== session.selection.inMultiSelectMode) {
                 if (session.selection.inMultiSelectMode) {
-                    onMultiSelect(void 0, session.selection);
+                    onMultiSelect(undefined, session.selection);
                 }
                 else {
-                    onSingleSelect(void 0, session.selection);
+                    onSingleSelect(undefined, session.selection);
                 }
             }
         });
@@ -610,7 +611,7 @@ export class Editor {
     dispose(): void {
         this.renderer.dispose();
         if (this.session) {
-            this.setSession(void 0);
+            this.setSession(undefined);
         }
         refChange(this.uuid, 'Editor', -1);
         refChange('stop');
@@ -651,7 +652,7 @@ export class Editor {
             return session.getSelection();
         }
         else {
-            return void 0;
+            return undefined;
         }
     }
 
@@ -732,7 +733,7 @@ export class Editor {
         const session = this.sessionOrThrow();
         const annotations = session.getAnnotations().sort(compareAnnotations);
         if (!annotations.length) {
-            return void 0;
+            return undefined;
         }
 
         let i = binarySearch(annotations, { row: row, column: -1 }, comparePoints);
@@ -746,7 +747,7 @@ export class Editor {
 
         let annotation = annotations[i];
         if (!annotation || !direction)
-            return void 0;
+            return undefined;
 
         if (annotation.row === row) {
             do {
@@ -771,7 +772,7 @@ export class Editor {
             return matched;
         }
         else {
-            return void 0;
+            return undefined;
         }
     }
 
@@ -829,7 +830,7 @@ export class Editor {
 
             const anim = this.renderer.$scrollAnimation;
             this.onChangeOverwrite({ type: 'changeCursor' }, session);
-            this.onSelectionChange(void 0, this.selection);
+            this.onSelectionChange(undefined, this.selection);
             if (anim && anim.from === anim.to) {
                 this.renderer.animateScrolling(anim.from);
             }
@@ -1024,7 +1025,7 @@ export class Editor {
 
                 const renderer = this.renderer;
                 if (renderer) {
-                    renderer.scrollCursorIntoView(void 0, 0.5);
+                    renderer.scrollCursorIntoView(undefined, 0.5);
                 }
             }
             if (skip) {
@@ -1047,7 +1048,7 @@ export class Editor {
                 if (r.cursor.row === row)
                     return true;
                 row = r.cursor.row;
-                return void 0;
+                return undefined;
             });
 
             if (!ranges.length || sameRowRanges.length === ranges.length - 1) {
@@ -1282,7 +1283,7 @@ export class Editor {
                 switch (command.scrollIntoView) {
                     case "center":
                         if (renderer) {
-                            renderer.scrollCursorIntoView(void 0, 0.5);
+                            renderer.scrollCursorIntoView(undefined, 0.5);
                         }
                         break;
                     case "animate":
@@ -1432,7 +1433,7 @@ export class Editor {
 
             if (this.removeChangeSelectionHandler) {
                 this.removeChangeSelectionHandler();
-                this.removeChangeSelectionHandler = void 0;
+                this.removeChangeSelectionHandler = undefined;
             }
         }
 
@@ -1490,14 +1491,14 @@ export class Editor {
                 this.selection.on("changeCursor", this.$onSelectionChangeCursor);
             }
 
-            const onSelectionChange = (unused: any, selection: Selection) => {
-                this.onSelectionChange(unused, selection);
+            const onSelectionChange = (event: SelectionChangeEvent, selection: Selection) => {
+                this.onSelectionChange(event, selection);
             };
             if (this.selection) {
                 this.removeChangeSelectionHandler = this.selection.on("changeSelection", onSelectionChange);
             }
 
-            this.onChangeMode(void 0, this.session);
+            this.onChangeMode(undefined, this.session);
 
             this.$blockScrolling += 1;
             try {
@@ -1507,15 +1508,15 @@ export class Editor {
                 this.$blockScrolling -= 1;
             }
 
-            this.onScrollTopChange(void 0, this.session);
-            this.onScrollLeftChange(void 0, this.session);
+            this.onScrollTopChange(undefined, this.session);
+            this.onScrollLeftChange(undefined, this.session);
 
-            this.onSelectionChange(void 0, this.selection);
+            this.onSelectionChange(undefined, this.selection);
 
-            this.onChangeFrontMarker(void 0, this.session);
-            this.onChangeBackMarker(void 0, this.session);
-            this.onChangeBreakpoint(void 0, this.session);
-            this.onChangeAnnotation(void 0, this.session);
+            this.onChangeFrontMarker(undefined, this.session);
+            this.onChangeBackMarker(undefined, this.session);
+            this.onChangeBreakpoint(undefined, this.session);
+            this.onChangeAnnotation(undefined, this.session);
 
             if (this.renderer) {
                 if (session.getUseWrapMode()) {
@@ -1527,7 +1528,7 @@ export class Editor {
         else {
             // Clear the renderer first in case the layers try to access the selection.
             if (this.renderer) {
-                this.renderer.setSession(void 0);
+                this.renderer.setSession(undefined);
             }
 
             // Make sure that the selection is cleared BEFORE clearing the session.
@@ -1535,7 +1536,7 @@ export class Editor {
             // this.selection = null;
 
             // Now we can do it.
-            this.session = void 0;
+            this.session = undefined;
         }
 
         const changeSessionEvent: EditorChangeSessionEvent = { session: this.session, oldSession };
@@ -1691,7 +1692,7 @@ export class Editor {
         const session = this.sessionOrThrow();
         if (session.$bracketHighlight) {
             session.removeMarker(session.$bracketHighlight);
-            session.$bracketHighlight = void 0;
+            session.$bracketHighlight = undefined;
         }
 
         if (this.$highlightPending) {
@@ -1973,7 +1974,7 @@ export class Editor {
         this.$highlightBrackets();
         this.$highlightTags();
         this.$updateHighlightActiveLine();
-        this.eventBus._signal("changeSelection");
+        this._emitChangeSelection(Origin.INTERNAL);
     }
 
     $updateHighlightActiveLine(): void {
@@ -2015,7 +2016,7 @@ export class Editor {
         }
     }
 
-    private onSelectionChange(event: any, unused: any): void {
+    private onSelectionChange(event: SelectionChangeEvent, unused: any): void {
 
         const session = this.sessionOrThrow();
 
@@ -2040,8 +2041,8 @@ export class Editor {
         else {
             session.highlight(null);
         }
-
-        this.eventBus._signal("changeSelection");
+        const origin = event == null ? Origin.INTERNAL : event.origin;
+        this._emitChangeSelection(origin);
     }
 
     private $getSelectionHighLightRegexp(): RegExp | undefined {
@@ -2049,7 +2050,7 @@ export class Editor {
 
         const selection = this.getSelectionRange();
         if (isEmpty(selection) || isMultiLine(selection)) {
-            return void 0;
+            return undefined;
         }
 
         const startOuter = selection.start.column - 1;
@@ -2061,11 +2062,11 @@ export class Editor {
         // Make sure the outer characters are not part of the word.
         if ((startOuter >= 0 && /^[\w\d]/.test(needle)) ||
             (endOuter <= lineCols && /[\w\d]$/.test(needle)))
-            return void 0;
+            return undefined;
 
         needle = line.substring(selection.start.column, selection.end.column);
         if (!/^[\w\d]+$/.test(needle))
-            return void 0;
+            return undefined;
 
         // When the needle is a string, the return type will be a RegExp.
         // TODO: Split out this functionality for cleaner type safety.
@@ -2373,6 +2374,13 @@ export class Editor {
         this.eventBus._emit(eventName, event);
     }
 
+    private _emitChangeSelection(origin: Origin): void {
+        const event: SelectionChangeEvent = {
+            origin
+        };
+        this._emit("changeSelection", event);
+    }
+
     _signal(eventName: EditorEventName, event?: any): void {
         this.eventBus._signal(eventName, event);
     }
@@ -2531,7 +2539,7 @@ export class Editor {
      */
     setSelectionStyle(selectionStyle: 'line' | 'text'): void {
         this.$selectionStyle = selectionStyle;
-        this.onSelectionChange(void 0, this.selection);
+        this.onSelectionChange(undefined, this.selection);
         this._signal("changeSelectionStyle", { data: selectionStyle });
     }
 
@@ -2577,7 +2585,7 @@ export class Editor {
      */
     setHighlightSelectedWord(highlightSelectedWord: boolean): void {
         this.$highlightSelectedWord = highlightSelectedWord;
-        this.onSelectionChange(void 0, this.selection);
+        this.onSelectionChange(undefined, this.selection);
     }
 
     /**
@@ -3379,7 +3387,7 @@ export class Editor {
             // FIXME: Why don't we assert our args and do typeof select === 'undefined'?
             if (select != null) {
                 // This is called when select is undefined.
-                renderer.scrollCursorIntoView(void 0, 0.5);
+                renderer.scrollCursorIntoView(undefined, 0.5);
             }
 
             renderer.animateScrolling(scrollTop);
@@ -3478,7 +3486,7 @@ export class Editor {
     deleteLeft(): void {
         if (this.selection && this.selection.isEmpty()) {
             this.remove("left");
-            return void 0;
+            return undefined;
         }
         else {
             // We don't actually listen to the return value of commands at present.
@@ -4191,7 +4199,7 @@ export class Editor {
         const selection = this.selectionOrThrow();
         options.needle = needle || options.needle;
         let range: OrientedRange | undefined;
-        if (options.needle === void 0) {
+        if (options.needle === undefined) {
             range = selection.isEmpty() ? selection.getWordRange() : selection.getRange();
             options.needle = session.getTextRange(range);
         }
@@ -4278,7 +4286,7 @@ export class Editor {
             range.end = range.start;
         }
         selection.setRange(range);
-        return void 0;
+        return undefined;
     }
 
     findSearchBox(match: boolean) {
@@ -4332,7 +4340,7 @@ export class Editor {
         this.$blockScrolling--;
         const renderer = this.renderer;
         if (renderer) {
-            renderer.scrollCursorIntoView(void 0, 0.5);
+            renderer.scrollCursorIntoView(undefined, 0.5);
         }
     }
 
@@ -4344,7 +4352,7 @@ export class Editor {
         this.$blockScrolling--;
         const renderer = this.renderer;
         if (renderer) {
-            renderer.scrollCursorIntoView(void 0, 0.5);
+            renderer.scrollCursorIntoView(undefined, 0.5);
         }
     }
 
@@ -4415,17 +4423,17 @@ export class Editor {
 
             if (onChangeSelection) {
                 onChangeSelection();
-                onChangeSelection = void 0;
+                onChangeSelection = undefined;
             }
 
             if (removeBeforeRenderHandler) {
                 removeBeforeRenderHandler();
-                removeBeforeRenderHandler = void 0;
+                removeBeforeRenderHandler = undefined;
             }
 
             if (removeAfterRenderHandler) {
                 removeAfterRenderHandler();
-                removeAfterRenderHandler = void 0;
+                removeAfterRenderHandler = undefined;
             }
         };
     }
@@ -4758,12 +4766,13 @@ export class MouseHandler implements IGestureHandler {
                 cursor = orientedRange.cursor;
                 anchor = orientedRange.anchor;
             }
+
             if (editor.selection) {
-                editor.selection.setSelectionAnchor(anchor.row, anchor.column);
+                editor.selection.setSelectionAnchor(anchor.row, anchor.column, Origin.USER_MOUSE);
             }
         }
         if (editor.selection) {
-            editor.selection.selectToPosition(cursor);
+            editor.selection.selectToPosition(cursor, Origin.USER_MOUSE);
         }
 
         this.editor.renderer.scrollCursorIntoView();
@@ -5090,7 +5099,7 @@ class GutterHandler {
                     const row = mouseEvent.getDocumentPosition().row;
                     const annotation = gutter.$annotations[row];
                     if (!annotation) {
-                        return hideTooltip(void 0, editor);
+                        return hideTooltip(undefined, editor);
                     }
 
                     const maxRow = session.getLength();
@@ -5098,7 +5107,7 @@ class GutterHandler {
                         const screenRow = editor.renderer.pixelToScreenCoordinates(0, mouseEvent.clientY).row;
                         const pos = mouseEvent.getDocumentPosition();
                         if (screenRow > session.documentToScreenRow(pos.row, pos.column)) {
-                            return hideTooltip(void 0, editor);
+                            return hideTooltip(undefined, editor);
                         }
                     }
 
@@ -5135,7 +5144,7 @@ class GutterHandler {
                 // FIXME: Obfuscating the type of target to thwart compiler.
                 const target: any = e.domEvent.target || e.domEvent.srcElement;
                 if (hasCssClass(target, "ace_fold-widget")) {
-                    return hideTooltip(void 0, editor);
+                    return hideTooltip(undefined, editor);
                 }
 
                 if (tooltipAnnotation && mouseHandler.$tooltipFollowsMouse) {
@@ -5151,7 +5160,7 @@ class GutterHandler {
                     if (mouseEvent && !mouseHandler.isMousePressed)
                         showTooltip();
                     else
-                        hideTooltip(void 0, editor);
+                        hideTooltip(undefined, editor);
                 }, 50);
             });
 
@@ -5162,7 +5171,7 @@ class GutterHandler {
 
                 tooltipTimeout = window.setTimeout(function () {
                     tooltipTimeout = null;
-                    hideTooltip(void 0, editor);
+                    hideTooltip(undefined, editor);
                 }, 50);
             });
 

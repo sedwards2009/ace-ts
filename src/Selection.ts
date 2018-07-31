@@ -18,6 +18,8 @@ import { EventBus } from "./EventBus";
 import { SelectionAddRangeEvent } from "./events/SelectionAddRangeEvent";
 import { SelectionRemoveRangeEvent } from "./events/SelectionRemoveRangeEvent";
 import { OrientedRange } from './RangeBasic';
+import { Origin } from "./OriginEnum";
+import { SelectionChangeEvent } from "./events/SelectionChangeEvent";
 
 /**
  * Nothing (void 0).
@@ -82,15 +84,9 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
 
         // FIXME: This isn't removed.
         this.lead.on("change", (event: AnchorChangeEvent, source: Anchor) => {
-            /**
-             * @event changeCursor
-             */
             this.eventBus._emit("changeCursor");
             if (!this.$isEmpty) {
-                /**
-                 * @event changeSelection
-                 */
-                this.eventBus._emit("changeSelection");
+                this._emitChangeSelection(event.origin);
             }
             if (!this.$keepDesiredColumnOnChange && event.oldPosition.column !== event.position.column) {
                 this.$desiredColumn = null;
@@ -98,14 +94,19 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         });
 
         // FIXME: This isn't removed.
-        this.selectionAnchor.on("change", (event: AnchorChangeEvent, source: Anchor) => {
+        this.anchor.on("change", (event: AnchorChangeEvent, source: Anchor) => {
             if (!this.$isEmpty) {
-                /**
-                 * @event changeSelection
-                 */
-                this.eventBus._emit("changeSelection");
+                this._emitChangeSelection(event.origin);
             }
         });
+    }
+
+    private _emitChangeSelection(origin=Origin.INTERNAL): void {
+        const event: SelectionChangeEvent = {
+            origin
+        };
+
+        this.eventBus._emit("changeSelection", event);
     }
 
     /**
@@ -227,24 +228,12 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
      * Sets the row and column position of the anchor.
      * This function also emits the `'changeSelection'` event.
      */
-    setSelectionAnchor(row: number, column: number): void {
-
-        if (typeof row !== 'number') {
-            throw new TypeError("row must be a number");
-        }
-
-        if (typeof column !== 'number') {
-            throw new TypeError("column must be a number");
-        }
-
-        this.anchor.setPosition(row, column);
+    setSelectionAnchor(row: number, column: number, origin=Origin.INTERNAL): void {
+        this.anchor.setPosition(row, column, origin);
 
         if (this.$isEmpty) {
-            this.$isEmpty = false;
-            /**
-             * @event changeSelection
-             */
-            this.eventBus._emit("changeSelection");
+            this.$isEmpty = false
+            this._emitChangeSelection();;
         }
     }
 
@@ -340,10 +329,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
     clearSelection(): void {
         if (!this.$isEmpty) {
             this.$isEmpty = true;
-            /**
-             * @event changeSelection
-             */
-            this.eventBus._emit("changeSelection");
+            this._emitChangeSelection();
         }
     }
 
@@ -404,9 +390,9 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
     /**
      * Moves the selection cursor to the row and column indicated by `pos`.
      */
-    selectToPosition(position: Position): void {
+    selectToPosition(position: Position, origin=Origin.INTERNAL): void {
         this.$moveSelection(() => {
-            this.moveCursorToPosition(position);
+            this.moveCursorToPosition(position, origin);
         });
     }
 
@@ -967,14 +953,14 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
     /**
      * Moves the selection to the position indicated by its `row` and `column`.
      */
-    moveCursorToPosition(position: Position): void {
-        this.moveCursorTo(position.row, position.column);
+    moveCursorToPosition(position: Position, origin=Origin.INTERNAL): void {
+        this.moveCursorTo(position.row, position.column, false, origin);
     }
 
     /**
      * Moves the cursor to the row and column provided.
      */
-    moveCursorTo(row: number, column: number, keepDesiredColumn?: boolean): void {
+    moveCursorTo(row: number, column: number, keepDesiredColumn=false, origin=Origin.INTERNAL): void {
         const session = this.sessionOrThrow();
         // Ensure the row/column is not inside of a fold.
         const fold = session.getFoldAt(row, column, 1);
@@ -984,7 +970,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         }
 
         this.$keepDesiredColumnOnChange = true;
-        this.lead.setPosition(row, column);
+        this.lead.setPosition(row, column, origin);
         this.$keepDesiredColumnOnChange = false;
 
         if (!keepDesiredColumn) {
