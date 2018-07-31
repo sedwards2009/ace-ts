@@ -4671,59 +4671,54 @@ export class MouseHandler implements IGestureHandler {
             renderer.$keepTextAreaAtCursor = null;
         }
 
-        const onMouseMove = (function (editor: Editor, mouseHandler: MouseHandler) {
-            return function (mouseEvent: MouseEvent) {
-                if (!mouseEvent) return;
-                // if editor is loaded inside iframe, and mouseup event is outside
-                // we won't recieve it, so we cancel on first mousemove without button
-                if (isWebKit && !mouseEvent.which && mouseHandler.releaseMouse) {
-                    // TODO: For backwards compatibility I'm passing undefined,
-                    // but it would probably make more sense to pass the mouse event
-                    // since that is the final event.
-                    return mouseHandler.releaseMouse(undefined);
-                }
+        const onMouseMove = (mouseEvent: MouseEvent) => {
+            if (!mouseEvent) {
+                return;
+            }
+            // if editor is loaded inside iframe, and mouseup event is outside
+            // we won't recieve it, so we cancel on first mousemove without button
+            if (isWebKit && !mouseEvent.which && this.releaseMouse) {
+                // TODO: For backwards compatibility I'm passing undefined,
+                // but it would probably make more sense to pass the mouse event
+                // since that is the final event.
+                return this.releaseMouse(undefined);
+            }
 
-                mouseHandler.clientX = mouseEvent.clientX;
-                mouseHandler.clientY = mouseEvent.clientY;
-                if (mouseMoveHandler) {
-                    mouseMoveHandler(mouseEvent);
-                }
-                // mouseHandler.mouseEvent = new EditorMouseEvent(mouseEvent, editor);
-                // mouseHandler.$mouseMoved = true;
-            };
-        })(this.editor, this);
+            this.clientX = mouseEvent.clientX;
+            this.clientY = mouseEvent.clientY;
+            if (mouseMoveHandler) {
+                mouseMoveHandler(mouseEvent);
+            }
+            // this.mouseEvent = new EditorMouseEvent(mouseEvent, editor);
+            // this.$mouseMoved = true;
+        };
 
         let timerId: number;
 
-        const onCaptureInterval = (function (mouseHandler: MouseHandler) {
-            return function () {
-                if (mouseHandler[mouseHandler.state]) {
-                    mouseHandler[mouseHandler.state]();
-                }
-                // mouseHandler.$mouseMoved = false;
-            };
-        })(this);
+        const onCaptureInterval = () => {
+            if (this[this.state]) {
+                this[this.state]();
+            }
+        };
 
-        const onCaptureEnd = (function (mouseHandler: MouseHandler) {
-            return function (e: MouseEvent) {
-                clearInterval(timerId);
-                onCaptureInterval();
-                if (mouseHandler[mouseHandler.state + "End"]) {
-                    mouseHandler[mouseHandler.state + "End"](e);
-                }
-                mouseHandler.state = "";
-                if (renderer.$keepTextAreaAtCursor == null) {
-                    renderer.$keepTextAreaAtCursor = true;
-                    renderer.$moveTextAreaToCursor();
-                }
-                mouseHandler.isMousePressed = false;
-                // mouseHandler.$onCaptureMouseMove = null;
-                mouseHandler.releaseMouse = null;
-                if (e) {
-                    mouseHandler.onMouseEvent("mouseup", e);
-                }
-            };
-        })(this);
+        const onCaptureEnd = (e: MouseEvent) => {
+            clearInterval(timerId);
+            onCaptureInterval();
+            if (this[this.state + "End"]) {
+                this[this.state + "End"](e);
+            }
+            this.state = "";
+            if (renderer.$keepTextAreaAtCursor == null) {
+                renderer.$keepTextAreaAtCursor = true;
+                renderer.$moveTextAreaToCursor();
+            }
+            this.isMousePressed = false;
+            // this.$onCaptureMouseMove = null;
+            this.releaseMouse = null;
+            if (e) {
+                this.onMouseEvent("mouseup", e);
+            }
+        };
 
         // this.$onCaptureMouseMove = onMouseMove;
         this.releaseMouse = capture(this.editor.container, onMouseMove, onCaptureEnd);
