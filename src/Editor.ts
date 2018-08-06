@@ -1829,10 +1829,6 @@ export class Editor {
      * Brings the current `textInput` into focus.
      */
     focus(): void {
-        // Safari needs the timeout
-        // iOS and Firefox need it called immediately
-        // to be on the save side we do both
-        setTimeout(() => { this.textInput.focus(); });
         this.textInput.focus();
     }
 
