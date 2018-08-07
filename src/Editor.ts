@@ -4996,9 +4996,9 @@ function makeExtendSelectionBy(editor: Editor, mouseHandler: MouseHandler, unitN
                 cursor = orientedRange.cursor;
                 anchor = orientedRange.anchor;
             }
-            selection.setSelectionAnchor(anchor.row, anchor.column);
+            selection.setSelectionAnchor(anchor.row, anchor.column, Origin.USER_MOUSE);
         }
-        selection.selectToPosition(cursor);
+        selection.selectToPosition(cursor, Origin.USER_MOUSE);
 
         editor.renderer.scrollCursorIntoView();
     };
