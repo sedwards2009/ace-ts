@@ -231,6 +231,8 @@ export class Editor {
     private $behavioursEnabled = true;
     private $wrapBehavioursEnabled = true;
     $blockScrolling: number;
+    private _autoscroll = true;
+
     private $highlightActiveLine = true;
     private $highlightPending: boolean;
     private $highlightSelectedWord = true;
@@ -313,6 +315,7 @@ export class Editor {
         new FoldHandler(this);
 
         this.$blockScrolling = 0;
+
         this.$search = new Search().set({ wrap: true });
 
         this.$historyTracker = this.$historyTracker.bind(this);
@@ -1646,7 +1649,35 @@ export class Editor {
     resize(force?: boolean): void {
         this.renderer.onResize(force);
     }
-    
+
+    /**
+     * Set autoscroll on/off.
+     * 
+     * @param autoscroll true if the viewport should automatically scroll to
+     *                   keep the cursor visible.
+     */
+    setAutoscroll(autoscroll: boolean): void {
+        if (this._autoscroll === autoscroll) {
+            return;
+        }
+        this._autoscroll = autoscroll;
+        if (autoscroll) {
+            this.$blockScrolling--;
+        } else {
+            this.$blockScrolling++;
+        }
+    }
+
+    /**
+     * Returns true if autoscroll is active.
+     * 
+     * Autoscroll means that the viewport is automatically scrolled to keep
+     * the cursor visible after document changes.
+     */
+    getAutoscroll(): boolean {
+        return this._autoscroll;
+    }
+
     updateFontSize(): void {
         this.renderer.updateFontSize();
     }
