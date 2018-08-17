@@ -79,8 +79,6 @@ export function onMouseDown(e: EditorMouseEvent): void {
         editor.$mouseHandler.cancelContextMenu();
     }
 
-console.log("selectionMode: ", selectionMode);
-
     if (selectionMode == "add") {
         let range: OrientedRange = null;
         if (!isMultiSelect && inSelection) {
@@ -103,8 +101,6 @@ console.log("selectionMode: ", selectionMode);
             editor.removeSelectionMarkers([range]);
         }
         editor.once("mouseup", function() {
-console.log("selectionMode once mouseup");
-
             var tmpSel = selection.toOrientedRange();
 
             if (oldRange && isRangeEmpty(tmpSel) && isSamePoint(oldRange.cursor, tmpSel.cursor)) {
@@ -118,15 +114,11 @@ console.log("selectionMode once mouseup");
                         selection.addRange(range);
                     }
                 }
-console.log("selectionMode once mouseup addRange()");
                 selection.addRange(tmpSel);
             }
             editor.$blockScrolling--;
             editor.inVirtualSelectionMode = false;
-console.log("done selectionMode once mouseup");
-
         });
-console.log("done selectionMode: ", selectionMode);
 
     } else if (selectionMode == "block") {
         e.domEvent.preventDefault();
