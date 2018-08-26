@@ -25,43 +25,23 @@ interface InComposition {
 }
 
 
-/**
- *
- */
 export class TextInput {
-
-    /**
-     *
-     */
     private text: HTMLTextAreaElement;
-
-    /**
-     *
-     */
     private editor: Editor;
-
-    /**
-     *
-     */
-    public _isFocused: boolean;
+    _isFocused: boolean;
 
     private tempStyle: string;
-
     private afterContextMenu: boolean;
-
     private inComposition: InComposition | boolean;
-
     private inputHandler: ((data: string) => string) | null;
 
     private selectionStart: number;
     private selectionEnd: number;
 
     private pasted: boolean;
-
     private syncValue: DelayedCall;
 
     constructor(container: Element, editor: Editor) {
-
         this.editor = editor;
         this.tempStyle = '';
         this.afterContextMenu = false;
@@ -167,8 +147,8 @@ export class TextInput {
                 return void 0;
             };
         }
+        
         const onCompositionUpdate = () => {
-
             if (!this.inComposition || !editor.onCompositionUpdate || editor.readOnly) {
                 return;
             }
@@ -212,7 +192,7 @@ export class TextInput {
             this.resetValue();
         };
 
-        const onCompositionEnd: any = (e: Event, editor: Editor) => {
+        const onCompositionEnd: any = (e: Event) => {
 
             if (!editor.onCompositionEnd || editor.readOnly) {
                 return;
