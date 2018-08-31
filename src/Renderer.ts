@@ -168,7 +168,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     private $timer: number | undefined;
 
-    $keepTextAreaAtCursor: boolean | null = true;
+    $keepTextAreaAtCursor: boolean = true;
     $gutter: HTMLDivElement;
     scroller: HTMLDivElement;
     content: HTMLDivElement;

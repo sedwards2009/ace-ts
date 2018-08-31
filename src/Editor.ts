@@ -49,7 +49,7 @@ import { refChange } from './refChange';
 import { SearchOptions } from './SearchOptions';
 import { Selection } from './Selection';
 import { stringTrimLeft, stringTrimRight } from "./lib/lang";
-import { addListener, addMouseWheelListener, addMultiMouseDownListener, capture, preventDefault, stopEvent } from "./lib/event";
+import { addListener, addMouseWheelListener, addMultiMouseDownListener, capture, preventDefault, stopEvent, addCommandKeyListener } from "./lib/event";
 import { EditorChangeSessionEvent } from './events/EditorChangeSessionEvent';
 import { SessionChangeEditorEvent } from './events/SessionChangeEditorEvent';
 import { SessionChangeCursorEvent } from './events/SessionChangeCursorEvent';
@@ -218,6 +218,7 @@ export class Editor {
     container: HTMLElement;
     textInput: TextInput;
     inMultiSelectMode: boolean;
+    private _compositionMouseDownHandler: () => void = null;
 
     multiSelect: Selection | undefined;
 
@@ -304,6 +305,8 @@ export class Editor {
             this.container = renderer.getContainerElement();
             this.renderer = renderer;
             this.textInput = new TextInput(renderer.getTextAreaContainer(), this);
+            addCommandKeyListener(this.textInput.getElement(), this.onCommandKey.bind(this));
+
             this.renderer.textarea = this.textInput.getElement();
         }
 
@@ -456,7 +459,7 @@ export class Editor {
                         renderer.updateCursor();
                         renderer.updateBackMarkers();
                     }
-                    this._emitChangeSelection();
+                    this._emitChangeSelection(Origin.INTERNAL);
                 }
             };
 
@@ -3339,14 +3342,18 @@ export class Editor {
     }
 
     onCompositionStart(text?: string): void {
+        if (this.readOnly) {
+            return;
+        }
         this.renderer.showComposition(this.getCursorPosition());
-    }
-
-    onCompositionUpdate(text?: string): void {
-        this.renderer.setCompositionText(text);
+        this._compositionMouseDownHandler = this.on("mousedown", () => this.textInput.cancelComposition());
     }
 
     onCompositionEnd(): void {
+        if (this._compositionMouseDownHandler != null) {
+            this._compositionMouseDownHandler();
+            this._compositionMouseDownHandler = null;
+        }
         this.renderer.hideComposition();
     }
 
