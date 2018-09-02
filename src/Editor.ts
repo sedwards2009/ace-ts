@@ -304,8 +304,37 @@ export class Editor {
         if (renderer) {
             this.container = renderer.getContainerElement();
             this.renderer = renderer;
-            this.textInput = new TextInput(renderer.getTextAreaContainer(), this);
+            this.textInput = new TextInput(renderer.getTextAreaContainer());
             addCommandKeyListener(this.textInput.getElement(), this.onCommandKey.bind(this));
+
+            this.textInput.on("focus", () => this.onFocus());
+            this.textInput.on("blur", () => this.onBlur());
+            this.textInput.on("contextMenu", (ev: MouseEvent): void => {
+                this._emit("nativecontextmenu", { target: this, domEvent: ev });
+            });
+            this.textInput.on("contextMenuClose", () => this.renderer.$moveTextAreaToCursor());
+            this.textInput.on("text", ev => this.onTextInput(ev.text));
+            this.textInput.on("delete", () => {
+                const delCommand = this.commands.getCommandByName(COMMAND_NAME_DEL);
+                this.execCommand(delCommand, { source: "ace" });
+            });
+            this.textInput.on("backspace", () => {
+                // Some versions of Android do not fire keydown when pressing backspace.
+                const backCommand = this.commands.getCommandByName(COMMAND_NAME_BACKSPACE);
+                this.execCommand(backCommand, { source: "ace" });
+            });
+            this.textInput.on("compositionStart", () => this.onCompositionStart());
+            this.textInput.on("compositionEnd", () => this.onCompositionEnd());
+            this.textInput.on("paste", (ev) => {console.log("received paste of ", ev.text); this.onPaste(ev.text);});
+            this.textInput.on("cut", (ev) => {
+                ev.setText(this.getSelectedText());
+                const delCommand = this.commands.getCommandByName(COMMAND_NAME_DEL);
+                this.execCommand(delCommand, { source: "ace" });
+            });
+
+            this.textInput.on("copy", (ev) => {
+                ev.setText(this.getSelectedText());
+            });
 
             this.renderer.textarea = this.textInput.getElement();
         }

@@ -29,7 +29,12 @@ export type TextInputEventName = 'text'
                                 | 'blur'
                                 | 'compositionStart'
                                 | 'compositionUpdate'
-                                | 'componsitionEnd';
+                                | 'compositionEnd'
+                                | 'contextMenu'
+                                | 'contextMenuClose'
+                                | 'paste'
+                                | 'copy'
+                                | 'cut';
 
 
 export class TextInput {
@@ -47,12 +52,10 @@ export class TextInput {
     private syncValue: DelayedCall;
     
     private _eventBus: EventEmitterClass<TextInputEventName, any, TextInput>;
-    private _container: HTMLElement = null;
+    private _containerElement: HTMLElement = null;
 
-    constructor(container: Element, private editor: Editor) {
+    constructor(private _container: HTMLElement) {
         this._eventBus = new EventEmitterClass<TextInputEventName, any, TextInput>(this);
-        this.editor = editor;
-        this._container = this.editor.container;
         this.tempStyle = '';
         this.afterContextMenu = false;
         this.inComposition = null;
@@ -79,7 +82,7 @@ export class TextInput {
         this.text.setAttribute("wrap", "off");
 
         this.text.style.opacity = "0";
-        container.insertBefore(this.text, container.firstChild);
+        this._containerElement.insertBefore(this.text, this._containerElement.firstChild);
 
         // let copied = false;
         this.pasted = false;
@@ -271,8 +274,8 @@ export class TextInput {
 
         this.text.style.cssText = (bringToFront ? "z-index:100000;" : "")
             + "height:" + this.text.style.height + ";";
-        const rect = this._container.getBoundingClientRect();
-        const style = window.getComputedStyle(this._container);
+        const rect = this._containerElement.getBoundingClientRect();
+        const style = window.getComputedStyle(this._containerElement);
         const top = rect.top + intFromStringOrNull(style.borderTopWidth);
         const left = rect.left + intFromStringOrNull(style.borderLeftWidth);
         const maxTop = rect.bottom - top - this.text.clientHeight - 2;
@@ -290,7 +293,7 @@ export class TextInput {
 
         // on windows context menu is opened after mouseup
         if (isWin) {
-            capture(this._container, move, () => { this.onContextMenuClose(); });
+            capture(this._containerElement, move, () => { this.onContextMenuClose(); });
         }
     }
 
@@ -414,64 +417,66 @@ export class TextInput {
         this._eventBus.once(eventName, callback);
     }
 
-    private _emitText(data: string): void {
-console.log("Input: ", data);
-        this.editor.onTextInput(data);
+    private _emitText(text: string): void {
+        this._eventBus._emit("text", { text });
+    }
+
+    private _emitFocus(): void {
+        this._eventBus._emit("focus", null);
     }
 
     private _emitBlur(): void {
-        this.editor.onBlur();
-    }
-    private _emitFocus(): void {
-        this.editor.onFocus();
+        this._eventBus._emit("blur", null);
     }
 
     private _emitContextMenu(e: MouseEvent): void {
-        if (this.editor.selection) {
-            this.resetSelection(this.editor.selection.isEmpty());
-        }
-        this.editor._emit("nativecontextmenu", { target: this.editor, domEvent: e });
+        this._eventBus._emit("contextMenu", e);
     }
 
     private _emitContextMenuClose(): void {
-        this.editor.renderer.$moveTextAreaToCursor();
+        this._eventBus._emit("contextMenuClose");
     }
 
     private _emitCopy(): string {
-        return this.editor.getSelectedText();
+        let text = null;
+        const setText = (newText: string): void => {
+            text = newText;
+        };
+        this._eventBus._emit("copy", { setText } );
+        return text;
     }
 
     private _emitCut(): string {
-        const data = this.editor.getSelectedText();
-        // FIXME
-        return data;
+        let text = null;
+        const setText = (newText: string): void => {
+            text = newText;
+        };
+        this._eventBus._emit("cut", { setText } );
+        return text;
     }
 
     private _emitPaste(text: string): void {
-        this.editor.onPaste(text);
+        this._eventBus._emit("paste", { text } );
     }
 
     private _emitDelete(): void {
-        const delCommand = this.editor.commands.getCommandByName(COMMAND_NAME_DEL);
-        this.editor.execCommand(delCommand, { source: "ace" });
+        this._eventBus._emit("delete");
     }
 
     private _emitBackspace(): void {
-        // Some versions of Android do not fire keydown when pressing backspace.
-        const backCommand = this.editor.commands.getCommandByName(COMMAND_NAME_BACKSPACE);
-        this.editor.execCommand(backCommand, { source: "ace" });
+        this._eventBus._emit("backspace");
     }
 
     private _emitCompositionStart(): void {
-        this.editor.onCompositionStart();
+        this._eventBus._emit("compositionStart");
     }
 
-    private _emitCompositionUpdate(val: string): void {
-
+    private _emitCompositionUpdate(value: string): void {
+        this._eventBus._emit("compositionUpdate", { value });
     }
 
     private _emitCompositionEnd(e: CompositionEvent): void {
-        this.editor.onCompositionEnd();
+        this._eventBus._emit("compositionEnd");
     }
 }
 
