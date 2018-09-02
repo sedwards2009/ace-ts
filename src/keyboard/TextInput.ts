@@ -52,9 +52,8 @@ export class TextInput {
     private syncValue: DelayedCall;
     
     private _eventBus: EventEmitterClass<TextInputEventName, any, TextInput>;
-    private _containerElement: HTMLElement = null;
 
-    constructor(private _container: HTMLElement) {
+    constructor(private _containerElement: HTMLElement) {
         this._eventBus = new EventEmitterClass<TextInputEventName, any, TextInput>(this);
         this.tempStyle = '';
         this.afterContextMenu = false;
