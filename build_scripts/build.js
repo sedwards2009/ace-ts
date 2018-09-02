@@ -9,7 +9,9 @@ shelljs.rm("-rf", "build");
 echo("");
 echo("Compiling TS files");
 shelljs.exec("tsc");
-
+if (shelljs.error()) {
+  process.exit(1);
+}
 
 echo("Copying remaining JS source files to 'build'");
 var baseDir = shelljs.pwd();
