@@ -2456,29 +2456,31 @@ export class Editor {
      * The text will probably be a single character.
      */
     onTextInput(text: string): void {
-        this.keyBinding.onTextInput(text);
-        // TODO: This should be pluggable.
-        if (text === '.') {
-            // The command can be thought of as an editor action bound to a name.
-            const command = this.commands.getCommandByName(COMMAND_NAME_AUTO_COMPLETE);
-            if (command) {
-                this.commands.exec(command, this);
+        if ( ! this.$readOnly) {
+            this.keyBinding.onTextInput(text);
+            // TODO: This should be pluggable.
+            if (text === '.') {
+                // The command can be thought of as an editor action bound to a name.
+                const command = this.commands.getCommandByName(COMMAND_NAME_AUTO_COMPLETE);
+                if (command) {
+                    this.commands.exec(command, this);
+                }
+            }
+            else if (this.sessionOrThrow().docOrThrow().isNewLine(text)) {
+                // const lineNumber = this.getCursorPosition().row;
+                //            const option = new Services.EditorOptions();
+                //            option.NewLineCharacter = "\n";
+                // FIXME: Smart Indenting
+                /*
+                const indent = languageService.getSmartIndentAtLineNumber(currentFileName, lineNumber, option);
+                if(indent > 0)
+                {
+                    editor.commands.exec("inserttext", editor, {text:" ", times:indent});
+                }
+                */
             }
         }
-        else if (this.sessionOrThrow().docOrThrow().isNewLine(text)) {
-            // const lineNumber = this.getCursorPosition().row;
-            //            const option = new Services.EditorOptions();
-            //            option.NewLineCharacter = "\n";
-            // FIXME: Smart Indenting
-            /*
-            const indent = languageService.getSmartIndentAtLineNumber(currentFileName, lineNumber, option);
-            if(indent > 0)
-            {
-                editor.commands.exec("inserttext", editor, {text:" ", times:indent});
-            }
-            */
-        }
-
+        
         if (this._relayInput) {
             this.eventBus._emit("keyPress", { text });
         }
