@@ -3393,7 +3393,7 @@ export class Editor {
     }
 
     onCompositionStart(text?: string): void {
-        if (this.readOnly) {
+        if (this._relayInput == false && this.readOnly) {
             return;
         }
         this.renderer.showComposition(this.getCursorPosition());
