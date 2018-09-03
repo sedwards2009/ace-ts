@@ -176,7 +176,8 @@ export type EditorEventName = 'blur'
     | 'quadclick'
     | 'select'
     | 'show'
-    | 'tripleclick';
+    | 'tripleclick'
+    | 'keyPress';
 
 // const DragdropHandler = require("./mouse/dragdrop_handler").DragdropHandler;
 
@@ -246,6 +247,8 @@ export class Editor {
      */
     private $readOnly = false;
     private readonly $readOnlyBus = new EventEmitterClass<'$readOnly', { oldValue: boolean; newValue: boolean }, Editor>(this);
+
+    private _relayInput = false;
 
     private $scrollAnchor: HTMLDivElement;
 
@@ -2475,6 +2478,10 @@ export class Editor {
             }
             */
         }
+
+        if (this._relayInput) {
+            this.eventBus._emit("keyPress", { text });
+        }
     }
 
     /**
@@ -2768,7 +2775,9 @@ export class Editor {
         const oldValue = this.$readOnly;
         this.$readOnly = newValue;
         // disabled to not break vim mode!
-        this.textInput.setReadOnly(this.$readOnly);
+        if ( ! this._relayInput) {
+            this.textInput.setReadOnly(this.$readOnly);
+        }
         this.resetCursorStyle();
         this.$readOnlyBus._signal('$readOnly', { oldValue, newValue });
     }
@@ -2778,6 +2787,19 @@ export class Editor {
      */
     get readOnly(): boolean {
         return this.$readOnly;
+    }
+
+    getRelayInput(): boolean {
+        return this._relayInput;
+    }
+
+    setRelayInput(relayInput: boolean): void {
+        this._relayInput = relayInput;
+        if (relayInput) {
+            this.textInput.setReadOnly(false);
+        } else {
+            this.textInput.setReadOnly(this.$readOnly);
+        }
     }
 
     /**
