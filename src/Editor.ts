@@ -177,7 +177,9 @@ export type EditorEventName = 'blur'
     | 'select'
     | 'show'
     | 'tripleclick'
-    | 'keyPress';
+    | 'keyPress'
+    | 'compositionStart'
+    | 'compositionEnd';
 
 // const DragdropHandler = require("./mouse/dragdrop_handler").DragdropHandler;
 
@@ -3398,6 +3400,9 @@ export class Editor {
         if (this._relayInput == false && this.readOnly) {
             return;
         }
+
+        this.eventBus._emit("compositionStart");
+
         this.renderer.showComposition(this.getCursorPosition());
         this._compositionMouseDownHandler = this.on("mousedown", () => this.textInput.cancelComposition());
     }
@@ -3408,6 +3413,8 @@ export class Editor {
             this._compositionMouseDownHandler = null;
         }
         this.renderer.hideComposition();
+
+        this.eventBus._emit("compositionEnd");
     }
 
     getFirstVisibleRow(): number {
