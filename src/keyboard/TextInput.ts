@@ -4,13 +4,10 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { capture, preventDefault } from "../lib/event";
-import { isChrome, isGecko, isMac, isTouchPad, isWebKit, isWin } from "../lib/useragent";
+import { isGecko, isTouchPad, isWebKit, isWin } from "../lib/useragent";
 import { createElement } from "../lib/dom";
 import { createDelayedCall } from "../lib/lang/createDelayedCall";
 import { DelayedCall } from "../lib/lang/DelayedCall";
-import { Editor } from "../Editor";
-import { COMMAND_NAME_BACKSPACE } from '../editor_protocol';
-import { COMMAND_NAME_DEL } from '../editor_protocol';
 import { RangeBasic } from '../RangeBasic';
 import { EventEmitterClass } from "../lib/EventEmitterClass";
 
