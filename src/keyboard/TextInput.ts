@@ -14,7 +14,7 @@ import { COMMAND_NAME_DEL } from '../editor_protocol';
 import { RangeBasic } from '../RangeBasic';
 import { EventEmitterClass } from "../lib/EventEmitterClass";
 
-const PLACEHOLDER = "\u2028\u2028";
+const PLACEHOLDER = "\u200a\u200a";
 const PLACEHOLDER_CHAR_FIRST = PLACEHOLDER.charAt(0);
 
 interface InComposition {
