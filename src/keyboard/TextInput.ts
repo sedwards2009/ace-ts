@@ -3,36 +3,43 @@
  * Copyright (c) 2015-2018, David Holmes
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
-import { addCommandKeyListener, addListener, capture, preventDefault } from "../lib/event";
-import { isChrome, isGecko, isIE, isMac, isTouchPad, isWebKit, isWin } from "../lib/useragent";
+import { capture, preventDefault } from "../lib/event";
+import { isGecko, isTouchPad, isWebKit, isWin } from "../lib/useragent";
 import { createElement } from "../lib/dom";
 import { createDelayedCall } from "../lib/lang/createDelayedCall";
 import { DelayedCall } from "../lib/lang/DelayedCall";
-import { Editor } from "../Editor";
-import { COMMAND_NAME_BACKSPACE } from '../editor_protocol';
-import { COMMAND_NAME_DEL } from '../editor_protocol';
 import { RangeBasic } from '../RangeBasic';
+import { EventEmitterClass } from "../lib/EventEmitterClass";
 
-const BROKEN_SETDATA = <number>isChrome < 18;
-const USE_IE_MIME_TYPE = isIE;
-const PLACEHOLDER = "\u2028\u2028";
+const PLACEHOLDER = "\u200a\u200a";
 const PLACEHOLDER_CHAR_FIRST = PLACEHOLDER.charAt(0);
 
 interface InComposition {
     range?: RangeBasic;
     lastValue?: string;
-    canUndo?: boolean;
 }
+
+export type TextInputEventName = 'text'
+                                | 'delete'
+                                | 'backspace'
+                                | 'focus'
+                                | 'blur'
+                                | 'compositionStart'
+                                | 'compositionUpdate'
+                                | 'compositionEnd'
+                                | 'contextMenu'
+                                | 'contextMenuClose'
+                                | 'paste'
+                                | 'copy'
+                                | 'cut';
 
 
 export class TextInput {
     private text: HTMLTextAreaElement;
-    private editor: Editor;
     _isFocused: boolean;
-
     private tempStyle: string;
     private afterContextMenu: boolean;
-    private inComposition: InComposition | boolean;
+    private inComposition: InComposition;
     private inputHandler: ((data: string) => string) | null;
 
     private selectionStart: number;
@@ -40,12 +47,14 @@ export class TextInput {
 
     private pasted: boolean;
     private syncValue: DelayedCall;
+    
+    private _eventBus: EventEmitterClass<TextInputEventName, any, TextInput>;
 
-    constructor(container: Element, editor: Editor) {
-        this.editor = editor;
+    constructor(private _containerElement: HTMLElement) {
+        this._eventBus = new EventEmitterClass<TextInputEventName, any, TextInput>(this);
         this.tempStyle = '';
         this.afterContextMenu = false;
-        this.inComposition = false;
+        this.inComposition = null;
 
         this.text = <HTMLTextAreaElement>createElement("textarea");
         this.text.className = "ace_text-input";
@@ -69,23 +78,21 @@ export class TextInput {
         this.text.setAttribute("wrap", "off");
 
         this.text.style.opacity = "0";
-        container.insertBefore(this.text, container.firstChild);
+        this._containerElement.insertBefore(this.text, this._containerElement.firstChild);
 
-        let copied = false;
+        // let copied = false;
         this.pasted = false;
         let isSelectionEmpty = true;
 
-        // FOCUS
-        // ie9 throws error if document.activeElement is accessed too soon
-        try { this._isFocused = document.activeElement === this.text; } catch (e) {/* Do nothing. */ }
+        this._isFocused = document.activeElement === this.text;
 
-        addListener(this.text, "blur", () => {
-            editor.onBlur();
+        this.text.addEventListener("blur", () => {
+            this._emitBlur();
             this._isFocused = false;
         });
-        addListener(this.text, "focus", () => {
+        this.text.addEventListener("focus", () => {
             this._isFocused = true;
-            editor.onFocus();
+            this._emitFocus();
             this.resetSelection();
         });
 
@@ -105,329 +112,165 @@ export class TextInput {
             }
         });
 
-        if (!isWebKit) {
-            editor.on('changeSelection', function (event, editor: Editor) {
-                if (editor.selection) {
-                    if (editor.selection.isEmpty() !== isSelectionEmpty) {
-                        isSelectionEmpty = !isSelectionEmpty;
-                        syncSelection.schedule();
-                    }
-                }
-            });
-        }
-
         this.resetValue();
 
-        if (this._isFocused) {
-            editor.onFocus();
-        }
-
-
-        let isAllSelected = function (text: HTMLTextAreaElement): boolean | undefined {
+        let isAllSelected = function (text: HTMLTextAreaElement): boolean {
             return text.selectionStart === 0 && text.selectionEnd === text.value.length;
         };
-        // IE8 does not support setSelectionRange
-        if (!this.text.setSelectionRange && this.text['createTextRange']) {
-            this.text.setSelectionRange = function (this: HTMLTextAreaElement, selectionStart: number, selectionEnd: number) {
-                const range = this['createTextRange']();
-                range.collapse(true);
-                range.moveStart('character', selectionStart);
-                range.moveEnd('character', selectionEnd);
-                range.select();
-            };
-            isAllSelected = function (text: HTMLTextAreaElement) {
-                try {
-                    const range = text.ownerDocument['selection'].createRange();
-                    if (!range || range.parentElement() !== text) return false;
-                    return range.text === text.value;
-                }
-                catch (e) {
-                    // Do nothing.
-                }
-                return void 0;
-            };
-        }
-        
-        const onCompositionUpdate = () => {
-            if (!this.inComposition || !editor.onCompositionUpdate || editor.readOnly) {
-                return;
-            }
-            const val = this.text.value.replace(/\x01/g, "");
-            if (typeof this.inComposition !== 'boolean') {
-                if (this.inComposition.lastValue === val) return;
 
-                editor.onCompositionUpdate(val);
-                if (this.inComposition.lastValue) {
-                    editor.undo();
-                }
-                if (this.inComposition.canUndo) {
-                    this.inComposition.lastValue = val;
-                }
-                if (this.inComposition.lastValue) {
-                    if (editor.selection) {
-                        const r = editor.selection.getRange();
-                        editor.insert(this.inComposition.lastValue, false);
-                        editor.sessionOrThrow().markUndoGroup();
-                        this.inComposition.range = editor.selection.getRange();
-                        editor.selection.setRange(r);
-                        editor.selection.clearSelection();
-                    }
-                }
-            }
-            else {
-                editor.onCompositionUpdate(val);
-            }
-        };
+        // const onSelect = (e: any) => {
+        //     if (copied) {
+        //         copied = false;
+        //     }
+        //     else if (isAllSelected(this.text)) {
+        //         editor.selectAll();
+        //         this.resetSelection();
+        //     }
+        //     else if (this.inputHandler) {
+        //         if (editor.selection) {
+        //             this.resetSelection(editor.selection.isEmpty());
+        //         }
+        //     }
+        // };
 
-        /**
-         * The event handler for the 'input' event of the text area.
-         */
-        const onInput = (e?: any) => {
-            if (this.inComposition) {
-                return;
-            }
-            const data = this.text.value;
-            // The data is essentially the last character typed because of the reset.
-            this.sendText(data);
-            this.resetValue();
-        };
 
-        const onCompositionEnd: any = (e: Event) => {
+        // this.text.addEventListener("select", onSelect);
 
-            if (!editor.onCompositionEnd || editor.readOnly) {
-                return;
-            }
+        this.text.addEventListener("input", (ev) => this.onInput(ev));
 
-            const c = this.inComposition as InComposition;
-            this.inComposition = false;
-            let timer: number | null = window.setTimeout(() => {
-                timer = null;
-                const str = this.text.value.replace(/\x01/g, "");
+        this.text.addEventListener("cut",  (e: ClipboardEvent): void => this.doCut(e));
+        this.text.addEventListener("copy", (e: ClipboardEvent): void => this.doCopy(e));
+        this.text.addEventListener("paste", (e: ClipboardEvent) => this.onPaste(e));
 
-                if (this.inComposition)
-                    return;
-                else if (str === c.lastValue)
-                    this.resetValue();
-                else if (!c.lastValue && str) {
-                    this.resetValue();
-                    this.sendText(str);
-                }
-            });
+        const syncComposition = createDelayedCall(() => this.onCompositionUpdate(), 50);
 
-            this.inputHandler = function compositionInputHandler(str: string) {
-
-                if (timer)
-                    clearTimeout(timer);
-                str = str.replace(/\x01/g, "");
-                if (str === c.lastValue)
-                    return "";
-                if (c.lastValue && timer)
-                    editor.undo();
-                return str;
-            };
-            editor.onCompositionEnd();
-            editor.off("mousedown", onCompositionEnd);
-            if (e.type === "compositionend" && c.range) {
-                if (editor.selection) {
-                    editor.selection.setRange(c.range);
-                }
-            }
-            // Workaround for accent key composition in Chrome 53+.
-            if (isChrome && <number>isChrome >= 53) {
-                onInput();
-            }
-        };
-
-        const onCompositionStart = () => {
-            if (this.inComposition || !editor.onCompositionStart || editor.readOnly) {
-                return;
-            }
-
-            this.inComposition = {};
-            editor.onCompositionStart();
-            setTimeout(onCompositionUpdate, 0);
-            editor.on("mousedown", onCompositionEnd);
-            if (editor.selection) {
-                if (this.inComposition.canUndo && !editor.selection.isEmpty()) {
-                    editor.insert("", false);
-                    editor.sessionOrThrow().markUndoGroup();
-                    editor.selection.clearSelection();
-                }
-            }
-            editor.sessionOrThrow().markUndoGroup();
-        };
-
-        const onSelect = (e: any) => {
-            if (copied) {
-                copied = false;
-            }
-            else if (isAllSelected(this.text)) {
-                editor.selectAll();
-                this.resetSelection();
-            }
-            else if (this.inputHandler) {
-                if (editor.selection) {
-                    this.resetSelection(editor.selection.isEmpty());
-                }
-            }
-        };
-
-        const handleClipboardData = function handleClipboardData(e: ClipboardEvent, data?: string): boolean | string | undefined {
-            const clipboardData: DataTransfer = e.clipboardData || window['clipboardData'];
-            if (!clipboardData || BROKEN_SETDATA)
-                return void 0;
-            // using "Text" doesn't work on legacy webkit but ie needs it
-            // TODO are there other browsers that require "Text"?
-            const mime = USE_IE_MIME_TYPE ? "Text" : "text/plain";
-            if (data) {
-                // Safari 5 has clipboardData object, but does not handle setData()
-                return clipboardData.setData(mime, data) !== false;
-            }
-            else {
-                return clipboardData.getData(mime);
-            }
-        };
-
-        const doCopy = (e: ClipboardEvent, isCut: boolean) => {
-            const data: string = editor.getSelectedText();
-            if (!data)
-                return preventDefault(e);
-
-            if (handleClipboardData(e, data)) {
-                isCut ? editor.onCut() : editor.onCopy();
-                preventDefault(e);
-            }
-            else {
-                copied = true;
-                this.text.value = data;
-                this.text.select();
-                setTimeout(() => {
-                    copied = false;
-                    this.resetValue();
-                    this.resetSelection();
-                    isCut ? editor.onCut() : editor.onCopy();
-                });
-            }
-        };
-
-        const onCut = function onCut(e: ClipboardEvent) {
-            doCopy(e, true);
-        };
-
-        const onCopy = function onCopy(e: ClipboardEvent) {
-            doCopy(e, false);
-        };
-
-        // TODO: I don't see this being cleaned up. 
-        const onPaste = (e: ClipboardEvent) => {
-            const text = handleClipboardData(e);
-            if (typeof text === "string") {
-                if (text) {
-                    editor.onPaste(text);
-                }
-                if (isIE) {
-                    setTimeout(() => { this.resetSelection(); });
-                }
-                preventDefault(e);
-            }
-            else {
-                // The clipboard 'paste' event has given us a boolean or undefined.
-                this.text.value = "";
-                this.pasted = true;
-            }
-        };
-
-        addCommandKeyListener(this.text, editor.onCommandKey.bind(editor));
-
-        addListener(this.text, "select", onSelect);
-
-        addListener(this.text, "input", onInput);
-
-        addListener(this.text, "cut", onCut);
-        addListener(this.text, "copy", onCopy);
-        addListener(this.text, "paste", onPaste);
-
-        // Opera has no clipboard events
-        if (!('oncut' in this.text) || !('oncopy' in this.text) || !('onpaste' in this.text)) {
-            addListener(container, "keydown", function (e: KeyboardEvent) {
-                if ((isMac && !e.metaKey) || !e.ctrlKey) {
-                    return;
-                }
-
-                // FIXME: This casting looks suspect. 
-                switch (e.keyCode) {
-                    case 67:
-                        onCopy(<any>e);
-                        break;
-                    case 86:
-                        onPaste(<any>e);
-                        break;
-                    case 88:
-                        onCut(<any>e);
-                        break;
-                    default: {
-                        // Do nothing.
-                    }
-                }
-            });
-        }
-
-        const syncComposition = createDelayedCall(onCompositionUpdate, 50);
-
-        addListener(this.text, "compositionstart", onCompositionStart);
+        this.text.addEventListener("compositionstart", (ev: CompositionEvent) => this.onCompositionStart(ev));
         if (isGecko) {
-            addListener(this.text, "text", function () { syncComposition.schedule(); });
+            this.text.addEventListener("text", function () { syncComposition.schedule(); });
+        } else {
+            this.text.addEventListener("keyup", function () { syncComposition.schedule(); });
+            this.text.addEventListener("keydown", function () { syncComposition.schedule(); });
         }
-        else {
-            addListener(this.text, "keyup", function () { syncComposition.schedule(); });
-            addListener(this.text, "keydown", function () { syncComposition.schedule(); });
-        }
-        addListener(this.text, "compositionend", onCompositionEnd);
-
-        const onContextMenu = (e: MouseEvent) => {
-            editor.textInput.onContextMenu(e);
-            this.onContextMenuClose();
-        };
-
-        addListener(editor.renderer.scroller, "contextmenu", onContextMenu);
-        addListener(this.text, "contextmenu", onContextMenu);
+        this.text.addEventListener("compositionend", (ev: CompositionEvent) => this.onCompositionEnd(ev));
+        this.text.addEventListener("contextmenu", (ev) => this.onContextMenu(ev));
     }
 
     /**
-     *
+     * The event handler for the 'input' event of the text area.
      */
+    private onInput(e?: any): void {
+        if (this.inComposition) {
+            return;
+        }
+        const data = this.text.value;
+        // The data is essentially the last character typed because of the reset.
+        this.sendText(data);
+        this.resetValue();
+    }
+
+    private doCopy(e: ClipboardEvent): void {
+        const data = this._emitCopy();
+        if (!data) {
+            preventDefault(e);
+            return;
+        }
+        e.clipboardData.setData("text/plain", data);
+        preventDefault(e);
+    }
+
+    private doCut(e: ClipboardEvent): void {
+        const data = this._emitCut();
+        if (!data) {
+            preventDefault(e);
+            return;
+        }
+        e.clipboardData.setData("text/plain", data);
+        preventDefault(e);
+    }
+
+    // TODO: I don't see this being cleaned up. 
+    private onPaste(e: ClipboardEvent): void {
+        const text = e.clipboardData.getData("text/plain");
+        if (text) {
+            this._emitPaste(text);
+        }
+        preventDefault(e);
+    }
+
+    private onCompositionStart(ev: CompositionEvent): void {
+        if (this.inComposition) {
+            return;
+        }
+
+        this.inComposition = {};
+        this._emitCompositionStart();
+
+        setTimeout(() => this.onCompositionUpdate(), 0);
+    }
+
+    private onCompositionUpdate(): void {
+        if ( ! this.inComposition) {
+            return;
+        }
+        const val = this.text.value.replace(/\x01/g, "");
+        if (this.inComposition != null && this.inComposition.lastValue === val) {
+            return;
+        }
+        this._emitCompositionUpdate(val);
+    }
+
+    cancelComposition(): void {
+        this.inComposition = null;
+        this.resetValue();
+    }
+
+    private onCompositionEnd(e: CompositionEvent): void {
+        const inComposition = this.inComposition;
+        this.inComposition = null;
+        let timer: number | null = window.setTimeout(() => {
+            timer = null;
+            const str = this.text.value.replace(/\x01/g, "");
+
+            if (this.inComposition) {
+                return;
+            } else if (str === inComposition.lastValue) {
+                this.resetValue();
+            } else if (!inComposition.lastValue && str) {
+                this.resetValue();
+                this.sendText(str);
+            }
+        });
+
+        this.inputHandler = function compositionInputHandler(str: string): string {
+            if (timer) {
+                clearTimeout(timer);
+            }
+            str = str.replace(/\x01/g, "");
+            if (inComposition != null && str === inComposition.lastValue) {
+                return "";
+            }
+            return str;
+        };
+
+        this._emitCompositionEnd(e);
+    }
+
     getElement(): HTMLTextAreaElement {
         return this.text;
     }
 
-    /**
-     *
-     */
     isFocused(): boolean {
         return this._isFocused;
     }
 
     moveToMouse(e: MouseEvent, bringToFront?: boolean): void {
-
         if (!this.tempStyle) {
             this.tempStyle = this.text.style.cssText;
         }
 
-        this.text.style.cssText = (bringToFront ? "z-index:100000;" : "")
-            + "height:" + this.text.style.height + ";"
-            + (isIE ? "opacity:0.1;" : "");
-
-        const intFromStringOrNull = function (str: string | null): number {
-            if (typeof str === 'string') {
-                return parseInt(str, 10) || 0;
-            }
-            else {
-                return 0;
-            }
-        };
-
-        const rect = this.editor.container.getBoundingClientRect();
-        const style = window.getComputedStyle(this.editor.container);
+        this.text.style.cssText = (bringToFront ? "z-index:100000;" : "");
+        const rect = this._containerElement.getBoundingClientRect();
+        const style = window.getComputedStyle(this._containerElement);
         const top = rect.top + intFromStringOrNull(style.borderTopWidth);
         const left = rect.left + intFromStringOrNull(style.borderLeftWidth);
         const maxTop = rect.bottom - top - this.text.clientHeight - 2;
@@ -443,107 +286,72 @@ export class TextInput {
             return;
         }
 
-        if (this.editor.renderer.$keepTextAreaAtCursor) {
-            this.editor.renderer.$keepTextAreaAtCursor = null;
-        }
-
         // on windows context menu is opened after mouseup
         if (isWin) {
-            capture(this.editor.container, move, () => { this.onContextMenuClose(); });
+            capture(this._containerElement, move, () => { this.onContextMenuClose(); });
         }
     }
 
-    /**
-     * @param readOnly
-     */
     setReadOnly(readOnly: boolean): void {
         this.text.readOnly = readOnly;
     }
 
-    /**
-     *
-     */
     focus(): void {
         return this.text.focus();
     }
 
-    /**
-     *
-     */
     blur() {
         return this.text.blur();
     }
 
-    /**
-     *
-     */
+    onContextMenu(e: MouseEvent): void {
+        this.afterContextMenu = true;
+        this._emitContextMenu(e);
+        this.moveToMouse(e, true);
+    }
+
     onContextMenuClose(): void {
         setTimeout(() => {
             if (this.tempStyle) {
                 this.text.style.cssText = this.tempStyle;
                 this.tempStyle = '';
             }
-            if (this.editor.renderer.$keepTextAreaAtCursor == null) {
-                this.editor.renderer.$keepTextAreaAtCursor = true;
-                this.editor.renderer.$moveTextAreaToCursor();
-            }
+            this._emitContextMenuClose();
         }, 0);
     }
 
-    /**
-     * @param e
-     */
-    onContextMenu(e: MouseEvent): void {
-        this.afterContextMenu = true;
-        if (this.editor.selection) {
-            this.resetSelection(this.editor.selection.isEmpty());
-        }
-        this.editor._emit("nativecontextmenu", { target: this.editor, domEvent: e });
-        this.moveToMouse(e, true);
-    }
-
-    /**
-     * @param data
-     */
     sendText(data: string): void {
         if (this.inputHandler) {
             data = this.inputHandler(data);
             this.inputHandler = null;
         }
+
         if (this.pasted) {
             this.resetSelection();
             if (data) {
-                this.editor.onPaste(data);
+                this._emitPaste(data);
             }
             this.pasted = false;
-        }
-        else if (data === PLACEHOLDER_CHAR_FIRST) {
+        } else if (data === PLACEHOLDER_CHAR_FIRST) {
             if (this.afterContextMenu) {
-                const delCommand = this.editor.commands.getCommandByName(COMMAND_NAME_DEL);
-                this.editor.execCommand(delCommand, { source: "ace" });
+                this._emitDelete();
+            } else {
+                this._emitBackspace();
             }
-            else {
-                // Some versions of Android do not fire keydown when pressing backspace.
-                const backCommand = this.editor.commands.getCommandByName(COMMAND_NAME_BACKSPACE);
-                this.editor.execCommand(backCommand, { source: "ace" });
-            }
-        }
-        else {
+        } else {
             if (data.substring(0, 2) === PLACEHOLDER) {
                 data = data.substr(2);
-            }
-            else if (data.charAt(0) === PLACEHOLDER_CHAR_FIRST) {
+            } else if (data.charAt(0) === PLACEHOLDER_CHAR_FIRST) {
                 data = data.substr(1);
-            }
-            else if (data.charAt(data.length - 1) === PLACEHOLDER_CHAR_FIRST) {
+            } else if (data.charAt(data.length - 1) === PLACEHOLDER_CHAR_FIRST) {
                 data = data.slice(0, -1);
             }
             // can happen if undo in textarea isn't stopped
-            if (data.charAt(data.length - 1) === PLACEHOLDER_CHAR_FIRST)
+            if (data.charAt(data.length - 1) === PLACEHOLDER_CHAR_FIRST) {
                 data = data.slice(0, -1);
-
+            }
             if (data) {
-                this.editor.onTextInput(data);
+                this._emitText(data);
             }
         }
         if (this.afterContextMenu) {
@@ -558,8 +366,7 @@ export class TextInput {
         if (this.inputHandler) {
             this.selectionStart = 0;
             this.selectionEnd = isEmpty ? 0 : this.text.value.length - 1;
-        }
-        else {
+        } else {
             this.selectionStart = isEmpty ? 2 : 1;
             this.selectionEnd = 2;
         }
@@ -572,23 +379,14 @@ export class TextInput {
         }
     }
 
-    /**
-     * @param inputHandler
-     */
     setInputHandler(inputHandler: (data: string) => string): void {
         this.inputHandler = inputHandler;
     }
 
-    /**
-     *
-     */
     getInputHandler(): ((data: string) => string) | null {
         return this.inputHandler;
     }
 
-    /**
-     *
-     */
     resetValue(): void {
         if (this.inComposition) {
             return;
@@ -598,5 +396,89 @@ export class TextInput {
         if (isWebKit)
             this.syncValue.schedule();
     }
+
+    on(eventName: TextInputEventName, callback: (data: any, source: TextInput) => any, capturing?: boolean) {
+        this._eventBus.on(eventName, callback, capturing);
+        return () => {
+            this.off(eventName, callback, capturing);
+        };
+    }
+
+    off(eventName: TextInputEventName, callback: (data: any, source: TextInput) => any, capturing?: boolean): void {
+        this._eventBus.off(eventName, callback/*, capturing*/);
+    }
+
+    once(eventName: TextInputEventName, callback: (data: any, source: TextInput) => any) {
+        this._eventBus.once(eventName, callback);
+    }
+
+    private _emitText(text: string): void {
+        this._eventBus._emit("text", { text });
+    }
+
+    private _emitFocus(): void {
+        this._eventBus._emit("focus", null);
+    }
+
+    private _emitBlur(): void {
+        this._eventBus._emit("blur", null);
+    }
+
+    private _emitContextMenu(e: MouseEvent): void {
+        this._eventBus._emit("contextMenu", e);
+    }
+
+    private _emitContextMenuClose(): void {
+        this._eventBus._emit("contextMenuClose");
+    }
+
+    private _emitCopy(): string {
+        let text = null;
+        const setText = (newText: string): void => {
+            text = newText;
+        };
+        this._eventBus._emit("copy", { setText } );
+        return text;
+    }
+
+    private _emitCut(): string {
+        let text = null;
+        const setText = (newText: string): void => {
+            text = newText;
+        };
+        this._eventBus._emit("cut", { setText } );
+        return text;
+    }
+
+    private _emitPaste(text: string): void {
+        this._eventBus._emit("paste", { text } );
+    }
+
+    private _emitDelete(): void {
+        this._eventBus._emit("delete");
+    }
+
+    private _emitBackspace(): void {
+        this._eventBus._emit("backspace");
+    }
+
+    private _emitCompositionStart(): void {
+        this._eventBus._emit("compositionStart");
+    }
+
+    private _emitCompositionUpdate(value: string): void {
+        this._eventBus._emit("compositionUpdate", { value });
+    }
+
+    private _emitCompositionEnd(e: CompositionEvent): void {
+        this._eventBus._emit("compositionEnd");
+    }
 }
 
+function intFromStringOrNull(str: string | null): number {
+    if (typeof str === 'string') {
+        return parseInt(str, 10) || 0;
+    } else {
+        return 0;
+    }
+}

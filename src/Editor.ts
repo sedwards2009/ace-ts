@@ -49,7 +49,7 @@ import { refChange } from './refChange';
 import { SearchOptions } from './SearchOptions';
 import { Selection } from './Selection';
 import { stringTrimLeft, stringTrimRight } from "./lib/lang";
-import { addListener, addMouseWheelListener, addMultiMouseDownListener, capture, preventDefault, stopEvent } from "./lib/event";
+import { addListener, addMouseWheelListener, addMultiMouseDownListener, capture, preventDefault, stopEvent, addCommandKeyListener } from "./lib/event";
 import { EditorChangeSessionEvent } from './events/EditorChangeSessionEvent';
 import { SessionChangeEditorEvent } from './events/SessionChangeEditorEvent';
 import { SessionChangeCursorEvent } from './events/SessionChangeCursorEvent';
@@ -176,7 +176,10 @@ export type EditorEventName = 'blur'
     | 'quadclick'
     | 'select'
     | 'show'
-    | 'tripleclick';
+    | 'tripleclick'
+    | 'keyPress'
+    | 'compositionStart'
+    | 'compositionEnd';
 
 // const DragdropHandler = require("./mouse/dragdrop_handler").DragdropHandler;
 
@@ -218,6 +221,7 @@ export class Editor {
     container: HTMLElement;
     textInput: TextInput;
     inMultiSelectMode: boolean;
+    private _compositionMouseDownHandler: () => void = null;
 
     multiSelect: Selection | undefined;
 
@@ -245,6 +249,8 @@ export class Editor {
      */
     private $readOnly = false;
     private readonly $readOnlyBus = new EventEmitterClass<'$readOnly', { oldValue: boolean; newValue: boolean }, Editor>(this);
+
+    private _relayInput = false;
 
     private $scrollAnchor: HTMLDivElement;
 
@@ -303,7 +309,38 @@ export class Editor {
         if (renderer) {
             this.container = renderer.getContainerElement();
             this.renderer = renderer;
-            this.textInput = new TextInput(renderer.getTextAreaContainer(), this);
+            this.textInput = new TextInput(renderer.getTextAreaContainer());
+            addCommandKeyListener(this.textInput.getElement(), this.onCommandKey.bind(this));
+
+            this.textInput.on("focus", () => this.onFocus());
+            this.textInput.on("blur", () => this.onBlur());
+            this.textInput.on("contextMenu", (ev: MouseEvent): void => {
+                this._emit("nativecontextmenu", { target: this, domEvent: ev });
+            });
+            this.textInput.on("contextMenuClose", () => this.renderer.$moveTextAreaToCursor());
+            this.textInput.on("text", ev => this.onTextInput(ev.text));
+            this.textInput.on("delete", () => {
+                const delCommand = this.commands.getCommandByName(COMMAND_NAME_DEL);
+                this.execCommand(delCommand, { source: "ace" });
+            });
+            this.textInput.on("backspace", () => {
+                // Some versions of Android do not fire keydown when pressing backspace.
+                const backCommand = this.commands.getCommandByName(COMMAND_NAME_BACKSPACE);
+                this.execCommand(backCommand, { source: "ace" });
+            });
+            this.textInput.on("compositionStart", () => this.onCompositionStart());
+            this.textInput.on("compositionEnd", () => this.onCompositionEnd());
+            this.textInput.on("paste", (ev) => {console.log("received paste of ", ev.text); this.onPaste(ev.text);});
+            this.textInput.on("cut", (ev) => {
+                ev.setText(this.getSelectedText());
+                const delCommand = this.commands.getCommandByName(COMMAND_NAME_DEL);
+                this.execCommand(delCommand, { source: "ace" });
+            });
+
+            this.textInput.on("copy", (ev) => {
+                ev.setText(this.getSelectedText());
+            });
+
             this.renderer.textarea = this.textInput.getElement();
         }
 
@@ -456,7 +493,7 @@ export class Editor {
                         renderer.updateCursor();
                         renderer.updateBackMarkers();
                     }
-                    this._emitChangeSelection();
+                    this._emitChangeSelection(Origin.INTERNAL);
                 }
             };
 
@@ -2421,27 +2458,33 @@ export class Editor {
      * The text will probably be a single character.
      */
     onTextInput(text: string): void {
-        this.keyBinding.onTextInput(text);
-        // TODO: This should be pluggable.
-        if (text === '.') {
-            // The command can be thought of as an editor action bound to a name.
-            const command = this.commands.getCommandByName(COMMAND_NAME_AUTO_COMPLETE);
-            if (command) {
-                this.commands.exec(command, this);
+        if ( ! this.$readOnly) {
+            this.keyBinding.onTextInput(text);
+            // TODO: This should be pluggable.
+            if (text === '.') {
+                // The command can be thought of as an editor action bound to a name.
+                const command = this.commands.getCommandByName(COMMAND_NAME_AUTO_COMPLETE);
+                if (command) {
+                    this.commands.exec(command, this);
+                }
+            }
+            else if (this.sessionOrThrow().docOrThrow().isNewLine(text)) {
+                // const lineNumber = this.getCursorPosition().row;
+                //            const option = new Services.EditorOptions();
+                //            option.NewLineCharacter = "\n";
+                // FIXME: Smart Indenting
+                /*
+                const indent = languageService.getSmartIndentAtLineNumber(currentFileName, lineNumber, option);
+                if(indent > 0)
+                {
+                    editor.commands.exec("inserttext", editor, {text:" ", times:indent});
+                }
+                */
             }
         }
-        else if (this.sessionOrThrow().docOrThrow().isNewLine(text)) {
-            // const lineNumber = this.getCursorPosition().row;
-            //            const option = new Services.EditorOptions();
-            //            option.NewLineCharacter = "\n";
-            // FIXME: Smart Indenting
-            /*
-            const indent = languageService.getSmartIndentAtLineNumber(currentFileName, lineNumber, option);
-            if(indent > 0)
-            {
-                editor.commands.exec("inserttext", editor, {text:" ", times:indent});
-            }
-            */
+        
+        if (this._relayInput) {
+            this.eventBus._emit("keyPress", { text });
         }
     }
 
@@ -2736,7 +2779,9 @@ export class Editor {
         const oldValue = this.$readOnly;
         this.$readOnly = newValue;
         // disabled to not break vim mode!
-        this.textInput.setReadOnly(this.$readOnly);
+        if ( ! this._relayInput) {
+            this.textInput.setReadOnly(this.$readOnly);
+        }
         this.resetCursorStyle();
         this.$readOnlyBus._signal('$readOnly', { oldValue, newValue });
     }
@@ -2746,6 +2791,19 @@ export class Editor {
      */
     get readOnly(): boolean {
         return this.$readOnly;
+    }
+
+    getRelayInput(): boolean {
+        return this._relayInput;
+    }
+
+    setRelayInput(relayInput: boolean): void {
+        this._relayInput = relayInput;
+        if (relayInput) {
+            this.textInput.setReadOnly(false);
+        } else {
+            this.textInput.setReadOnly(this.$readOnly);
+        }
     }
 
     /**
@@ -3339,15 +3397,24 @@ export class Editor {
     }
 
     onCompositionStart(text?: string): void {
-        this.renderer.showComposition(this.getCursorPosition());
-    }
+        if (this._relayInput == false && this.readOnly) {
+            return;
+        }
 
-    onCompositionUpdate(text?: string): void {
-        this.renderer.setCompositionText(text);
+        this.eventBus._emit("compositionStart");
+
+        this.renderer.showComposition(this.getCursorPosition());
+        this._compositionMouseDownHandler = this.on("mousedown", () => this.textInput.cancelComposition());
     }
 
     onCompositionEnd(): void {
+        if (this._compositionMouseDownHandler != null) {
+            this._compositionMouseDownHandler();
+            this._compositionMouseDownHandler = null;
+        }
         this.renderer.hideComposition();
+
+        this.eventBus._emit("compositionEnd");
     }
 
     getFirstVisibleRow(): number {
