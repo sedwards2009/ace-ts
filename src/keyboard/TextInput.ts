@@ -271,8 +271,7 @@ export class TextInput {
             this.tempStyle = this.text.style.cssText;
         }
 
-        this.text.style.cssText = (bringToFront ? "z-index:100000;" : "")
-            + "height:" + this.text.style.height + ";";
+        this.text.style.cssText = (bringToFront ? "z-index:100000;" : "");
         const rect = this._containerElement.getBoundingClientRect();
         const style = window.getComputedStyle(this._containerElement);
         const top = rect.top + intFromStringOrNull(style.borderTopWidth);

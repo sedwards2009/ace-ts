@@ -1011,20 +1011,20 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         posTop -= config.offset;
 
         let h = this.lineHeight;
-        if (posTop < 0 || posTop > config.height - h)
+        if (posTop < 0 || posTop > config.height - h) {
             return;
+        }
 
         let w = this.characterWidth;
         if (this.$composition) {
             const val = this.textarea.value.replace(/^\x01+/, "");
-            w *= (session.$getStringScreenWidth(val)[0] + 2);
-            h += 2;
-            posTop -= 1;
+            w *= session.$getStringScreenWidth(val)[0];
         }
-        posLeft -= this.scrollLeft;
-        if (posLeft > this.$size.scrollerWidth - w)
-            posLeft = this.$size.scrollerWidth - w;
 
+        posLeft -= this.scrollLeft;
+        if (posLeft > this.$size.scrollerWidth - w) {
+            posLeft = this.$size.scrollerWidth - w;
+        }
         posLeft -= this.scrollBarV.width;
 
         this.textarea.style.height = pixelStyle(h);
