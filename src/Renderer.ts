@@ -104,6 +104,11 @@ export interface RendererOptions {
     fontSize?: string;
 }
 
+export enum HScrollTracking {
+    WHOLE_DOCUMENT, // Horizontal scrollbar should track when anything in the document needs scrolling.
+    VISIBLE         // Horizontal scrollbar should only track any visible lines which need scrolling.
+};
+
 /**
  * The class that is responsible for drawing everything you see on the screen!
  */
@@ -117,6 +122,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     scrollTop = 0;
     layerConfig = {
         width: 1,
+        visibleWidth: 1,
         padding: 0,
         firstRow: 0,
         firstRowScreen: 0,
@@ -251,6 +257,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private $scrollPastEnd: number;
     private $highlightGutterLine: boolean;
     private desiredHeight: number;
+    private _scrollHTracking = HScrollTracking.WHOLE_DOCUMENT;
 
     /**
      * Constructs a new `Renderer` within the `container` specified.
@@ -334,7 +341,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             $dirty: true
         };
 
-        this.$loop = new RenderLoop(this.$renderChanges.bind(this), this.container.ownerDocument.defaultView);
+        this.$loop = new RenderLoop(changes => this.$renderChanges(changes, false),
+                                    this.container.ownerDocument.defaultView);
         this.$loop.schedule(CHANGE_FULL);
 
         this.setPadding(4);
@@ -456,9 +464,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.cursorLayer.element.style.opacity = "0";
     }
 
-    /**
-     *
-     */
+    setHScrollTracking(tracking: HScrollTracking): void {
+        this._scrollHTracking = tracking;
+    }
+
+    getHScrollTracking(): HScrollTracking {
+        return this._scrollHTracking;
+    }
+
     updateCharacterSize(): void {
         // FIXME: DGH allowBoldFonts does not exist on TextLayer
         if (this.textLayer.allowBoldFonts !== this.$allowBoldFonts) {
@@ -1167,8 +1180,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     private $updateScrollBarH(): void {
+        const layerWidth = this._scrollHTracking === HScrollTracking.WHOLE_DOCUMENT
+                                ? this.layerConfig.width
+                                : this.layerConfig.visibleWidth;
+        const scrollWidth = layerWidth + 2 * this.$padding + this.scrollMargin.h;
         this.scrollBarH
-            .setScrollWidth(this.layerConfig.width + 2 * this.$padding + this.scrollMargin.h)
+            .setScrollWidth(scrollWidth)
             .setScrollLeft(this.scrollLeft + this.scrollMargin.left);
     }
 
@@ -1180,7 +1197,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$frozen = false;
     }
 
-    private $renderChanges(changes: number, forceChanges: boolean): number | undefined {
+    private $renderChanges(changes: number, forceChanges: boolean): void {
 
         if (this.$changes) {
             changes |= this.$changes;
@@ -1188,11 +1205,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
         if ((!this.session || !this.container.offsetWidth || this.$frozen) || (!changes && !forceChanges)) {
             this.$changes |= changes;
-            return void 0;
+            return;
         }
         if (this.$size.$dirty) {
             this.$changes |= changes;
-            return this.onResize(true);
+            this.onResize(true);
+            return;
         }
         if (!this.lineHeight) {
             this.textLayer.checkForSizeChanges();
@@ -1204,6 +1222,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.eventBus._signal("beforeRender");
 
         let config = this.layerConfig;
+        if (this._scrollHTracking === HScrollTracking.VISIBLE) {
+            changes |= CHANGE_H_SCROLL;
+        }
+
         // text, scrolling and resize changes can cause the view port size to change
         if (changes & CHANGE_FULL ||
             changes & CHANGE_SIZE ||
@@ -1364,7 +1386,11 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         let offset = this.scrollTop % this.lineHeight;
         let minHeight = size.scrollerHeight + this.lineHeight;
 
-        let longestLine = this.$getLongestLine();
+        let longestLine = this.$getLongestLinePixels();
+        let longestVisibleLine = this._getLongestVisibleLinePixels();
+        if (this._scrollHTracking === HScrollTracking.VISIBLE) {
+            longestLine = longestVisibleLine;
+        }
 
         const horizScroll = !hideScrollbars && (this.$hScrollBarAlwaysVisible || size.scrollerWidth - longestLine - 2 * this.$padding < 0);
 
@@ -1419,16 +1445,15 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         // the client height of the scroller
         if (hScrollChanged || vScrollChanged) {
             changes = this.$updateCachedSize(true, this.gutterWidth, size.width, size.height);
-            /**
-             * @event scrollbarVisibilityChanged
-             */
             this.eventBus._signal("scrollbarVisibilityChanged");
-            if (vScrollChanged)
-                longestLine = this.$getLongestLine();
+            if (vScrollChanged) {
+                longestLine = this.$getLongestLinePixels();
+            }
         }
 
         this.layerConfig = {
             width: longestLine,
+            visibleWidth: longestVisibleLine,
             padding: this.$padding,
             firstRow: firstRow,
             firstRowScreen: firstRowScreen,
@@ -1470,9 +1495,16 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return false;
     }
 
-    private $getLongestLine(): number {
+    private $getLongestLinePixels(): number {
         const session = this.sessionOrThrow();
         const charCount = session.getScreenWidth() + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
+        return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.floor(charCount * this.characterWidth));
+    }
+
+    private _getLongestVisibleLinePixels(): number {
+        const session = this.sessionOrThrow();
+        const widthInRange = session.getWidthInRange(this.getFirstVisibleRow(), this.getLastVisibleRow()+1);
+        const charCount = widthInRange + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
         return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.floor(charCount * this.characterWidth));
     }
 

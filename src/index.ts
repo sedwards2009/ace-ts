@@ -14,7 +14,7 @@ export { LanguageMode } from './LanguageMode';
 export { Position } from './Position';
 export { Range } from './Range';
 export { OrientedRange, RangeBasic } from './RangeBasic';
-export { Renderer } from './Renderer';
+export { Renderer, HScrollTracking } from './Renderer';
 export { TextMode } from './mode/TextMode';
 export { TokenWithIndex } from './Token';
 export { UndoManager } from './UndoManager';

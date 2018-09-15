@@ -1327,8 +1327,9 @@ export class EditSession {
      */
     getScreenWidth(): number {
         this.$computeWidth();
-        if (this.lineWidgets)
+        if (this.lineWidgets) {
             return Math.max(this.getLineWidgetMaxWidth(), this.screenWidth);
+        }
         return this.screenWidth;
     }
 
@@ -1345,51 +1346,60 @@ export class EditSession {
         return this.lineWidgetWidth = width;
     }
 
-    $computeWidth(force?: boolean): number | undefined {
+    $computeWidth(force?: boolean): void {
         const doc = this.docOrThrow();
         if (this.$modified || force) {
             this.$modified = false;
-
             if (this.$useWrapMode) {
-                return this.screenWidth = this.$wrapLimit;
+                this.screenWidth = this.$wrapLimit;
+                return;
             }
 
             const lines = doc.getAllLines();
-            const cache = this.$rowLengthCache;
-            let longestScreenLine = 0;
-            let foldIndex = 0;
-            let foldLine = this.foldLines_[foldIndex];
-            let foldStart = foldLine ? foldLine.start.row : Infinity;
-            const len = lines.length;
-
-            for (let i = 0; i < len; i++) {
-                if (i > foldStart) {
-                    i = foldLine.end.row + 1;
-                    if (i >= len)
-                        break;
-                    foldLine = this.foldLines_[foldIndex++];
-                    foldStart = foldLine ? foldLine.start.row : Infinity;
-                }
-
-                const cacheEntry = cache[i];
-                if (typeof cacheEntry === 'number') {
-                    if (cacheEntry > longestScreenLine) {
-                        longestScreenLine = cacheEntry;
-                    }
-                }
-                else {
-                    const stringWidth = this.$getStringScreenWidth(lines[i])[0];
-                    if (stringWidth > longestScreenLine) {
-                        longestScreenLine = stringWidth;
-                    }
-                    cache[i] = stringWidth;
-                }
-            }
-            this.screenWidth = longestScreenLine;
+            this.screenWidth = this._computeWidestLineInRange(0, lines.length);
         }
-        return void 0;
     }
 
+    private _computeWidestLineInRange(startRow: number, endRow: number): number {
+        const doc = this.docOrThrow();
+        const lines = doc.getAllLines();
+        const cache = this.$rowLengthCache;
+        let longestScreenLine = 0;
+        let foldIndex = startRow;
+        let foldLine = this.foldLines_[foldIndex];
+        let foldStart = foldLine ? foldLine.start.row : Infinity;
+
+        for (let i = startRow; i < endRow; i++) {
+            if (i > foldStart) {
+                i = foldLine.end.row + 1;
+                if (i >= endRow) {
+                    break;
+                }
+                foldLine = this.foldLines_[foldIndex++];
+                foldStart = foldLine ? foldLine.start.row : Infinity;
+            }
+
+            let cacheEntry = cache[i];
+            if (cacheEntry == null) {
+                cacheEntry = this.$getStringScreenWidth(lines[i])[0];
+                cache[i] = cacheEntry;
+            }
+            if (cacheEntry > longestScreenLine) {
+                longestScreenLine = cacheEntry;
+            }
+        }
+        return longestScreenLine;
+    }
+
+    getWidthInRange(startRow: number, endRow: number): number {
+        const widestLine = this._computeWidestLineInRange(startRow, endRow);
+        if (this.$useWrapMode) {
+            return Math.min(this.$wrapLimit, widestLine);
+        } else {
+            return widestLine;
+        }
+    }
+    
     /**
      * Returns a verbatim copy of the given row as it is in the document.
      *
