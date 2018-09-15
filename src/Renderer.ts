@@ -1503,7 +1503,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private _getLongestVisibleLinePixels(): number {
         const session = this.sessionOrThrow();
-        const widthInRange = session.getWidthInRange(this.getFirstVisibleRow(), this.getLastVisibleRow()+1);
+        const doc = this.session.getDocument();
+        const docLength = doc.getLength();
+        const widthInRange = session.getWidthInRange(this.getFirstVisibleRow(), Math.min(docLength, this.getLastVisibleRow() + 1));
         const charCount = widthInRange + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
         return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.floor(charCount * this.characterWidth));
     }
