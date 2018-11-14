@@ -638,44 +638,52 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param gutterWidth The width of the gutter in pixels
      * @param width The width of the editor in pixels
      * @param height The hiehgt of the editor, in pixels
+     * @return true if the resize changed anything.
      */
-    public onResize(force?: boolean, gutterWidth?: number, width?: number, height?: number): number | undefined {
-        if (this.resizing > 2)
-            return void 0;
-        else if (this.resizing > 0)
+    public onResize(force?: boolean, gutterWidth?: number, width?: number, height?: number): boolean {
+        if (this.resizing > 2) {
+            return false;
+        } else if (this.resizing > 0) {
             this.resizing++;
-        else
+        } else {
             this.resizing = force ? 1 : 0;
-        // `|| el.scrollHeight` is required for outosizing editors on ie
-        // where elements with clientHeight = 0 alsoe have clientWidth = 0
+        }
+
         const el = this.container;
-        if (!height)
-            height = el.clientHeight || el.scrollHeight;
-        if (!width)
-            width = el.clientWidth || el.scrollWidth;
+        if (!height) {
+            height = el.clientHeight;
+            height -= height % this.lineHeight;
+        }
+
+        if (!width) {
+            width = el.clientWidth;
+        }
         const changes = this.$updateCachedSize(force, gutterWidth, width, height);
 
+        if (!this.$size.scrollerHeight || (!width && !height)) {
+            this.resizing = 0
+            return false;
+        }
 
-        if (!this.$size.scrollerHeight || (!width && !height))
-            return this.resizing = 0;
-
-        if (force)
+        if (force) {
             this.$gutterLayer.$padding = null;
+        }
 
-        if (force)
+        if (force) {
             this.$renderChanges(changes | this.$changes, true);
-        else
-            this.$loop.schedule(changes | this.$changes);
+        } else {
+            if (changes !== 0) {
+                this.$loop.schedule(changes | this.$changes);
+            }
+        }
 
         if (this.resizing) {
             this.resizing = 0;
         }
-        return void 0;
+
+        return changes !== 0;
     }
 
-    /**
-     * 
-     */
     private $updateCachedSize(force: boolean | undefined, gutterWidthPixels: number | undefined, width: number, height: number): number {
         height -= (this.$extraHeight || 0);
         let changes = 0;
@@ -724,9 +732,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         size.$dirty = !width || !height;
 
         if (changes) {
-            /**
-             * @event resize
-             */
             this.eventBus._signal("resize", oldSize);
         }
 

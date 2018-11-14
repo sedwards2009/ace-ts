@@ -1682,9 +1682,10 @@ export class Editor {
 
     /**
      * @param force If `true`, recomputes the size, even if the height and width haven't changed.
+     * @return true if the resize changed anything.
      */
-    resize(force?: boolean): void {
-        this.renderer.onResize(force);
+    resize(force?: boolean): boolean {
+        return this.renderer.onResize(force);
     }
 
     /**
