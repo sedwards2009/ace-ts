@@ -25,12 +25,10 @@ const SPACE_CHAR = "\xB7";
 
 export type TextLayerEventName = 'changeCharacterSize';
 
-/**
- *
- */
+
 export class TextLayer extends AbstractLayer implements Disposable, EventBus<TextLayerEventName, any, TextLayer> {
-    public allowBoldFonts = false;
-    public $padding = 0;
+    allowBoldFonts = false;
+    $padding = 0;
     private EOL_CHAR: string;
 
     private fontMetrics: FontMetrics | undefined;
@@ -43,23 +41,17 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
     private $pollSizeChangesTimer = 0;
     private showInvisibles = false;
     private displayIndentGuides = true;
-    /**
-     *
-     */
+
     private $tabStrings: string[] = [];
     private $textToken = { "text": true, "rparen": true, "lparen": true };
     private tabSize: number;
     private $indentGuideRe: RegExp;
-    public config: TextConfig;
-    /**
-     *
-     */
+    config: TextConfig;
+
     private $measureNode: Node;
-    /**
-     * 
-     */
+
     private readonly eventBus: EventEmitterClass<TextLayerEventName, any, TextLayer>;
-    public selectedNode: HTMLElement;
+    selectedNode: HTMLElement;
 
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_text-layer");
@@ -68,17 +60,14 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         this.EOL_CHAR = EOL_CHAR_LF;
     }
 
-    /**
-     *
-     */
-    public dispose(): void {
+    dispose(): void {
         if (this.removeChangeCharacterSizeHandler) {
             this.removeChangeCharacterSizeHandler();
-            this.removeChangeCharacterSizeHandler = void 0;
+            this.removeChangeCharacterSizeHandler = undefined;
         }
         if (this.fontMetrics) {
             this.fontMetrics.release();
-            this.fontMetrics = void 0;
+            this.fontMetrics = undefined;
         }
         clearInterval(this.$pollSizeChangesTimer);
         if (this.$measureNode && this.$measureNode.parentNode) {
@@ -89,56 +78,38 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         super.dispose();
     }
 
-    /**
-     *
-     */
     updateEolChar(): boolean {
         const EOL_CHAR = this.session.docOrThrow().getNewLineCharacter() === "\n" ? EOL_CHAR_LF : EOL_CHAR_CRLF;
         if (this.EOL_CHAR !== EOL_CHAR) {
             this.EOL_CHAR = EOL_CHAR;
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
-    /**
-     * @param padding
-     */
-    public setPadding(padding: number): void {
+    setPadding(padding: number): void {
         this.$padding = padding;
         this.element.style.padding = "0 " + padding + "px";
     }
 
-    /**
-     *
-     */
-    public getLineHeight(): number {
+    getLineHeight(): number {
         if (this.fontMetrics) {
             return this.fontMetrics.$characterSize.height || 0;
-        }
-        else {
+        } else {
             throw new Error("Must set font metrics before calling getLineHeight.");
         }
     }
 
-    /**
-     *
-     */
-    public getCharacterWidth(): number {
+    getCharacterWidth(): number {
         if (this.fontMetrics) {
             return this.fontMetrics.$characterSize.width || 0;
-        }
-        else {
+        } else {
             throw new Error("Must set font metrics before calling getCharacterWidth.");
         }
     }
 
-    /**
-     * @param fontMetrics
-     */
-    public setFontMetrics(fontMetrics: FontMetrics): void {
+    setFontMetrics(fontMetrics: FontMetrics): void {
         this.fontMetrics = fontMetrics;
         this.fontMetrics.addRef();
         // TODO: Make sure off is called when fontMetrics are released
@@ -148,14 +119,10 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         this.$pollSizeChanges();
     }
 
-    /**
-     *
-     */
-    public checkForSizeChanges(): void {
+    checkForSizeChanges(): void {
         if (this.fontMetrics) {
             this.fontMetrics.checkForSizeChanges();
-        }
-        else {
+        } else {
             throw new Error("Must set font metrics before calling checkForSizeChanges.");
         }
     }
@@ -163,47 +130,44 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
     private $pollSizeChanges(): number {
         if (this.fontMetrics) {
             return this.$pollSizeChangesTimer = this.fontMetrics.$pollSizeChanges();
-        }
-        else {
+        } else {
             throw new Error();
         }
     }
 
-    public setSession(session: EditSession): void {
+    setSession(session: EditSession): void {
         this.session = session;
         this.$computeTabString();
     }
 
-    public getShowInvisibles(): boolean {
+    getShowInvisibles(): boolean {
         return this.showInvisibles;
     }
 
     /**
      * This method required a session to be in effect.
      */
-    public setShowInvisibles(showInvisibles: boolean) {
+    setShowInvisibles(showInvisibles: boolean) {
         if (this.showInvisibles === showInvisibles) {
             return false;
-        }
-        else {
+        } else {
             this.showInvisibles = showInvisibles;
             this.$computeTabString();
             return true;
         }
     }
 
-    public getDisplayIndentGuides(): boolean {
+    getDisplayIndentGuides(): boolean {
         return this.displayIndentGuides;
     }
 
     /**
      * This method requires a session to be in effect.
      */
-    public setDisplayIndentGuides(displayIndentGuides: boolean): boolean {
+    setDisplayIndentGuides(displayIndentGuides: boolean): boolean {
         if (this.displayIndentGuides === displayIndentGuides) {
             return false;
-        }
-        else {
+        } else {
             this.displayIndentGuides = displayIndentGuides;
             this.$computeTabString();
             return true;
@@ -225,7 +189,7 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
     }
 
     // FIXME: DGH Check that this is consistent with ACE
-    public onChangeTabSize(): void {
+    onChangeTabSize(): void {
         this.$computeTabString();
     }
 
@@ -244,8 +208,7 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                         + TAB_CHAR
                         + stringRepeat("\xa0", i - 1)
                         + "</span>");
-                }
-                else {
+                } else {
                     tabStr.push(stringRepeat("\xa0", i));
                 }
             }
@@ -262,8 +225,7 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                     tabClass = " ace_invisible_tab";
                     spaceContent = stringRepeat(SPACE_CHAR, this.tabSize);
                     tabContent = TAB_CHAR + stringRepeat("\xa0", this.tabSize - 1);
-                }
-                else {
+                } else {
                     spaceContent = stringRepeat("\xa0", this.tabSize);
                     tabContent = spaceContent;
                 }
@@ -271,18 +233,12 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                 this.$tabStrings[" "] = "<span class='" + className + spaceClass + "'>" + spaceContent + "</span>";
                 this.$tabStrings["\t"] = "<span class='" + className + tabClass + "'>" + tabContent + "</span>";
             }
-        }
-        else {
+        } else {
             // Ignoring, but could equally well throw an exception.
         }
     }
 
-    /**
-     * @param config
-     * @param firstRow
-     * @param lastRow
-     */
-    public updateLines(config: TextConfig, firstRow: number, lastRow: number): void {
+    updateLines(config: TextConfig, firstRow: number, lastRow: number): void {
         // Due to wrap line changes there can be new lines if e.g.
         // the line to updated wrapped in the meantime.
         if (this.config.lastRow !== config.lastRow ||
@@ -323,8 +279,9 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                     foldStart = foldLine ? foldLine.start.row : Infinity;
                 }
             }
-            if (row > last)
+            if (row > last) {
                 break;
+            }
 
             const lineElement: HTMLElement = <HTMLElement>lineElements[lineElementsIdx++];
             if (lineElement) {
@@ -339,18 +296,17 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         }
     }
 
-    /**
-     * @param config
-     */
-    public scrollLines(config: TextConfig): void {
+    scrollLines(config: TextConfig): void {
         const oldConfig = this.config;
         this.config = config;
 
-        if (!oldConfig || oldConfig.lastRow < config.firstRow)
+        if (!oldConfig || oldConfig.lastRow < config.firstRow) {
             return this.update(config);
+        }
 
-        if (config.lastRow < oldConfig.firstRow)
+        if (config.lastRow < oldConfig.firstRow) {
             return this.update(config);
+        }
 
         const el = this.element;
         if (oldConfig.firstRow < config.firstRow) {
@@ -371,10 +327,11 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
 
         if (config.firstRow < oldConfig.firstRow) {
             const fragment = this.$renderLinesFragment(config, config.firstRow, oldConfig.firstRow - 1);
-            if (el.firstChild)
+            if (el.firstChild) {
                 el.insertBefore(fragment, el.firstChild);
-            else
+            } else {
                 el.appendChild(fragment);
+            }
         }
 
         if (config.lastRow > oldConfig.lastRow) {
@@ -397,8 +354,9 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                     foldStart = foldLine ? foldLine.start.row : Infinity;
                 }
             }
-            if (row > lastRow)
+            if (row > lastRow) {
                 break;
+            }
 
             const container = <HTMLDivElement>createElement("div");
 
@@ -414,10 +372,10 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                 fragment.appendChild(container);
                 container.style.height = config.lineHeight * this.session.getRowLength(row) + "px";
 
-            }
-            else {
-                while (container.firstChild)
+            } else {
+                while (container.firstChild) {
                     fragment.appendChild(container.firstChild);
+                }
             }
 
             row++;
@@ -425,10 +383,7 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         return fragment;
     }
 
-    /**
-     * @param config
-     */
-    public update(config: TextConfig): void {
+    update(config: TextConfig): void {
 
         this.config = config;
 
@@ -475,19 +430,15 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                 return this.showInvisibles ?
                     "<span class='ace_invisible ace_invisible_space'>" + stringRepeat(SPACE_CHAR, c.length) + "</span>" :
                     stringRepeat("\xa0", c.length);
-            }
-            else if (c === "&") {
+            } else if (c === "&") {
                 return "&#38;";
-            }
-            else if (c === "<") {
+            } else if (c === "<") {
                 return "&#60;";
-            }
-            else if (c === "\t") {
+            } else if (c === "\t") {
                 const tabSize = this.session.getScreenTabSize(screenColumn + tabIdx);
                 screenColumn += tabSize - 1;
                 return this.$tabStrings[tabSize];
-            }
-            else if (c === "\u3000") {
+            } else if (c === "\u3000") {
                 // U+3000 is both invisible AND full-width, so must be handled uniquely
                 const classToUse = this.showInvisibles ? "ace_cjk ace_invisible ace_invisible_space" : "ace_cjk";
                 const space = this.showInvisibles ? SPACE_CHAR : "";
@@ -495,11 +446,9 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                 return "<span class='" + classToUse + "' style='width:" +
                     (this.config.characterWidth * 2) +
                     "px'>" + space + "</span>";
-            }
-            else if (b) {
+            } else if (b) {
                 return "<span class='ace_invisible ace_invisible_space ace_invalid'>" + SPACE_CHAR + "</span>";
-            }
-            else {
+            } else {
                 screenColumn += 1;
                 return "<span class='ace_cjk' style='width:" +
                     (this.config.characterWidth * 2) +
@@ -515,8 +464,7 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
             if (token.type === "fold")
                 style = " style='width:" + (token.value.length * this.config.characterWidth) + "px;' ";
             stringBuilder.push("<span class='", classes, "'", style, ">", output, "</span>");
-        }
-        else {
+        } else {
             stringBuilder.push(output);
         }
         return screenColumn + value.length;
@@ -551,8 +499,9 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
             if (i === 0 && this.displayIndentGuides) {
                 chars = value.length;
                 value = this.renderIndentGuide(stringBuilder, value, splitChars);
-                if (!value)
+                if (!value) {
                     continue;
+                }
                 chars -= value.length;
             }
 
@@ -626,15 +575,17 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         // We may not get tokens if there is no language mode.
         if (tokens && tokens.length) {
             const splits = this.session.getRowSplitData(row);
-            if (splits && splits.length)
+            if (splits && splits.length) {
                 this.$renderWrappedLine(stringBuilder, tokens, splits, onlyContents);
-            else
+            } else {
                 this.$renderSimpleLine(stringBuilder, tokens);
+            }
         }
 
         if (this.showInvisibles) {
-            if (foldLine)
+            if (foldLine) {
                 row = (<FoldLine>foldLine).end.row;
+            }
 
             stringBuilder.push(
                 "<span class='ace_invisible ace_invisible_eol'>",
@@ -642,8 +593,9 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                 "</span>"
             );
         }
-        if (!onlyContents)
+        if (!onlyContents) {
             stringBuilder.push("</div>");
+        }
     }
 
     private $getFoldLineTokens(row: number, foldLine: FoldLine): Token[] {
@@ -657,14 +609,16 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                 col += tokens[idx].value.length;
                 idx++;
 
-                if (idx === tokens.length)
+                if (idx === tokens.length) {
                     return;
+                }
             }
             if (col !== from) {
                 let value = tokens[idx].value.substring(from - col);
                 // Check if the token value is longer then the from...to spacing.
-                if (value.length > (to - from))
+                if (value.length > (to - from)) {
                     value = value.substring(0, to - from);
+                }
 
                 renderTokens.push({
                     type: tokens[idx].type,
@@ -682,8 +636,9 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                         type: tokens[idx].type,
                         value: value.substring(0, to - col)
                     });
-                } else
+                } else {
                     renderTokens.push(tokens[idx]);
+                }
                 col += value.length;
                 idx += 1;
             }
@@ -696,13 +651,13 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
                     type: "fold",
                     value: placeholder
                 });
-            }
-            else {
-                if (isNewRow)
+            } else {
+                if (isNewRow) {
                     tokens = session.getTokens(row);
-
-                if (tokens.length)
+                }
+                if (tokens.length) {
                     addTokens(tokens, lastColumn, column);
+                }
             }
         }, foldLine.end.row, this.session.getLine(foldLine.end.row).length);
 

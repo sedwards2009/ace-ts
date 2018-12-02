@@ -7,15 +7,13 @@ import { createElement, setCssClass } from "../lib/dom";
 import { Disposable } from '../Disposable';
 import { refChange } from '../refChange';
 
-/**
- * 
- */
+
 export class AbstractLayer implements Disposable {
 
     /**
      * This is the child of the DOM element that the layer is associated with.
      */
-    public element: HTMLDivElement;
+    element: HTMLDivElement;
 
     /**
      * A random string for identifying an instance of this class.
@@ -44,4 +42,3 @@ export class AbstractLayer implements Disposable {
         setCssClass(this.element, className, include);
     }
 }
-
