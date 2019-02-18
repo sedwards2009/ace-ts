@@ -13,9 +13,6 @@ import { EditSession } from "./EditSession";
 // needed to prevent long lines from freezing the browser
 const MAX_RANGES = 500;
 
-/**
- *
- */
 export class SearchHighlight implements Marker {
     private regExp: RegExp | null | undefined;
     public clazz: string;
@@ -23,9 +20,6 @@ export class SearchHighlight implements Marker {
     private cache: Range[][];
     private _range: Range;
 
-    /**
-     *
-     */
     constructor(regExp: RegExp | null, clazz: string, type: MarkerType) {
         this.setRegexp(regExp);
         this.clazz = clazz;
@@ -33,9 +27,17 @@ export class SearchHighlight implements Marker {
     }
 
     /**
-     *
+     * Set the regular expression to use to identify the text to highlight.
+     * 
+     * @param regExp the regular expression or null to turn off all highlighting.
      */
-    setRegexp(regExp: RegExp | null | undefined): void {
+    setRegexp(regExp: RegExp | null): void {
+        if (regExp == null) {
+            this.regExp = null;
+            this.cache = [];
+            return;
+        }
+
         if (this.regExp + "" === regExp + "") {
             return;
         }
@@ -51,11 +53,8 @@ export class SearchHighlight implements Marker {
         this._range = range;
     }
 
-    /**
-     *
-     */
     update(html: (number | string)[], markerLayer: MarkerLayer, session: EditSession, config: MarkerConfig): void {
-        if (!this.regExp) {
+        if (this.regExp == null) {
             return;
         }
 

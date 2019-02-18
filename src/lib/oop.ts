@@ -67,3 +67,16 @@ export function implement(proto: Object, base: Object) {
     mixin(proto, base);
 }
 
+export function fillDefaults<T>(givenOptions: T, defaultOptions: T): T {
+    const newObject: any = {};
+    for (const key in defaultOptions) {
+        if (defaultOptions.hasOwnProperty(key)) {
+            if (givenOptions.hasOwnProperty(key)) {
+                newObject[key] = givenOptions[key];
+            } else {
+                newObject[key] = defaultOptions[key];
+            }
+        }
+    }
+    return newObject;
+}

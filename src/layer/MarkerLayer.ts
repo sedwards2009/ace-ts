@@ -27,9 +27,6 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
     private config: MarkerConfig;
     private $padding = 0;
 
-    /**
-     *
-     */
     constructor(parent: HTMLDivElement) {
         super(parent, "ace_layer ace_marker-layer");
         refChange(this.uuid, 'MarkerLayer', +1);
@@ -40,15 +37,15 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
         super.dispose();
     }
 
-    public setPadding(padding: number) {
+    setPadding(padding: number) {
         this.$padding = padding;
     }
 
-    public setSession(session: EditSession) {
+    setSession(session: EditSession) {
         this.session = session;
     }
 
-    public setMarkers(markers: { [id: number]: Marker }) {
+    setMarkers(markers: { [id: number]: Marker }) {
         // If the markers are not defined then we'll have problems in the update method.
         if (typeof markers === 'object') {
             this.markers = markers;
@@ -58,7 +55,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
         }
     }
 
-    public update(config: MarkerConfig) {
+    update(config: MarkerConfig) {
         config = config || this.config;
         if (!config) {
             return;
@@ -231,7 +228,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
     /**
      * Draws a marker which covers part or whole width of a single screen line.
      */
-    public drawSingleLineMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, config: MarkerConfig, extraLength = 0, extraStyle = ""): void {
+    drawSingleLineMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, config: MarkerConfig, extraLength = 0, extraStyle = ""): void {
         const height = config.lineHeight;
         const width = (range.end.column + extraLength - range.start.column) * config.characterWidth;
 
@@ -247,9 +244,6 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
         );
     }
 
-    /**
-     *
-     */
     private drawFullLineMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
         const top = this.$getTop(range.start.row, config);
         let height = config.lineHeight;

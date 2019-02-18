@@ -932,14 +932,14 @@ export class EditSession {
      * The marker must have an update method.
      * Emits either 'changeFrontMarker' or 'changeBackMarker'.
      */
-    private addDynamicMarker<T extends Marker>(marker: T, inFront?: boolean): T {
+    private addDynamicMarker<T extends Marker>(marker: T, inFront=false): T {
         if (!marker.update) {
             throw new Error("marker must have an update method.");
             // return void 0;
         }
         const id = this.$markerId++;
         marker.id = id;
-        marker.inFront = !!inFront;
+        marker.inFront = inFront;
 
         if (inFront) {
             this.$frontMarkers[id] = marker;

@@ -131,10 +131,13 @@ function binarySearch(annotations: Annotation[], needle: { row: number; column: 
 }
 
 function find(session: EditSession, needle: string | RegExp, direction: Direction): Range | null | undefined {
-    search.$options.wrap = true;
-    search.$options.needle = needle;
-    search.$options.backwards = (direction === Direction.BACKWARD);
-    return search.find(session);
+    const options: SearchOptions = {
+        wrap: true,
+        needle: needle,
+        backwards: (direction === Direction.BACKWARD),
+    };
+
+    return search.find(session, options);
 }
 
 /**
@@ -239,7 +242,7 @@ export class Editor {
 
     private $highlightActiveLine = true;
     private $highlightPending: boolean;
-    private $highlightSelectedWord = true;
+    private $highlightSelectedWord = false;
     private $highlightTagPending: boolean;
 
     private $mergeUndoDeltas: boolean | 'always' = true;
@@ -353,7 +356,7 @@ export class Editor {
 
         this.$blockScrolling = 0;
 
-        this.$search = new Search().set({ wrap: true });
+        this.$search = new Search();
 
         this.$historyTracker = this.$historyTracker.bind(this);
         this.commands.on("exec", this.$historyTracker);
@@ -2103,9 +2106,6 @@ export class Editor {
             const re = this.$getSelectionHighLightRegexp();
             session.highlight(re);
         }
-        else {
-            session.highlight(null);
-        }
         const origin = event == null ? Origin.INTERNAL : event.origin;
         this._emitChangeSelection(origin);
     }
@@ -2656,6 +2656,10 @@ export class Editor {
      */
     setHighlightSelectedWord(highlightSelectedWord: boolean): void {
         this.$highlightSelectedWord = highlightSelectedWord;
+        if ( ! highlightSelectedWord) {
+            const session = this.sessionOrThrow();
+            session.highlight(null);
+        }
         this.onSelectionChange(undefined, this.selection);
     }
 
@@ -4156,10 +4160,6 @@ export class Editor {
         this.clearSelection();
     }
 
-    getSearchRegExp(): RegExp {
-        return this.$search.$options.re as RegExp;
-    }
-
     /**
      * Replaces the first occurence of `options.needle` with the value in `replacement`.
      *
@@ -4169,12 +4169,7 @@ export class Editor {
     replace(replacement: string, options?: SearchOptions): number {
         const session = this.sessionOrThrow();
         const selection = this.selectionOrThrow();
-
-        if (options) {
-            this.$search.set(options);
-        }
-
-        const range = this.$search.find(session);
+        const range = this.$search.find(session, options);
         let replaced = 0;
         if (!range)
             return replaced;
@@ -4208,12 +4203,7 @@ export class Editor {
     replaceAll(replacement: string, options?: SearchOptions): number {
         const session = this.sessionOrThrow();
         const selection = this.selectionOrThrow();
-
-        if (options) {
-            this.$search.set(options);
-        }
-
-        const ranges = this.$search.findAll(session);
+        const ranges = this.$search.findAll(session, options);
         let replaced = 0;
         if (!ranges.length) {
             return replaced;
@@ -4255,12 +4245,7 @@ export class Editor {
     highlight(re?: RegExp): void {
         const session = this.getSession();
         if (session) {
-            if (re) {
-                session.highlight(re);
-            }
-            else {
-                session.highlight(this.getSearchRegExp());
-            }
+            session.highlight(re);
         }
         this.updateBackMarkers();
     }
@@ -4275,10 +4260,6 @@ export class Editor {
 
     updateFull(force?: boolean): void {
         return this.renderer.updateFull(force);
-    }
-
-    getLastSearchOptions(): SearchOptions {
-        return this.$search.getOptions();
     }
 
     /**
@@ -4298,11 +4279,11 @@ export class Editor {
             range = selection.isEmpty() ? selection.getWordRange() : selection.getRange();
             options.needle = session.getTextRange(range);
         }
-        this.$search.set(options);
 
-        const ranges = this.$search.findAll(session);
-        if (!ranges.length)
+        const ranges = this.$search.findAll(session, options);
+        if (!ranges.length) {
             return 0;
+        }
 
         this.$blockScrolling += 1;
         try {
@@ -4340,32 +4321,21 @@ export class Editor {
      * @param options An object defining various search properties
      * @param animate If `true` animate scrolling
      */
-    find(needle?: (string | RegExp), options: SearchOptions = {}, animate?: boolean): RangeBasic | null | undefined {
+    find(needle: (string | RegExp), options: SearchOptions = {}, animate?: boolean): RangeBasic {
         const selection = this.selectionOrThrow();
         const session = this.sessionOrThrow();
-        if (typeof needle === "string" || needle instanceof RegExp) {
-            options.needle = needle;
-        }
-        else if (typeof needle === "object") {
-            mixin(options, needle);
-        }
+        options.needle = needle;
 
         let range = selection.getRange();
         if (options.needle == null) {
-            needle = session.getTextRange(range) || this.$search.$options.needle;
+            needle = session.getTextRange(range);
             if (!needle) {
                 range = this.getWordRange(range.start.row, range.start.column);
                 needle = session.getTextRange(range);
             }
-            this.$search.set({ needle: needle });
         }
 
-        this.$search.set(options);
-        if (!options.start) {
-            this.$search.set({ start: range });
-        }
-
-        const newRange = this.$search.find(session);
+        const newRange = this.$search.find(session, options);
         if (options.preventScroll) {
             return newRange;
         }
@@ -4376,12 +4346,11 @@ export class Editor {
         // clear selection if nothing is found
         if (options.backwards) {
             range.start = range.end;
-        }
-        else {
+        } else {
             range.end = range.start;
         }
         selection.setRange(range);
-        return undefined;
+        return null;
     }
 
     findSearchBox(match: boolean) {
@@ -4395,8 +4364,8 @@ export class Editor {
      * @param needle
      * @param animate If `true` animate scrolling
      */
-    findNext(needle?: (string | RegExp), animate?: boolean): void {
-        this.find(needle, { skipCurrent: true, backwards: false }, animate);
+    findNext(needle?: (string | RegExp), animate?: boolean): RangeBasic {
+        return this.find(needle, { skipCurrent: true, backwards: false }, animate);
     }
 
     /**
@@ -4406,8 +4375,8 @@ export class Editor {
      * @param needle
      * @param animate If `true` animate scrolling
      */
-    findPrevious(needle?: (string | RegExp), animate?: boolean): void {
-        this.find(needle, { skipCurrent: true, backwards: true }, animate);
+    findPrevious(needle?: (string | RegExp), animate?: boolean): RangeBasic {
+        return this.find(needle, { skipCurrent: true, backwards: true }, animate);
     }
 
     revealRange(range: Range, animate?: boolean): void {

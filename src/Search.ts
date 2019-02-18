@@ -3,8 +3,8 @@
  * Copyright (c) 2015-2018, David Holmes
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
-import { copyObject, escapeRegExp, getMatchOffsets } from "./lib/lang";
-import { mixin } from "./lib/oop";
+import { escapeRegExp, getMatchOffsets } from "./lib/lang";
+import { fillDefaults } from "./lib/oop";
 import { LineFilter } from './LineFilter';
 import { MatchHandler } from './MatchHandler';
 import { MatchOffset } from './lib/MatchOffset';
@@ -26,57 +26,26 @@ export interface EditSession {
     selection: Selection | undefined;
 }
 
+const defaultOptions: SearchOptions = {
+    needle: null,
+    range: null,
+    start: null,
+    backwards: false,
+    $isMultiLine: false,
+    re: null,
+    regExp: false,
+    preserveCase: false,
+    caseSensitive: true,
+    wholeWord: true,
+    skipCurrent: true,
+    wrap: false,
+    preventScroll: false
+};
+
 /**
  * A class designed to handle all sorts of text searches within a Document.
  */
 export class Search {
-
-    /**
-     *
-     */
-    $options: SearchOptions;
-    /**
-     * Creates a new `Search` object. The following search options are avaliable:
-     *
-     * - `needle`: The string or regular expression you're looking for
-     * - `backwards`: Whether to search backwards from where cursor currently is. Defaults to `false`.
-     * - `wrap`: Whether to wrap the search back to the beginning when it hits the end. Defaults to `false`.
-     * - `caseSensitive`: Whether the search ought to be case-sensitive. Defaults to `false`.
-     * - `wholeWord`: Whether the search matches only on whole words. Defaults to `false`.
-     * - `range`: The [[Range]] to search within. Set this to `null` for the whole document
-     * - `regExp`: Whether the search is a regular expression or not. Defaults to `false`.
-     * - `start`: The starting [[Range]] or cursor position to begin the search
-     * - `skipCurrent`: Whether or not to include the current line in the search. Default to `false`.
-     */
-    constructor() {
-        this.$options = {};
-    }
-
-    /**
-     * Sets the search options via the `options` parameter.
-     *
-     * @param options An object containing all the new search properties.
-     */
-    set(options: SearchOptions): Search {
-        mixin(this.$options, options);
-        return this;
-    }
-
-    /**
-     * Returns an object containing all the search options.
-     */
-    getOptions(): SearchOptions {
-        return copyObject(this.$options);
-    }
-
-    /**
-     * Sets the search options via the `options` parameter.
-     *
-     * @param options An object containing all the search properties.
-     */
-    setOptions(options: SearchOptions): void {
-        this.$options = options;
-    }
 
     /**
      * Searches for `options.needle`.
@@ -85,36 +54,34 @@ export class Search {
      *
      * @param session The session to search with.
      */
-    find(session: EditSession): Range | null | undefined {
-        const options = this.$options;
+    find(session: EditSession, givenOptions: SearchOptions): Range {
+        const options = fillDefaults(givenOptions, defaultOptions);
+
         /**
          * A boolean or an iterable object, with a forEach method.
          */
         const matches = $matchIterator(session, options);
+        if (matches == null) {
+            return null;
+        }
 
-        if (typeof matches === 'boolean') {
-            // Presumably eliminates the boolean case?
-            return void 0;
-        }
-        else {
-            let firstRange: Range | null = null;
-            // Note: row and startIndex in the callback go with the first callback argument being a MatchOffset.
-            matches.forEach(function (range: MatchOffset | Range, row: number, startIndex: number): boolean {
-                if (range instanceof Range) {
-                    firstRange = range;
+        let firstRange: Range = null;
+        // Note: row and startIndex in the callback go with the first callback argument being a MatchOffset.
+        matches.forEach(function (range: MatchOffset | Range, row: number, startIndex: number): boolean {
+            if (range instanceof Range) {
+                firstRange = range;
+            }
+            else {
+                const column = range.offset + (startIndex || 0);
+                firstRange = new Range(row, column, row, column + range.length);
+                if (!range.length && options.start && options.start.start && options.skipCurrent !== false && isEqual(firstRange, options.start)) {
+                    firstRange = null;
+                    return false;
                 }
-                else {
-                    const column = range.offset + (startIndex || 0);
-                    firstRange = new Range(row, column, row, column + range.length);
-                    if (!range.length && options.start && options.start.start && options.skipCurrent !== false && isEqual(firstRange, options.start)) {
-                        firstRange = null;
-                        return false;
-                    }
-                }
-                return true;
-            });
-            return firstRange;
-        }
+            }
+            return true;
+        });
+        return firstRange;
     }
 
     /**
@@ -124,9 +91,8 @@ export class Search {
      *
      * @param session The session to search with.
      */
-    findAll(session: EditSession): Range[] {
-
-        const options: SearchOptions = this.$options;
+    findAll(session: EditSession, givenOptions: SearchOptions): Range[] {
+        const options = fillDefaults(givenOptions, defaultOptions);
 
         if (!options.needle) {
             // If we are not looking for anything, return an empty array of Range(s).
@@ -208,8 +174,10 @@ export class Search {
      * + (String): If `options.regExp` is `true`, this function returns `input` with the replacement already made. Otherwise, this function just returns `replacement`.<br/>
      * If `options.needle` was not found, this function returns `null`.
      */
-    replace(input: string, replacement: string): string | null | undefined {
-        const options = this.$options;
+    replace(input: string, replacement: string, options?: SearchOptions): string | null | undefined {
+        if (options == null) {
+            options = defaultOptions;
+        }
 
         const re: boolean | RegExp | RegExp[] | undefined = assembleRegExp(options);
         if (options.$isMultiLine) {
@@ -244,12 +212,12 @@ export class Search {
     }
 }
 
-function $matchIterator(session: EditSession, options: SearchOptions): boolean | { forEach: (callback: MatchHandler) => void } {
+function $matchIterator(session: EditSession, options: SearchOptions): { forEach: (callback: MatchHandler) => void } {
     const re: boolean | RegExp | RegExp[] | undefined = assembleRegExp(options);
 
     if (!re) {
         // This eliminates the case where re is a boolean.
-        return false;
+        return null;
     }
 
     let callback: MatchHandler;
@@ -257,14 +225,14 @@ function $matchIterator(session: EditSession, options: SearchOptions): boolean |
     let lineFilter: LineFilter;
     if (options.$isMultiLine) {
         const len = (<RegExp[]>re).length;
-        lineFilter = function (line: string, row: number, offset: number): true | undefined {
+        lineFilter = function (line: string, row: number, offset: number): boolean {
             const startIndex = line.search(re[0]);
             if (startIndex === -1)
-                return void 0;
+                return false;
             for (let i = 1; i < len; i++) {
                 line = session.getLine(row + i);
                 if (line.search(re[i]) === -1)
-                    return void 0;
+                    return false;
             }
 
             const endIndex = (line.match(re[len - 1]) as RegExpMatchArray)[0].length;
@@ -275,35 +243,36 @@ function $matchIterator(session: EditSession, options: SearchOptions): boolean |
                 range.start.row--;
                 range.start.column = Number.MAX_VALUE;
             }
-            else if (offset)
+            else if (offset) {
                 range.start.column += offset;
+            }
 
             if (callback(range)) {
                 return true;
             }
-            return void 0;
+            return false;
         };
     }
     else if (backwards) {
-        lineFilter = function (line: string, row: number, startIndex: number): boolean | undefined {
+        lineFilter = function (line: string, row: number, startIndex: number): boolean {
             const matches = getMatchOffsets(line, <RegExp>re);
             for (let i = matches.length - 1; i >= 0; i--) {
                 if (callback(matches[i], row, startIndex)) {
                     return true;
                 }
             }
-            return void 0;
+            return false;
         };
     }
     else {
-        lineFilter = function (line: string, row: number, startIndex: number): boolean | undefined {
+        lineFilter = function (line: string, row: number, startIndex: number): boolean {
             const matches = getMatchOffsets(line, <RegExp>re);
             for (let i = 0; i < matches.length; i++) {
                 if (callback(matches[i], row, startIndex)) {
                     return true;
                 }
             }
-            return void 0;
+            return false;
         };
     }
 
@@ -391,54 +360,67 @@ function $assembleMultilineRegExp(needle: string, modifier: string): RegExp[] | 
 }
 
 function $lineIterator(session: EditSession, options: SearchOptions): { forEach: (lineFilter: LineFilter) => void } {
-    const backwards = options.backwards === true;
+    const backwards = options.backwards;
 
     const startPos = getStartPosition(session, options);
-
     const range = options.range;
     let firstRow = range ? range.start.row : 0;
     let lastRow = range ? range.end.row : session.getLength() - 1;
 
-    const forEach = backwards ? function (lineFilter: LineFilter) {
-        let row = startPos.row;
+    if (backwards) {
+        return {
+            forEach(lineFilter: LineFilter) {
+                let row = startPos.row;
 
-        const line = session.getLine(row).substring(0, startPos.column);
-        if (lineFilter(line, row)) {
-            return;
-        }
+                const line = session.getLine(row).substring(0, startPos.column);
+                if (lineFilter(line, row)) {
+                    return;
+                }
 
-        for (row--; row >= firstRow; row--)
-            if (lineFilter(session.getLine(row), row)) {
-                return;
+                for (row--; row >= firstRow; row--) {
+                    if (lineFilter(session.getLine(row), row)) {
+                        return;
+                    }
+                }
+
+                if ( ! options.wrap) {
+                    return;
+                }
+
+                for (row = lastRow, firstRow = startPos.row; row >= firstRow; row--) {
+                    if (lineFilter(session.getLine(row), row)) {
+                        return;
+                    }
+                }
             }
+        };
+    } else {
+        return {
+            forEach(callback: LineFilter) {
+                let row = startPos.row;
 
-        if (options.wrap === false)
-            return;
+                const line = session.getLine(row).substr(startPos.column);
+                if (callback(line, row, startPos.column)) {
+                    return;
+                }
 
-        for (row = lastRow, firstRow = startPos.row; row >= firstRow; row--)
-            if (lineFilter(session.getLine(row), row)) {
-                return;
+                for (row = row + 1; row <= lastRow; row++) {
+                    if (callback(session.getLine(row), row)) {
+                        return;
+                    }
+                }
+                if ( ! options.wrap) {
+                    return;
+                }
+
+                for (row = firstRow, lastRow = startPos.row; row <= lastRow; row++) {
+                    if (callback(session.getLine(row), row)) {
+                        return;
+                    }
+                }
             }
-    } : function (callback: LineFilter) {
-        let row = startPos.row;
-
-        const line = session.getLine(row).substr(startPos.column);
-        if (callback(line, row, startPos.column))
-            return;
-
-        for (row = row + 1; row <= lastRow; row++)
-            if (callback(session.getLine(row), row))
-                return;
-
-        if (options.wrap === false)
-            return;
-
-        for (row = firstRow, lastRow = startPos.row; row <= lastRow; row++)
-            if (callback(session.getLine(row), row))
-                return;
-    };
-
-    return { forEach: forEach };
+        };
+    }
 }
 
 /**
@@ -446,14 +428,14 @@ function $lineIterator(session: EditSession, options: SearchOptions): { forEach:
  * direction of the search and whether the currently selected range should be skipped.
  */
 function getRangePosition(range: RangeBasic, options: SearchOptions): Position {
-    const backwards = options.backwards === true;
+    const backwards = options.backwards;
     const skipCurrent = options.skipCurrent !== false;
     return skipCurrent !== backwards ? range.end : range.start;
 }
 
 function getStartPosition(session: EditSession, options: SearchOptions): Position {
-    const backwards = options.backwards === true;
-    if (!options.start) {
+    const backwards = options.backwards;
+    if ( ! options.start) {
         if (options.range) {
             // TODO: Why doesn't options.range follow the same rules using skipCurrent?
             return backwards ? options.range.end : options.range.start;
