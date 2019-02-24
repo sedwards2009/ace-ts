@@ -984,6 +984,9 @@ export class EditSession {
     highlight(re: string | RegExp): void {
         if (!this.$searchHighlight) {
             const highlight = new SearchHighlight(null, "ace_selected-word", "text");
+            this.on("change", (delta: DeltaIgnorable) => {
+                highlight.onChange(delta);
+            });
             this.$searchHighlight = this.addDynamicMarker(highlight);
         }
         if (re == null) {

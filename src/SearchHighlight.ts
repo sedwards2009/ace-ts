@@ -9,6 +9,7 @@ import { Range } from "./Range";
 import { MarkerLayer } from "./layer/MarkerLayer";
 import { MarkerConfig } from "./layer/MarkerConfig";
 import { EditSession } from "./EditSession";
+import { DeltaIgnorable } from "./DeltaIgnorable";
 
 // needed to prevent long lines from freezing the browser
 const MAX_RANGES = 500;
@@ -51,6 +52,15 @@ export class SearchHighlight implements Marker {
 
     set range(range: Range) {
         this._range = range;
+    }
+    
+    onChange(delta: DeltaIgnorable): void {
+        const row = delta.start.row;
+        if (row == delta.end.row) {
+            delete this.cache[row];
+        } else {
+            this.cache.splice(row, this.cache.length);
+        }
     }
 
     update(html: (number | string)[], markerLayer: MarkerLayer, session: EditSession, config: MarkerConfig): void {
