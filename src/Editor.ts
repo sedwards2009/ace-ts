@@ -4242,7 +4242,7 @@ export class Editor {
         }
     }
 
-    highlight(re?: RegExp): void {
+    highlight(re?: string | RegExp): void {
         const session = this.getSession();
         if (session) {
             session.highlight(re);

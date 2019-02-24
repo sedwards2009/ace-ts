@@ -6,7 +6,7 @@
 import { equalPositions } from './Position';
 import { createDelayedCall } from './lib/lang/createDelayedCall';
 import { DelayedCall } from './lib/lang/DelayedCall';
-import { stringRepeat } from "./lib/lang";
+import { stringRepeat, escapeRegExp } from "./lib/lang";
 import { Annotation } from './Annotation';
 import { Delta } from "./Delta";
 import { DeltaIgnorable } from "./DeltaIgnorable";
@@ -981,12 +981,18 @@ export class EditSession {
         return inFront ? this.$frontMarkers : this.$backMarkers;
     }
 
-    highlight(re: RegExp | null | undefined): void {
+    highlight(re: string | RegExp): void {
         if (!this.$searchHighlight) {
             const highlight = new SearchHighlight(null, "ace_selected-word", "text");
             this.$searchHighlight = this.addDynamicMarker(highlight);
         }
-        this.$searchHighlight.setRegexp(re);
+        if (re == null) {
+            this.$searchHighlight.setRegexp(null);
+        } else if (re instanceof RegExp) {
+            this.$searchHighlight.setRegexp(re);
+        } else {
+            this.$searchHighlight.setRegexp(new RegExp(escapeRegExp(re)));
+        }
     }
 
     highlightLines(startRow: number, endRow: number, clazz = "ace_step", inFront?: boolean): Range {

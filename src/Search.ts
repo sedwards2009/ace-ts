@@ -33,7 +33,6 @@ const defaultOptions: SearchOptions = {
     backwards: false,
     $isMultiLine: false,
     re: null,
-    regExp: false,
     preserveCase: false,
     caseSensitive: true,
     wholeWord: true,
@@ -99,8 +98,7 @@ export class Search {
             return [];
         }
 
-        // The side-effect of this call is mutation of the options.
-        assembleRegExp(options);
+        options.re = assembleRegExp(options);
 
         const range = options.range;
         const lines: string[] = range ? session.getLines(range.start.row, range.end.row) : session.getAllLines();
@@ -179,7 +177,8 @@ export class Search {
             options = defaultOptions;
         }
 
-        const re: boolean | RegExp | RegExp[] | undefined = assembleRegExp(options);
+        const re = assembleRegExp(options);
+        options.re = re;
         if (options.$isMultiLine) {
             // This eliminates the RegExp[]
             return replacement;
@@ -213,7 +212,8 @@ export class Search {
 }
 
 function $matchIterator(session: EditSession, options: SearchOptions): { forEach: (callback: MatchHandler) => void } {
-    const re: boolean | RegExp | RegExp[] | undefined = assembleRegExp(options);
+    options.re = assembleRegExp(options);
+    const re = options.re;
 
     if (!re) {
         // This eliminates the case where re is a boolean.
@@ -284,56 +284,47 @@ function $matchIterator(session: EditSession, options: SearchOptions): { forEach
     };
 }
 
-function addWordBoundary(needle: string, options: SearchOptions): string {
+function addWordBoundary(needle: string): string {
     function wordBoundary(c: string): string {
-        if (/\w/.test(c) || options.regExp) return "\\b";
+        if (/\w/.test(c)) return "\\b";
         if (/\W/.test(c)) return "\\B";
         return "";
     }
     return wordBoundary(needle[0]) + needle + wordBoundary(needle[needle.length - 1]);
 }
-/**
- * 
- */
-export function assembleRegExp(options: SearchOptions, $disableFakeMultiline?: boolean): boolean | RegExp | RegExp[] | undefined {
 
-    if (!options.needle) {
-        options.re = false;
+export function assembleRegExp(options: SearchOptions, $disableFakeMultiline?: boolean): RegExp | RegExp[] {
+    if (options.needle == null) {
+        return null;
     }
-    else if (options.needle instanceof RegExp) {
-        options.re = <RegExp>options.needle;
+    
+    if (options.needle instanceof RegExp) {
+        return <RegExp>options.needle;
     }
-    else if (typeof options.needle === 'string') {
-
+    
+    if (typeof options.needle === 'string') {
         let needleString = <string>options.needle;
 
-        // TODO: Is this a BUG?
-        if (!options.regExp) {
-            needleString = escapeRegExp(needleString);
-        }
-
         if (options.wholeWord) {
-            needleString = addWordBoundary(needleString, options);
+            needleString = addWordBoundary(needleString);
         }
 
         const modifier: string = options.caseSensitive ? "gm" : "gmi";
 
         options.$isMultiLine = !$disableFakeMultiline && /[\n\r]/.test(needleString);
         if (options.$isMultiLine) {
-            return options.re = $assembleMultilineRegExp(needleString, modifier);
+            return $assembleMultilineRegExp(needleString, modifier);
         }
 
         try {
-            options.re = new RegExp(needleString, modifier);
+            return new RegExp(needleString, modifier);
         }
         catch (e) {
-            options.re = false;
+            return null;
         }
-    }
-    else {
+    } else {
         throw new Error(`typeof options.needle => ${typeof options.needle}`);
     }
-    return options.re;
 }
 
 function $assembleMultilineRegExp(needle: string, modifier: string): RegExp[] | undefined {

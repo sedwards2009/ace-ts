@@ -239,7 +239,6 @@ class SearchBox {
             skipCurrent: skipCurrent,
             backwards: backwards,
             wrap: true,
-            regExp: this.regExpOption.checked,
             caseSensitive: this.caseSensitiveOption.checked,
             wholeWord: this.wholeWordOption.checked
         });
@@ -256,7 +255,6 @@ class SearchBox {
     }
     findAll() {
         const range = this.editor.findAll(this.searchInput.value, {
-            regExp: this.regExpOption.checked,
             caseSensitive: this.caseSensitiveOption.checked,
             wholeWord: this.wholeWordOption.checked
         });

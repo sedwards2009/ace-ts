@@ -39,13 +39,7 @@ export interface SearchOptions {
     /**
      * A multi-line search will have an array of regular expressions.
      */
-    re?: boolean | RegExp | RegExp[] | undefined;
-
-    /**
-     * Whether the search is a regular expression or not. Defaults to false.
-     * SearchBox sets this to a boolean to indicate the state of the Regular Expression toggle.
-     */
-    regExp?: boolean;
+    re?: RegExp | RegExp[];
 
     /**
      * TODO: Possible BUG duplicating caseSensitive property?
