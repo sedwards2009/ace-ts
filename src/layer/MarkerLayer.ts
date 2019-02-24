@@ -60,7 +60,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
         // #3143
         this.element.innerHTML = '';
 
-        const html: (number | string)[] = [];
+        const html: string[] = [];
 
         const ids = Object.keys(this.markers);
         const iLen = ids.length;
@@ -121,7 +121,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
     /**
      * Draws a marker, which spans a range of text on multiple lines
      */
-    private drawTextMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, layerConfig: MarkerConfig, extraStyle?: string): void {
+    private drawTextMarker(stringBuilder: string[], range: RangeBasic, clazz: string, layerConfig: MarkerConfig, extraStyle?: string): void {
 
         function getBorderClass(tl: boolean, tr: boolean, br: boolean, bl: boolean): number {
             return (tl ? 1 : 0) | (tr ? 2 : 0) | (br ? 4 : 0) | (bl ? 8 : 0);
@@ -155,7 +155,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
     /**
      * Draws a multi line marker, where lines span the full width
      */
-    private drawMultiLineMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
+    private drawMultiLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
         // from selection start to the end of the line
         const padding = this.$padding;
         let height = config.lineHeight;
@@ -164,10 +164,10 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
         stringBuilder.push(
             "<div class='", clazz, " ace_br1 ace_start' style='",
-            "height:", height, "px;",
+            "height:", "" + height, "px;",
             "right:0;",
-            "top:", top, "px;",
-            "left:", left, "px;", extraStyle, "'></div>"
+            "top:", "" + top, "px;",
+            "left:", "" + left, "px;", extraStyle, "'></div>"
         );
 
         // from start of the last line to the selection end
@@ -176,10 +176,10 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
         stringBuilder.push(
             "<div class='", clazz, " ace_br12' style='",
-            "height:", height, "px;",
-            "width:", width, "px;",
-            "top:", top, "px;",
-            "left:", padding, "px;", extraStyle, "'></div>"
+            "height:", "" + height, "px;",
+            "width:", "" + width, "px;",
+            "top:", "" + top, "px;",
+            "left:", "" + padding, "px;", extraStyle, "'></div>"
         );
 
         // all the complete lines
@@ -193,17 +193,17 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
         stringBuilder.push(
             "<div class='", clazz, (radiusClass ? " ace_br" + radiusClass : ""), "' style='",
-            "height:", height, "px;",
+            "height:", "" + height, "px;",
             "right:0;",
-            "top:", top, "px;",
-            "left:", padding, "px;", extraStyle, "'></div>"
+            "top:", "" + top, "px;",
+            "left:", "" + padding, "px;", extraStyle, "'></div>"
         );
     }
 
     /**
      * Draws a marker which covers part or whole width of a single screen line.
      */
-    drawSingleLineMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, config: MarkerConfig, extraLength = 0, extraStyle = ""): void {
+    drawSingleLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: MarkerConfig, extraLength = 0, extraStyle = ""): void {
         const height = config.lineHeight;
         const width = (range.end.column + extraLength - range.start.column) * config.characterWidth;
 
@@ -212,14 +212,14 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
         stringBuilder.push(
             "<div class='", clazz, "' style='",
-            "height:", height, "px;",
-            "width:", width, "px;",
-            "top:", top, "px;",
-            "left:", left, "px;", extraStyle, "'></div>"
+            "height:", "" + height, "px;",
+            "width:", "" + width, "px;",
+            "top:", "" + top, "px;",
+            "left:", "" + left, "px;", extraStyle, "'></div>"
         );
     }
 
-    private drawFullLineMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
+    private drawFullLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
         const top = this.$getTop(range.start.row, config);
         let height = config.lineHeight;
         if (range.start.row !== range.end.row) {
@@ -228,20 +228,20 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
         stringBuilder.push(
             "<div class='", clazz, "' style='",
-            "height:", height, "px;",
-            "top:", top, "px;",
+            "height:", "" + height, "px;",
+            "top:", "" + top, "px;",
             "left:0;right:0;", extraStyle, "'></div>"
         );
     }
 
-    private drawScreenLineMarker(stringBuilder: (number | string)[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
+    private drawScreenLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
         const top = this.$getTop(range.start.row, config);
         const height = config.lineHeight;
 
         stringBuilder.push(
             "<div class='", clazz, "' style='",
-            "height:", height, "px;",
-            "top:", top, "px;",
+            "height:", "" + height, "px;",
+            "top:", "" + top, "px;",
             "left:0;right:0;", extraStyle, "'></div>"
         );
     }

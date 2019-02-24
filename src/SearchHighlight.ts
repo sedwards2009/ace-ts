@@ -63,7 +63,7 @@ export class SearchHighlight implements Marker {
         }
     }
 
-    update(html: (number | string)[], markerLayer: MarkerLayer, session: EditSession, config: MarkerConfig): void {
+    update(html: string[], markerLayer: MarkerLayer, session: EditSession, config: MarkerConfig): void {
         if (this.regExp == null) {
             return;
         }

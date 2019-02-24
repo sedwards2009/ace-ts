@@ -49,6 +49,6 @@ export interface Marker {
     /**
      * The MarkerLayer will call this method.
      */
-    update?: (html: (number | string)[], markerLayer: IMarkerLayer, session: EditSession, config: MarkerConfig) => void;
+    update?: (html: string[], markerLayer: IMarkerLayer, session: EditSession, config: MarkerConfig) => void;
 }
 
