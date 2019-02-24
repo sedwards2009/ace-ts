@@ -1322,11 +1322,11 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
         }
 
-        if (changes & (CHANGE_MARKER | CHANGE_MARKER_FRONT)) {
+        if (changes & CHANGE_LINES || changes & (CHANGE_MARKER | CHANGE_MARKER_FRONT)) {
             this.$markerFront.update(config);
         }
 
-        if (changes & (CHANGE_MARKER | CHANGE_MARKER_BACK)) {
+        if (changes & CHANGE_LINES || changes & (CHANGE_MARKER | CHANGE_MARKER_BACK)) {
             this.$markerBack.update(config);
         }
 

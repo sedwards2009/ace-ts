@@ -57,7 +57,7 @@ export class SearchHighlight implements Marker {
     onChange(delta: DeltaIgnorable): void {
         const row = delta.start.row;
         if (row == delta.end.row) {
-            delete this.cache[row];
+            this.cache[row] = null;
         } else {
             this.cache.splice(row, this.cache.length);
         }
