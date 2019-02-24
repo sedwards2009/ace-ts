@@ -23,7 +23,7 @@ export interface IMarkerLayer {
 export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
     private session: EditSession;
-    private markers: { [id: number]: Marker };
+    private markers: { [id: number]: Marker } = {};
     private config: MarkerConfig;
     private $padding = 0;
 
@@ -37,25 +37,19 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
         super.dispose();
     }
 
-    setPadding(padding: number) {
+    setPadding(padding: number): void {
         this.$padding = padding;
     }
 
-    setSession(session: EditSession) {
+    setSession(session: EditSession): void {
         this.session = session;
     }
 
-    setMarkers(markers: { [id: number]: Marker }) {
-        // If the markers are not defined then we'll have problems in the update method.
-        if (typeof markers === 'object') {
-            this.markers = markers;
-        }
-        else {
-            throw new Error(`markers must be an object, was ${typeof markers}`);
-        }
+    setMarkers(markers: { [id: number]: Marker }): void {
+        this.markers = markers;
     }
 
-    update(config: MarkerConfig) {
+    update(config: MarkerConfig): void {
         config = config || this.config;
         if (!config) {
             return;
@@ -68,60 +62,41 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
         const html: (number | string)[] = [];
 
-        if (typeof this.markers === 'object') {
-            const ids = Object.keys(this.markers);
-            const iLen = ids.length;
-            for (let i = 0; i < iLen; i++) {
-                const id = parseInt(ids[i], 10);
+        const ids = Object.keys(this.markers);
+        const iLen = ids.length;
+        for (let i = 0; i < iLen; i++) {
+            const id = parseInt(ids[i], 10);
+            const marker = this.markers[id];
 
-                const marker: Marker = this.markers[id];
+            if ( ! marker.range) {
+                if (marker.update) {
+                    marker.update(html, this, this.session, config);
+                }
+                continue;
+            }
 
-                if (!marker.range) {
-                    if (marker.update) {
-                        marker.update(html, this, this.session, config);
-                    }
-                    continue;
-                }
+            let rangeClipRows = clipRows(marker.range, config.firstRow, config.lastRow);
+            if (isEmpty(rangeClipRows)) {
+                continue;
+            }
 
-                if (typeof marker.range.start.row !== 'number') {
-                    throw new TypeError();
+            const range = this.session.documentToScreenRange(rangeClipRows);
+            if (marker.renderer) {
+                const top = this.$getTop(range.start.row, config);
+                const left = this.$padding + range.start.column * config.characterWidth;
+                marker.renderer(html, range, left, top, config);
+            } else if (marker.type === "fullLine") {
+                this.drawFullLineMarker(html, range, marker.clazz, config);
+            } else if (marker.type === "screenLine") {
+                this.drawScreenLineMarker(html, range, marker.clazz, config);
+            } else if (isMultiLine(range)) {
+                if (marker.type === "text") {
+                    this.drawTextMarker(html, range, marker.clazz, config);
+                } else {
+                    this.drawMultiLineMarker(html, range, marker.clazz, config);
                 }
-                if (typeof marker.range.start.column !== 'number') {
-                    throw new TypeError();
-                }
-                if (typeof marker.range.end.row !== 'number') {
-                    throw new TypeError();
-                }
-                if (typeof marker.range.end.row !== 'number') {
-                    throw new TypeError();
-                }
-
-                let rangeClipRows = clipRows(marker.range, config.firstRow, config.lastRow);
-                if (isEmpty(rangeClipRows)) continue;
-
-                const range = this.session.documentToScreenRange(rangeClipRows);
-                if (marker.renderer) {
-                    const top = this.$getTop(range.start.row, config);
-                    const left = this.$padding + range.start.column * config.characterWidth;
-                    marker.renderer(html, range, left, top, config);
-                }
-                else if (marker.type === "fullLine") {
-                    this.drawFullLineMarker(html, range, marker.clazz, config);
-                }
-                else if (marker.type === "screenLine") {
-                    this.drawScreenLineMarker(html, range, marker.clazz, config);
-                }
-                else if (isMultiLine(range)) {
-                    if (marker.type === "text") {
-                        this.drawTextMarker(html, range, marker.clazz, config);
-                    }
-                    else {
-                        this.drawMultiLineMarker(html, range, marker.clazz, config);
-                    }
-                }
-                else {
-                    this.drawSingleLineMarker(html, range, marker.clazz + " ace_start ace_br15", config);
-                }
+            } else {
+                this.drawSingleLineMarker(html, range, marker.clazz + " ace_start ace_br15", config);
             }
         }
 

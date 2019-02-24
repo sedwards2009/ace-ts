@@ -1203,7 +1203,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     private $renderChanges(changes: number, forceChanges: boolean): void {
-
         if (this.$changes) {
             changes |= this.$changes;
             this.$changes = 0;
@@ -1221,9 +1220,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.textLayer.checkForSizeChanges();
         }
 
-        /**
-         * @event beforeRender
-         */
         this.eventBus._signal("beforeRender");
 
         let config = this.layerConfig;
@@ -1261,14 +1257,11 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.content.style.height = pixelStyle(config.minHeight);
         }
 
-        // horizontal scrolling
         if (changes & CHANGE_H_SCROLL) {
             this.content.style.marginLeft = pixelStyle(-this.scrollLeft);
             this.scroller.className = this.scrollLeft <= 0 ? "ace_scroller" : "ace_scroller ace_scroll-left";
         }
 
-
-        // full
         if (changes & CHANGE_FULL) {
             this.textLayer.update(config);
             if (this.$showGutter) {
@@ -1282,23 +1275,19 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 this.$updateGutterLineHighlight();
             }
 
-            /**
-             * @event afterRender
-             */
             this.eventBus._signal("afterRender");
-
-            return void 0;
+            return;
         }
 
-        // scrolling
         if (changes & CHANGE_SCROLL) {
-            if (changes & CHANGE_TEXT || changes & CHANGE_LINES)
+            if (changes & CHANGE_TEXT || changes & CHANGE_LINES) {
                 this.textLayer.update(config);
-            else
+            } else {
                 this.textLayer.scrollLines(config);
-
-            if (this.$showGutter)
+            }
+            if (this.$showGutter) {
                 this.$gutterLayer.update(config);
+            }
             this.$markerBack.update(config);
             this.$markerFront.update(config);
             this.cursorLayer.update(config);
@@ -1306,25 +1295,23 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 this.$updateGutterLineHighlight();
             }
             this.$moveTextAreaToCursor();
-            /**
-             * @event afterRender
-             */
             this.eventBus._signal("afterRender");
-            return void 0;
+            return;
         }
 
         if (changes & CHANGE_TEXT) {
             this.textLayer.update(config);
-            if (this.$showGutter)
+            if (this.$showGutter) {
                 this.$gutterLayer.update(config);
-        }
-        else if (changes & CHANGE_LINES) {
-            if (this.$updateLines() || (changes & CHANGE_GUTTER) && this.$showGutter)
+            }
+        } else if (changes & CHANGE_LINES) {
+            if (this.$updateLines() || (changes & CHANGE_GUTTER) && this.$showGutter) {
                 this.$gutterLayer.update(config);
-        }
-        else if (changes & CHANGE_TEXT || changes & CHANGE_GUTTER) {
-            if (this.$showGutter)
+            }
+        } else if (changes & CHANGE_GUTTER) {
+            if (this.$showGutter) {
                 this.$gutterLayer.update(config);
+            }
         }
 
         if (changes & CHANGE_CURSOR) {
@@ -1343,11 +1330,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$markerBack.update(config);
         }
 
-        /**
-         * @event afterRender
-         */
         this.eventBus._signal("afterRender");
-        return void 0;
+        return;
     }
 
     private $autosize(): void {
@@ -1475,22 +1459,27 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return changes;
     }
 
-    private $updateLines(): boolean | undefined {
+    private $updateLines(): boolean {
         if (this.$changedLines) {
             const firstRow = this.$changedLines.firstRow;
             const lastRow = this.$changedLines.lastRow;
             this.$changedLines = null;
             const layerConfig = this.layerConfig;
 
-            if (firstRow > layerConfig.lastRow + 1) { return void 0; }
-            if (lastRow < layerConfig.firstRow) { return void 0; }
+            if (firstRow > layerConfig.lastRow + 1) {
+                return false;
+            }
+            if (lastRow < layerConfig.firstRow) {
+                return false;
+            }
 
             // if the last row is unknown -> redraw everything
             if (lastRow === Infinity) {
-                if (this.$showGutter)
+                if (this.$showGutter) {
                     this.$gutterLayer.update(layerConfig);
+                }
                 this.textLayer.update(layerConfig);
-                return void 0;
+                return false;
             }
 
             // else update only the changed rows

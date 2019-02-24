@@ -471,10 +471,7 @@ export class EditSession {
         if (this.bgTokenizer) {
             this.bgTokenizer.updateOnChange(delta);
         }
-        /**
-         * @event change
-         * @param delta {Delta}
-         */
+
         this.eventBus._signal("change", delta);
     }
 
