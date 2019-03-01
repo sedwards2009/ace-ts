@@ -1592,15 +1592,17 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const scrollTop = this.$scrollAnimation ? session.getScrollTop() : this.scrollTop;
 
         if (scrollTop + topMargin > top) {
-            if (offset)
+            if (offset) {
                 top -= offset * this.$size.scrollerHeight;
-            if (top === 0)
+            }
+            if (top === 0) {
                 top = -this.scrollMargin.top;
+            }
             session.setScrollTop(top);
-        }
-        else if (scrollTop + this.$size.scrollerHeight - bottomMargin < top + this.lineHeight) {
-            if (offset)
+        } else if (scrollTop + this.$size.scrollerHeight - bottomMargin < top + this.lineHeight) {
+            if (offset) {
                 top += offset * this.$size.scrollerHeight;
+            }
             session.setScrollTop(top + this.lineHeight - this.$size.scrollerHeight);
         }
 
@@ -1611,11 +1613,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 left = -this.scrollMargin.left;
             }
             session.setScrollLeft(left);
-        }
-        else if (scrollLeft + this.$size.scrollerWidth < left + this.characterWidth) {
+        } else if (scrollLeft + this.$size.scrollerWidth < left + this.characterWidth) {
             session.setScrollLeft(Math.round(left + this.characterWidth - this.$size.scrollerWidth));
-        }
-        else if (scrollLeft <= this.$padding && left - scrollLeft < this.characterWidth) {
+        } else if (scrollLeft <= this.$padding && left - scrollLeft < this.characterWidth) {
             session.setScrollLeft(0);
         }
     }
