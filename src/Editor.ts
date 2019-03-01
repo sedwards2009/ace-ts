@@ -4337,6 +4337,9 @@ export class Editor {
 
         const newRange = this.$search.find(session, options);
         if (options.preventScroll) {
+            if(newRange != null) {
+                selection.setRange(newRange);
+            }
             return newRange;
         }
         if (newRange) {
