@@ -217,7 +217,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private removeChangeCharacterSizeHandler: (() => void) | undefined;
 
     private $allowBoldFonts: boolean;
-    // private cursorPos: Position;
 
     /**
      * A cache of various sizes TBA.
@@ -413,37 +412,22 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.eventBus.off(eventName, callback);
     }
 
-    /**
-     * 
-     */
     get maxLines(): number {
         return this.$maxLines;
     }
 
-    /**
-     *
-     */
     set maxLines(maxLines: number) {
         this.$maxLines = maxLines;
     }
 
-    /**
-     * 
-     */
     get minLines(): number {
         return this.$minLines;
     }
 
-    /**
-     *
-     */
     set minLines(minLines: number) {
         this.$minLines = minLines;
     }
 
-    /**
-     *
-     */
     set keepTextAreaAtCursor(keepTextAreaAtCursor: boolean) {
         this.$keepTextAreaAtCursor = keepTextAreaAtCursor;
     }
@@ -577,10 +561,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.textLayer.updateEolChar();
     }
 
-    /**
-     *
-     */
-    public onChangeTabSize(): void {
+    onChangeTabSize(): void {
         if (this.$loop) {
             if (this.$loop.schedule) {
                 this.$loop.schedule(CHANGE_TEXT | CHANGE_MARKER);
@@ -612,16 +593,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$loop.schedule(CHANGE_FULL);
     }
 
-    /**
-     * Updates the font size.
-     */
     updateFontSize(): void {
         this.textLayer.checkForSizeChanges();
     }
 
-    /**
-     *
-     */
     private $updateSizeAsync(): void {
         if (this.$loop.pending) {
             this.$size.$dirty = true;
@@ -640,7 +615,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param height The hiehgt of the editor, in pixels
      * @return true if the resize changed anything.
      */
-    public onResize(force?: boolean, gutterWidth?: number, width?: number, height?: number): boolean {
+    onResize(force?: boolean, gutterWidth?: number, width?: number, height?: number): boolean {
         if (this.resizing > 2) {
             return false;
         } else if (this.resizing > 0) {
@@ -773,7 +748,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Adjusts the wrap limit, which is the number of characters that can fit within the width of the edit area on screen.
      */
-    public adjustWrapLimit(): boolean {
+    adjustWrapLimit(): boolean {
         const availableWidth = this.$size.scrollerWidth - this.$padding * 2;
         const limit = Math.floor(availableWidth / this.characterWidth);
         if (this.$showPrintMargin) {
@@ -1015,8 +990,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      *
      * @private
      */
-    public $moveTextAreaToCursor(): void {
-
+    $moveTextAreaToCursor(): void {
         if (!this.$keepTextAreaAtCursor) {
             return;
         }
@@ -1566,9 +1540,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.cursorLayer.showCursor();
     }
 
-    /**
-     *
-     */
     scrollSelectionIntoView(anchor: Position, lead: Position, offset?: number): void {
         // first scroll anchor into view then scroll lead into view
         this.scrollCursorIntoView(anchor, offset);
@@ -1873,9 +1844,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         removeCssClass(this.container, "ace_focus");
     }
 
-    /**
-     *
-     */
     showComposition(position: Position) {
         if (!this.$composition)
             this.$composition = {
@@ -1919,7 +1887,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$gutterLayer.setShowFoldWidgets(showFoldWidgets);
     }
 
-
     /**
      * Sets a new theme for the editor.
      * This is a synchronous method.
@@ -1952,15 +1919,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$updateSizeAsync();
         }
 
-        /**
-         * @event themeLoaded
-         */
         this.eventBus._emit('themeLoaded', { theme: modJs });
     }
 
-    /**
-     * @param cssClass
-     */
     addCssClass(cssClass: string): void {
         addCssClass(this.container, cssClass);
     }
@@ -1969,10 +1930,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         removeCssClass(this.container, cssClass);
     }
 
-    /**
-     * @param className
-     * @param include
-     */
     setCssClass(className: string, include: boolean): void {
         setCssClass(this.container, className, include);
     }
@@ -2028,9 +1985,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         removeCssClass(this.container, className);
     }
 
-    /**
-     *
-     */
     setCursorStyle(style: string): void {
         if (this.content.style.cursor !== style) {
             this.content.style.cursor = style;

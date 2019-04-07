@@ -66,9 +66,7 @@ const CHANGE_NEW_LINE_MODE = 'changeNewLineMode';
 export type DocumentEventName = 'change' | 'changeNewLineMode';
 export type NewLineMode = 'auto' | 'unix' | 'windows';
 
-/**
- *
- */
+
 export class Document implements Shareable {
 
     /**
@@ -76,27 +74,8 @@ export class Document implements Shareable {
      * These lines do not include a line terminating character.
      */
     private readonly _lines: string[] = [];
-
-    /**
-     *
-     */
     private _autoNewLine = "";
-
-    /**
-     *
-     */
     private _newLineMode: NewLineMode = "auto";
-
-    /**
-     * A source of 'change' events that is observable.
-     */
-    /*
-    public readonly changeEvents: Observable<Delta>;
-    */
-
-    /**
-     *
-     */
     private _eventBus: EventEmitterClass<DocumentEventName, any, Document> | undefined;
 
     /**
