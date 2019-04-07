@@ -311,7 +311,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.scrollBarV = this.createVScrollBar(this.container)
         this.scrollBarVscrollUnhook = this.scrollBarV.on("scroll", (event: ScrollBarEvent, scrollBar: VScrollBar) => {
             if (!this.$scrollAnimation && this.session) {
-                this.session.setScrollTop(event.data - this.scrollMargin.top);
+                this.setScrollTop(event.data - this.scrollMargin.top);
             }
         });
 
@@ -484,7 +484,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             const scrollTop = session.getScrollTop();
             if (typeof scrollTop === 'number') {
                 if (this.scrollMargin.top && scrollTop <= 0) {
-                    session.setScrollTop(-this.scrollMargin.top);
+                    this.setScrollTop(-this.scrollMargin.top);
                 }
             }
 
@@ -1095,7 +1095,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         sm.v = sm.top + sm.bottom;
         sm.h = sm.left + sm.right;
         if (sm.top && this.scrollTop <= 0 && this.session)
-            this.session.setScrollTop(-sm.top);
+            this.setScrollTop(-sm.top);
         this.updateFull();
     }
 
@@ -1379,7 +1379,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.scrollBarV.setVisible(vScroll);
         }
 
-        session.setScrollTop(Math.max(-this.scrollMargin.top, Math.min(this.scrollTop, maxHeight - size.scrollerHeight + this.scrollMargin.bottom)));
+        this.setScrollTop(Math.max(-this.scrollMargin.top, Math.min(this.scrollTop, maxHeight - size.scrollerHeight + this.scrollMargin.bottom)));
 
         session.setScrollLeft(Math.max(-this.scrollMargin.left, Math.min(this.scrollLeft, longestLine + 2 * this.$padding - size.scrollerWidth + this.scrollMargin.right)));
 
@@ -1574,12 +1574,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             if (top === 0) {
                 top = -this.scrollMargin.top;
             }
-            session.setScrollTop(top);
+            this.setScrollTop(top);
         } else if (scrollTop + this.$size.scrollerHeight - bottomMargin < top + this.lineHeight) {
             if (offset) {
                 top += offset * this.$size.scrollerHeight;
             }
-            session.setScrollTop(top + this.lineHeight - this.$size.scrollerHeight);
+            this.setScrollTop(top + this.lineHeight - this.$size.scrollerHeight);
         }
 
         const scrollLeft = this.scrollLeft;
@@ -1625,7 +1625,11 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param row A row id.
      */
     scrollToRow(row: number): void {
-        this.sessionOrThrow().setScrollTop(row * this.lineHeight);
+        this.setScrollTop(row * this.lineHeight);
+    }
+
+    setScrollTop(topPx: number): void {
+        this.sessionOrThrow().setScrollTop(topPx);
     }
 
     alignCursor(cursor: number | Position, alignment: number): number {
@@ -1637,7 +1641,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const h = this.$size.scrollerHeight - this.lineHeight;
         const offset = pos.top - h * (alignment || 0);
 
-        this.sessionOrThrow().setScrollTop(offset);
+        this.setScrollTop(offset);
         return offset;
     }
 
@@ -1650,7 +1654,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param callback Function to be called after the animation has finished
      */
     scrollToLine(line: number, center: boolean, animate?: boolean, callback?: () => any) {
-        const session = this.sessionOrThrow();
         const pos = this.getPixelPosition({ row: line, column: 0 }, false);
         let offset = pos.top;
         if (center) {
@@ -1658,7 +1661,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const initialScroll = this.scrollTop;
-        session.setScrollTop(offset);
+        this.setScrollTop(offset);
         if (animate) {
             this.animateScrolling(initialScroll, callback);
         }
@@ -1695,19 +1698,19 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$timer = void 0;
         }
 
-        session.setScrollTop(<number>steps.shift());
+        this.setScrollTop(<number>steps.shift());
         // trick session to think it's already scrolled to not loose toValue
         session.$scrollTop = toValue;
         // Every 10 milliseconds, animate the scrolling.
         let doneFinalTweak = false;
         this.$timer = window.setInterval(() => {
             if (steps.length > 0) {
-                session.setScrollTop(<number>steps.shift());
+                this.setScrollTop(<number>steps.shift());
                 session.$scrollTop = toValue;
             }
             else if (!doneFinalTweak) {
                 session.$scrollTop = -1;
-                session.setScrollTop(toValue);
+                this.setScrollTop(toValue);
                 doneFinalTweak = true;
             }
             else {
@@ -1727,13 +1730,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Scrolls the editor to the y pixel indicated.
      * 
-     * @param scrollTop The position to scroll to
+     * @param scrollTopPx The position to scroll to
      */
-    scrollToY(scrollTop: number): void {
+    scrollToY(scrollTopPx: number): void {
         // after calling scrollBar.setScrollTop
         // scrollbar sends us event with same scrollTop. ignore it
-        if (this.scrollTop !== scrollTop) {
-            this.scrollTop = scrollTop;
+        if (this.scrollTop !== scrollTopPx) {
+            this.scrollTop = scrollTopPx;
             this.$loop.schedule(CHANGE_SCROLL);
         }
     }
@@ -1741,11 +1744,11 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Scrolls the editor across the x-axis to the pixel indicated.
      *
-     * @param scrollLeft The position to scroll to.
+     * @param scrollLeftPx The position to scroll to.
      */
-    scrollToX(scrollLeft: number): void {
-        if (this.scrollLeft !== scrollLeft) {
-            this.scrollLeft = scrollLeft;
+    scrollToX(scrollLeftPx: number): void {
+        if (this.scrollLeft !== scrollLeftPx) {
+            this.scrollLeft = scrollLeftPx;
             this.$loop.schedule(CHANGE_H_SCROLL);
         }
     }
@@ -1756,7 +1759,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     scrollTo(scrollLeft: number, scrollTop: number): void {
         const session = this.sessionOrThrow();
         session.setScrollLeft(scrollLeft);
-        session.setScrollTop(scrollTop);
+        this.setScrollTop(scrollTop);
     }
 
     /**
@@ -1765,7 +1768,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     scrollBy(deltaX: number, deltaY: number): void {
         const session = this.sessionOrThrow();
         if (deltaY) {
-            session.setScrollTop(session.getScrollTop() + deltaY);
+            this.setScrollTop(session.getScrollTop() + deltaY);
         }
         if (deltaX) {
             session.setScrollLeft(session.getScrollLeft() + deltaX);
