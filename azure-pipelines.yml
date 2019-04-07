@@ -1,0 +1,27 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    yarn install
+    yarn run package
+  displayName: 'yarn install and package'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)'
+    contents: '*.tgz'
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'tar ball'
+    targetPath: '$(Build.ArtifactStagingDirectory)'
