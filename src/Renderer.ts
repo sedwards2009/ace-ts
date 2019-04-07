@@ -651,8 +651,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         const el = this.container;
         if (!height) {
-            height = el.clientHeight;
-            height -= height % this.lineHeight;
+            const rect = el.getBoundingClientRect();
+            height = rect.height;
+
+            // If the height fails to be a multiple of lineHeight by more than 1px, then trim it.
+            if (this.lineHeight - (height % this.lineHeight) > 1) {
+                height -= height % this.lineHeight;
+            }
         }
 
         if (!width) {
