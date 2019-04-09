@@ -13,8 +13,6 @@ import { Position } from '../Position';
 import { Interval } from '../Interval';
 import { refChange } from '../refChange';
 
-let isIE8: boolean;
-
 const PIXEL_POSITION_ZERO = { left: 0, top: 0 };
 
 /**
@@ -23,39 +21,29 @@ const PIXEL_POSITION_ZERO = { left: 0, top: 0 };
 export class CursorLayer extends AbstractLayer implements Disposable {
     private session: EditSession;
     private isVisible = false;
-    public isBlinking = true;
+    isBlinking = true;
     private blinkInterval = 1000;
     private smoothBlinking = false;
     private readonly blinker = new Interval();
     private timeoutId: number;
     private cursors: HTMLDivElement[] = [];
-    public cursor: HTMLDivElement;
+    cursor: HTMLDivElement;
     private $padding = 0;
     private overwrite: boolean;
     private $updateCursors: (opacity: boolean) => void;
-    public config: CursorConfig;
-    public $pixelPos: PixelPosition;
+    config: CursorConfig;
+    $pixelPos: PixelPosition;
 
-    /**
-     *
-     */
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_cursor-layer");
         refChange(this.uuid, 'CursorLayer', +1);
 
-        if (isIE8 === void 0) {
-            isIE8 = !("opacity" in this.element.style);
-        }
-
         this.cursor = this.addCursor();
         addCssClass(this.element, "ace_hidden-cursors");
-        this.$updateCursors = isIE8 ? this.$updateVisibility : this.$updateOpacity;
+        this.$updateCursors = this.$updateOpacity;
     }
 
-    /**
-     *
-     */
-    public dispose(): void {
+    dispose(): void {
         this.blinker.release();
         clearTimeout(this.timeoutId);
         refChange(this.uuid, 'CursorLayer', -1);
@@ -82,44 +70,30 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         }
     }
 
-    /**
-     *
-     */
-    public setPadding(padding: number): void {
-        if (typeof padding === 'number') {
-            this.$padding = padding;
-        }
-        else {
-            throw new TypeError("padding must be a number");
-        }
+    setPadding(padding: number): void {
+        this.$padding = padding;
     }
 
-    /**
-     *
-     */
-    public setSession(session: EditSession): void {
+    setSession(session: EditSession): void {
         this.session = session;
     }
 
-    public setBlinking(blinking: boolean) {
+    setBlinking(blinking: boolean) {
         if (blinking !== this.isBlinking) {
             this.isBlinking = blinking;
             this.restartTimer();
         }
     }
 
-    public setBlinkInterval(blinkInterval: number): void {
+    setBlinkInterval(blinkInterval: number): void {
         if (blinkInterval !== this.blinkInterval) {
             this.blinkInterval = blinkInterval;
             this.restartTimer();
         }
     }
 
-    /**
-     *
-     */
-    public setSmoothBlinking(smoothBlinking: boolean): void {
-        if (smoothBlinking !== this.smoothBlinking && !isIE8) {
+    setSmoothBlinking(smoothBlinking: boolean): void {
+        if (smoothBlinking !== this.smoothBlinking) {
             this.smoothBlinking = smoothBlinking;
             setCssClass(this.element, "ace_smooth-blinking", smoothBlinking);
             this.$updateCursors(true);
@@ -146,28 +120,19 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         return void 0;
     }
 
-    /**
-     *
-     */
-    public hideCursor(): void {
+    hideCursor(): void {
         this.isVisible = false;
         addCssClass(this.element, "ace_hidden-cursors");
         this.restartTimer();
     }
 
-    /**
-     *
-     */
-    public showCursor(): void {
+    showCursor(): void {
         this.isVisible = true;
         removeCssClass(this.element, "ace_hidden-cursors");
         this.restartTimer();
     }
 
-    /**
-     *
-     */
-    public restartTimer(): void {
+    restartTimer(): void {
         const update = this.$updateCursors;
 
         this.blinker.off();
@@ -206,44 +171,37 @@ export class CursorLayer extends AbstractLayer implements Disposable {
      * The number of columns is multiplied by the character width.
      * The padding is added to the left property only.
      */
-    public getPixelPosition(position?: Position | null, onScreen?: boolean): PixelPosition {
-
-        if (!this.config) {
+    getPixelPosition(position: Position | null, onScreen=false): PixelPosition {
+        if ( ! this.config) {
             // This happens because of the gotoLine(0, 0) call that is made
             // in the editor component. Maybe that call is a bit too eager.
             // console.warn("getPixelPosition called without a config");
             return PIXEL_POSITION_ZERO;
         }
 
-        if (!this.session) {
+        if ( ! this.session) {
             console.warn("getPixelPosition called without a session");
             return PIXEL_POSITION_ZERO;
         }
 
         const firstRow = onScreen ? this.config.firstRowScreen : 0;
 
-        if (!position) {
+        if ( ! position) {
             const selection = this.session.getSelection();
             if (selection) {
                 position = selection.getCursor();
                 return this.getPixelPositionForRow(position, firstRow);
-            }
-            else {
+            } else {
                 console.warn("getPixelPosition called without a selection");
                 return PIXEL_POSITION_ZERO;
             }
-        }
-        else {
+        } else {
             return this.getPixelPositionForRow(position, firstRow);
         }
     }
 
-    /**
-     * 
-     */
-    private getPixelPositionForRow(position: Position, firstRow: number) {
-        const pos: Position = this.session.documentToScreenPosition(position.row, position.column);
-
+    private getPixelPositionForRow(position: Position, firstRow: number): PixelPosition {
+        const pos = this.session.documentToScreenPosition(position.row, position.column);
         const cursorLeft = this.$padding + pos.column * this.config.characterWidth;
         const cursorTop = (pos.row - firstRow) * this.config.lineHeight;
 
@@ -298,11 +256,9 @@ export class CursorLayer extends AbstractLayer implements Disposable {
             this.overwrite = overwrite;
             if (overwrite) {
                 addCssClass(this.element, "ace_overwrite-cursors");
-            }
-            else {
+            } else {
                 removeCssClass(this.element, "ace_overwrite-cursors");
             }
         }
     }
 }
-

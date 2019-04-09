@@ -920,7 +920,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return this.$highlightGutterLine;
     }
 
-    getPixelPosition(position?: Position | null, onScreen?: boolean): PixelPosition {
+    getPixelPosition(position: Position, onScreen=false): PixelPosition {
         return this.cursorLayer.getPixelPosition(position, onScreen);
     }
 

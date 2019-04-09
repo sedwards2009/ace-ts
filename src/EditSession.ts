@@ -2597,7 +2597,7 @@ export class EditSession {
     }
 
     /**
-     * Converts document coordinates to screen coordinates.
+     * Converts document coordinates to screen row/column coordinates.
      *
      * @method documentToScreenPosition
      * @param docRow {number} The document row to check
@@ -2605,25 +2605,10 @@ export class EditSession {
      * @returns {Position} The object returned by this method has two properties: `row` and `column`.
      */
     documentToScreenPosition(docRow: number, docColumn: number): Position {
-
-        if (typeof docRow !== 'number') {
-            throw new TypeError("docRow must be a number");
-        }
-        if (typeof docColumn !== 'number') {
-            throw new TypeError("docColumn must be a number");
-        }
-
         const pos = this.$clipPositionToDocument(docRow, docColumn);
 
         docRow = pos.row;
         docColumn = pos.column;
-
-        if (typeof docRow !== 'number') {
-            throw new TypeError("docRow must be a number");
-        }
-        if (typeof docColumn !== 'number') {
-            throw new TypeError("docColumn must be a number");
-        }
 
         let screenRow = 0;
         let fold: Fold | null | undefined = null;
