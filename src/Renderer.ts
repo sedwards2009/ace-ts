@@ -1629,7 +1629,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     setScrollTop(topPx: number): void {
-        this.sessionOrThrow().setScrollTop(topPx);
+        const session = this.sessionOrThrow();
+        const screenLines = session.getScreenLength();
+        let maxHeight = screenLines * this.lineHeight;
+        const maxTopPx = Math.max(-this.scrollMargin.top, Math.min(this.scrollTop, maxHeight - this.$size.scrollerHeight + this.scrollMargin.bottom));
+
+        const newTopPx = Math.min(topPx, maxTopPx);
+        session.setScrollTop(newTopPx);
     }
 
     alignCursor(cursor: number | Position, alignment: number): number {
