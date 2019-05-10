@@ -203,7 +203,7 @@ export class XmlFoldMode extends FoldMode {
                 return session.getCommentFoldRange(row, session.getLine(row).length);
             }
             else {
-                return void 0;
+                return undefined;
             }
         }
 
@@ -274,7 +274,7 @@ export class XmlFoldMode extends FoldMode {
                 }
             }
         }
-        return void 0;
+        return undefined;
     }
 }
 

@@ -256,7 +256,7 @@ export class EditSession {
     $getWidgetScreenLength: () => number;
     /**
      * This is a marker identifier for which XML or HTML tag to highlight.
-     * FIXME: Some inconsistency in the use of null versus void 0.
+     * FIXME: Some inconsistency in the use of null versus undefined.
      */
     $tagHighlight: number | null;
     /**
@@ -303,7 +303,7 @@ export class EditSession {
 
     protected destructor(): void {
         this.$stopWorker();
-        this.setDocument(void 0);
+        this.setDocument(undefined);
     }
 
     /**
@@ -369,13 +369,13 @@ export class EditSession {
         if (this.doc) {
             if (this.removeDocumentChangeListener) {
                 this.removeDocumentChangeListener();
-                this.removeDocumentChangeListener = void 0;
+                this.removeDocumentChangeListener = undefined;
             }
             this.doc.release();
-            this.doc = void 0;
+            this.doc = undefined;
             if (this.bgTokenizer) {
                 this.bgTokenizer.stop();
-                this.bgTokenizer.setDocument(void 0);
+                this.bgTokenizer.setDocument(undefined);
             }
         }
 
@@ -622,7 +622,7 @@ export class EditSession {
             }
         }
         else {
-            return void 0;
+            return undefined;
         }
     }
 
@@ -932,7 +932,7 @@ export class EditSession {
     private addDynamicMarker<T extends Marker>(marker: T, inFront=false): T {
         if (!marker.update) {
             throw new Error("marker must have an update method.");
-            // return void 0;
+            // return undefined;
         }
         const id = this.$markerId++;
         marker.id = id;
@@ -1222,7 +1222,7 @@ export class EditSession {
         if (this.$useWorker) {
             this.$startWorker((err: any) => {
                 if (!err) {
-                    callback(void 0);
+                    callback(undefined);
                 }
                 else {
                     callback(err);
@@ -1262,7 +1262,7 @@ export class EditSession {
                     if (!err) {
                         // This amounts to an asynchronous ACK that the worker started.
                         this.$worker = worker;
-                        callback(void 0);
+                        callback(undefined);
                     }
                     else {
                         callback(err);
@@ -1506,7 +1506,7 @@ export class EditSession {
      */
     undoChanges(deltaSets: DeltaGroup[], dontSelect?: boolean): Range | undefined | null {
         if (!deltaSets.length) {
-            return void 0;
+            return undefined;
         }
 
         const doc = this.docOrThrow();
@@ -1542,7 +1542,7 @@ export class EditSession {
      */
     redoChanges(deltaSets: DeltaGroup[], dontSelect?: boolean): Range | undefined | null {
         if (!deltaSets.length) {
-            return void 0;
+            return undefined;
         }
 
         const doc = this.docOrThrow();
@@ -2821,7 +2821,7 @@ export class EditSession {
                 return fold;
             }
         }
-        return void 0;
+        return undefined;
     }
 
     /**
@@ -3285,7 +3285,7 @@ export class EditSession {
         if (folds.length) {
             return folds;
         }
-        return void 0;
+        return undefined;
     }
 
     /*
@@ -3461,11 +3461,11 @@ export class EditSession {
                 }
             }
         }
-        return void 0;
+        return undefined;
     }
 
     foldAll(startRow?: number, endRow?: number, depth?: number): void {
-        if (depth === void 0) {
+        if (depth === undefined) {
             depth = 100000; // JSON.stringify doesn't handle Infinity
         }
         const foldWidgets = this.foldWidgets;
@@ -3570,7 +3570,7 @@ export class EditSession {
             return { range: range, firstRange: firstRange };
         }
         else {
-            return { range: void 0, firstRange: firstRange };
+            return { range: undefined, firstRange: firstRange };
         }
     }
 
@@ -3595,7 +3595,7 @@ export class EditSession {
     private $toggleFoldWidget(row: number, options: { children?: boolean; all?: boolean; siblings?: boolean }): RangeWithCollapseChildren | undefined {
         // Dead code
         if (!this.getFoldWidget) {
-            return void 0;
+            return undefined;
         }
 
         const type = this.getFoldWidget(row);
@@ -3610,7 +3610,7 @@ export class EditSession {
             else {
                 this.expandFold(fold);
             }
-            return void 0;
+            return undefined;
         }
 
         const range = this.getFoldWidgetRange(row, true);
@@ -3619,7 +3619,7 @@ export class EditSession {
             const fold = this.getFoldAt(range.start.row, range.start.column, 1);
             if (fold && isEqual(range, fold.range)) {
                 this.removeFold(fold);
-                return void 0;
+                return undefined;
             }
         }
 

@@ -78,9 +78,9 @@ export class ScrollBar implements EventBus<ScrollBarEventName, ScrollBarEvent, S
     dispose(): void {
         removeListener(this.element, "mousedown", preventDefault);
         this.element.removeChild(this.inner);
-        this.inner = <any>void 0;
+        this.inner = <any>undefined;
         this.parent.removeChild(this.element);
-        this.element = <any>void 0;
+        this.element = <any>undefined;
         refChange(this.uuid, 'ScrollBar', -1);
     }
 

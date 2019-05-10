@@ -38,7 +38,7 @@ export class KeywordCompleter implements Completer {
     getCompletions(editor: KeywordCompleterEditor, position: Position, prefix: string, callback: (err: any, completions?: Completion[]) => void) {
         return this.getCompletionsAtPosition(editor, position, prefix)
             .then(function (completions) {
-                callback(void 0, completions);
+                callback(undefined, completions);
             })
             .catch(function (err) {
                 callback(err);

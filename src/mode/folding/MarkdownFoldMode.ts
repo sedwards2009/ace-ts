@@ -48,7 +48,7 @@ export class MarkdownFoldMode extends FoldMode {
         const startRow = row;
         let endRow = row;
         if (!line.match(this.foldingStartMarker)) {
-            return void 0;
+            return undefined;
         }
 
         if (line[0] === "`") {
@@ -111,7 +111,7 @@ export class MarkdownFoldMode extends FoldMode {
                 return new Range(startRow, startColumn, endRow, endColumn);
             }
         }
-        return void 0;
+        return undefined;
     }
 }
 

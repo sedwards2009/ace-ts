@@ -38,7 +38,7 @@ export class LatexFoldMode extends FoldMode {
 
             return this.closingBracketBlock(session, "}", row, match.index + match[0].length);
         }
-        return void 0;
+        return undefined;
     }
 
     latexBlock(session: EditSession, row: number, column: number): Range | undefined {
@@ -50,7 +50,7 @@ export class LatexFoldMode extends FoldMode {
         const stream = new TokenIterator(session, row, column);
         let token = stream.getCurrentToken();
         if (!token || !(token.type === "storage.type" || token.type === "constant.character.escape")) {
-            return void 0;
+            return undefined;
         }
 
         const val = token.value;
@@ -68,7 +68,7 @@ export class LatexFoldMode extends FoldMode {
                 return type;
             }
             else {
-                return void 0;
+                return undefined;
             }
         };
         const stack = [getType()];
@@ -93,7 +93,7 @@ export class LatexFoldMode extends FoldMode {
         }
 
         if (stack.length) {
-            return void 0;
+            return undefined;
         }
 
         row = stream.getCurrentTokenRow();
@@ -110,7 +110,7 @@ export class LatexFoldMode extends FoldMode {
         const stream = new TokenIterator(session, row, column);
         let token = stream.getCurrentToken();
         if (!token || token.type !== "storage.type")
-            return void 0;
+            return undefined;
 
         const startLevel = keywords.indexOf(token.value);
         let stackDepth = 0;

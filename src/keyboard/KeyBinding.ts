@@ -85,7 +85,7 @@ export class KeyBinding<TARGET extends TargetWithCommands<TARGET>> {
             this.$handlers.splice(i, 1);
         }
 
-        if (pos === void 0) {
+        if (pos === undefined) {
             this.$handlers.push(kb);
         }
         else {

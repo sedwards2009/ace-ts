@@ -136,7 +136,7 @@ function applyToken<T extends Token, E, S extends Array<string | E>>(this: Rule<
     }
     else {
         console.warn("expecting rule.token to be a function.");
-        return void 0;
+        return undefined;
     }
 }
 
@@ -433,7 +433,7 @@ export class Tokenizer<T extends Token, E, S extends Array<string | E>> {
         /**
          * TODO: Maybe this could be typed as (string | number) (E restricted to number is general enough).
          */
-        let currentState = changeCurrentState(void 0, <string>startState || START, stack, this.trace);
+        let currentState = changeCurrentState(undefined, <string>startState || START, stack, this.trace);
         let rules = this.rulesByState[currentState];
         if (!rules) {
             currentState = changeCurrentState(currentState, START, stack, this.trace);

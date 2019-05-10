@@ -120,7 +120,7 @@ export function createAutoComplete(editor: Editor, fileNameProvider: () => strin
             return null;
         }
 
-        return { 'command': command, 'args': void 0 };
+        return { 'command': command, 'args': undefined };
     };
 
     _handler.bindKey("Up|Ctrl-p", function (editor: Editor) {

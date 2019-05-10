@@ -216,7 +216,7 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
 
     public getCharacterWidth(ch: string): number {
         let w = this.charSizes[ch];
-        if (w === void 0) {
+        if (w === undefined) {
             w = this.charSizes[ch] = this.$measureCharWidth(ch) / this.$characterSize.width;
         }
         return w;

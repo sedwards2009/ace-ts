@@ -56,10 +56,10 @@ export class AsciiDocFoldMode extends FoldMode {
         const startRow = row;
         let endRow = row;
         if (!line.match(this.foldingStartMarker as RegExp)) {
-            return void 0;
+            return undefined;
         }
 
-        let token: HighlighterToken | undefined = void 0;
+        let token: HighlighterToken | undefined = undefined;
         /**
          * Side-effect of calling this is to (maybe) define the token.
          * It plays havoc with the type-safety!
@@ -140,7 +140,7 @@ export class AsciiDocFoldMode extends FoldMode {
                 }
             }
         }
-        return void 0;
+        return undefined;
     }
 }
 

@@ -172,7 +172,7 @@ export class BackgroundTokenizer implements EventBus<BackgroundTokenizerEventNam
                 console.warn(`states[row]: string[] => ${JSON.stringify(state)}`);
                 // [] || 'start' => [], so an empty array is consistent with the
                 // original code, but that breaks the API contract. 
-                // return void 0;
+                // return undefined;
                 // We do this instead to simplify the return value to string only.
                 throw new Error(`No viable states at row ${row}`);
             }

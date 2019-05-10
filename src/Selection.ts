@@ -22,9 +22,9 @@ import { Origin } from "./OriginEnum";
 import { SelectionChangeEvent } from "./events/SelectionChangeEvent";
 
 /**
- * Nothing (void 0).
+ * Nothing (undefined).
  */
-const NOTHING: undefined = void 0;
+const NOTHING: undefined = undefined;
 
 export type SelectionEventName = 'addRange'
     | 'changeCursor'
@@ -651,7 +651,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
 
         // Determine the line
         // How does getDisplayLine get from folding onto session?
-        const beforeCursor = session.getDisplayLine(row, void 0, firstColumnPosition.row, firstColumnPosition.column);
+        const beforeCursor = session.getDisplayLine(row, undefined, firstColumnPosition.row, firstColumnPosition.column);
 
         const leadingSpace = beforeCursor.match(/^\s*/);
         if (leadingSpace) {

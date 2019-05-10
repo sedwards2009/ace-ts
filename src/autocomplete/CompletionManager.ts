@@ -434,7 +434,7 @@ export class CompletionManager {
 
         const renderer = editor.renderer;
         if (!keepPopupPosition) {
-            this.popup.setThemeCss(editor.getTheme(), void 0);
+            this.popup.setThemeCss(editor.getTheme(), undefined);
             this.popup.setThemeDark(true);
             this.popup.setFontSize(editor.getFontSize());
 
@@ -464,19 +464,19 @@ export class CompletionManager {
         }
         if (this.popupClickRemover) {
             this.popupClickRemover();
-            this.popupClickRemover = void 0;
+            this.popupClickRemover = undefined;
         }
         if (this.popupShowRemover) {
             this.popupShowRemover();
-            this.popupShowRemover = void 0;
+            this.popupShowRemover = undefined;
         }
         if (this.popupSelectRemover) {
             this.popupSelectRemover();
-            this.popupSelectRemover = void 0;
+            this.popupSelectRemover = undefined;
         }
         if (this.popupHoverRemover) {
             this.popupHoverRemover();
-            this.popupHoverRemover = void 0;
+            this.popupHoverRemover = undefined;
         }
     }
 

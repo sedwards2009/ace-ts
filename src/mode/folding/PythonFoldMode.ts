@@ -25,7 +25,7 @@ export class PythonFoldMode extends FoldModeBase {
             }
             return this.indentationBlock(session, row);
         }
-        return void 0;
+        return undefined;
     }
 }
 

@@ -30,7 +30,7 @@ function getDocumentPositionFromScreenOffset(editor: Editor, x: number, y: numbe
         return session.screenToDocumentPosition(row, col);
     }
     else {
-        return void 0;
+        return undefined;
     }
 }
 

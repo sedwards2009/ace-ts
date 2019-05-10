@@ -364,14 +364,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     dispose(): void {
         if (this.removeChangeCharacterSizeHandler) {
             this.removeChangeCharacterSizeHandler();
-            this.removeChangeCharacterSizeHandler = void 0;
+            this.removeChangeCharacterSizeHandler = undefined;
         }
 
         // TODO: Do we need to have the textLayer release the fontMetrics?
 
         if (this.fontMetrics) {
             this.fontMetrics.release();
-            this.fontMetrics = void 0;
+            this.fontMetrics = undefined;
         }
 
         this.scrollBarHscrollUnhook();
@@ -1701,7 +1701,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         if (typeof this.$timer === 'number') {
             window.clearInterval(this.$timer);
-            this.$timer = void 0;
+            this.$timer = undefined;
         }
 
         this.setScrollTop(<number>steps.shift());
@@ -1723,7 +1723,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 // do this on separate step to not get spurious scroll event from scrollbar
                 if (typeof this.$timer === 'number') {
                     window.clearInterval(this.$timer);
-                    this.$timer = void 0;
+                    this.$timer = undefined;
                 }
                 this.$scrollAnimation = null;
                 if (callback) {

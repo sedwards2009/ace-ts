@@ -27,7 +27,7 @@ export function showErrorMarker(editor: Editor, direction: number): void {
     const oldWidget = editor.getLineWidgetsAtRow(row).filter(function (w) { return w.type === 'errorMarker'; })[0];
     if (oldWidget && oldWidget.destroy) {
         oldWidget.destroy();
-        oldWidget.destroy = void 0;
+        oldWidget.destroy = undefined;
     }
     else {
         row -= direction;
@@ -57,7 +57,7 @@ export function showErrorMarker(editor: Editor, direction: number): void {
         coverGutter: true,
         el: createHTMLDivElement(),
         type: "errorMarker",
-        destroy: void 0
+        destroy: undefined
     };
     const errorWidget = createHTMLDivElement();
     w.el.appendChild(errorWidget);
@@ -83,11 +83,11 @@ export function showErrorMarker(editor: Editor, direction: number): void {
         if (hashId === 0 && (keyString === "esc" || keyString === "return")) {
             if (w.destroy) {
                 w.destroy();
-                w.destroy = void 0;
+                w.destroy = undefined;
             }
             return { command: null };
         }
-        return void 0;
+        return undefined;
     };
 
     w.destroy = function () {

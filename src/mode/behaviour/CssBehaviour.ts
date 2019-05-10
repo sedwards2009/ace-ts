@@ -42,7 +42,7 @@ export class CssBehaviour extends CstyleBehaviour {
                         }
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -65,7 +65,7 @@ export class CssBehaviour extends CstyleBehaviour {
                         }
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -82,7 +82,7 @@ export class CssBehaviour extends CstyleBehaviour {
                         };
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
     }

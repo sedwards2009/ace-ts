@@ -120,7 +120,7 @@ export class Document implements Shareable {
 
     protected destructor(): void {
         this._lines.length = 0;
-        this._eventBus = void 0;
+        this._eventBus = undefined;
     }
 
     public addRef(): number {
@@ -331,7 +331,7 @@ export class Document implements Shareable {
     clippedPos(row: number, column: number): Position {
         const length = this.getLength();
         let rowTooBig = false;
-        if (row === void 0) {
+        if (row === undefined) {
             row = length;
         }
         else if (row < 0) {

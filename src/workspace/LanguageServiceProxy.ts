@@ -372,7 +372,7 @@ export class LanguageServiceProxy {
             return entry.callback;
         }
         else {
-            return void 0;
+            return undefined;
         }
     }
 

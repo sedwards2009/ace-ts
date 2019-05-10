@@ -72,7 +72,7 @@ export class RangeList<R extends RangeBasic> {
         if (i >= 0) {
             return this.ranges.splice(i, 1);
         }
-        return void 0;
+        return undefined;
     }
 
     /**
@@ -125,7 +125,7 @@ export class RangeList<R extends RangeBasic> {
         if (i >= 0) {
             return this.ranges[i];
         }
-        return void 0;
+        return undefined;
     }
 
     clipRows(startRow: number, endRow: number): R[] {

@@ -74,7 +74,7 @@ export class Fold extends RangeList<RangeBasic> {
      */
     addSubFold(fold: Fold): Fold | undefined {
         if (isEqual(this.range, fold)) {
-            return void 0;
+            return undefined;
         }
 
         if (!containsRange(this.range, fold))

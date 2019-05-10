@@ -65,7 +65,7 @@ function $detectIndentation(lines: string[], fallback?: any): Indentation {
             first = { score: score, length: i };
     }
 
-    const tabLength: number = (first.score && first.score > 1.4) ? first.length : void 0;
+    const tabLength: number = (first.score && first.score > 1.4) ? first.length : undefined;
 
     if (tabIndents > spaceIndents + 1)
         return { ch: "\t", length: tabLength };

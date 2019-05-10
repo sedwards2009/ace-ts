@@ -34,7 +34,7 @@ export class AbstractLayer implements Disposable {
 
     dispose(): void {
         this.parent.removeChild(this.element);
-        this.element = <any>void 0;
+        this.element = <any>undefined;
         refChange(this.uuid, 'AbstractLayer', -1);
     }
 

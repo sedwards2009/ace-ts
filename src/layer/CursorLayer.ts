@@ -117,7 +117,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
             (<Node>cursor.parentNode).removeChild(cursor);
             return cursor;
         }
-        return void 0;
+        return undefined;
     }
 
     hideCursor(): void {

@@ -54,7 +54,7 @@ export class WorkspaceCompleter implements Completer {
     getCompletions(editor: Editor, position: Position, prefix: string, callback: (err: any, completions?: Completion[]) => void): void {
         this.getCompletionsAtPosition(editor, position, prefix)
             .then(function (completions) {
-                callback(void 0, completions);
+                callback(undefined, completions);
             })
             .catch(function (err) {
                 callback(err);

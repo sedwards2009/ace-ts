@@ -80,7 +80,7 @@ export class HtmlMode extends TextMode {
                                 // Do nothing?
                             });
                         }
-                        callback(void 0, worker);
+                        callback(undefined, worker);
                     }
                     else {
                         // We have to do it this way to handle race conditions.

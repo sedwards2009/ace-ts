@@ -65,7 +65,7 @@ export class FoldMode {
         const line = session.getLine(row);
         const startLevel = line.search(re);
         if (startLevel === -1) {
-            return void 0;
+            return undefined;
         }
 
         const startColumn = column || line.length;
@@ -91,7 +91,7 @@ export class FoldMode {
             const endColumn = session.getLine(endRow).length;
             return new Range(startRow, startColumn, endRow, endColumn);
         }
-        return void 0;
+        return undefined;
     }
 
     /**
@@ -102,7 +102,7 @@ export class FoldMode {
         const end = session.findClosingBracket(bracket, start, typeRe);
         if (!end) {
             // We cant find the close to the block, so the range is undefined.
-            return void 0;
+            return undefined;
         }
 
         if (session.foldWidgets) {
@@ -117,7 +117,7 @@ export class FoldMode {
             }
             return Range.fromPoints(start, end);
         }
-        return void 0;
+        return undefined;
     }
 
     /**
@@ -128,7 +128,7 @@ export class FoldMode {
         const start = session.findOpeningBracket(bracket, end);
 
         if (!start) {
-            return void 0;
+            return undefined;
         }
 
         start.column++;

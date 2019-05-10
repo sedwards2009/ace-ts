@@ -136,7 +136,7 @@ export class TokenTooltip extends Tooltip {
             this.hide();
             this.editor.session.removeMarker(this.marker);
             clearTimeout(this.$timer);
-            this.$timer = void 0;
+            this.$timer = undefined;
         };
 
         addListener(editor.renderer.scroller, "mousemove", this.onMouseMove);
@@ -152,7 +152,7 @@ export class TokenTooltip extends Tooltip {
     }
 
     destroy() {
-        this.onMouseOut(void 0);
+        this.onMouseOut(undefined);
         removeListener(this.editor.renderer.scroller, "mousemove", this.onMouseMove);
         removeListener(this.editor.renderer.content, "mouseout", this.onMouseOut);
         delete this.editor['tokenTooltip'];

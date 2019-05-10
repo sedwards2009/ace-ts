@@ -65,7 +65,7 @@ export class CstyleFoldMode extends FoldModeBase {
         }
 
         if (foldStyle === "markbegin") {
-            return void 0;
+            return undefined;
         }
 
         match = line.match(this.foldingStopMarker);
@@ -78,7 +78,7 @@ export class CstyleFoldMode extends FoldModeBase {
 
             return session.getCommentFoldRange(row, i, -1);
         }
-        return void 0;
+        return undefined;
     }
 
     getSectionRange(session: EditSession, row: number): Range {

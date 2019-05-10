@@ -186,7 +186,7 @@ export class Search {
 
         if (!re) {
             // Presumably, the boolean is always false?
-            return void 0;
+            return undefined;
         }
 
         const match: RegExpExecArray | null = (<RegExp>re).exec(input);
@@ -335,7 +335,7 @@ function $assembleMultilineRegExp(needle: string, modifier: string): RegExp[] | 
             re.push(new RegExp(parts[i], modifier));
         }
         catch (e) {
-            return void 0;
+            return undefined;
         }
     }
     // FIXME: We're sneaking a property onto the array of RegExp.

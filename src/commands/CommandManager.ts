@@ -154,7 +154,7 @@ export class CommandManager<TARGET> implements CommandExecutor<TARGET>, EventBus
 
     toggleRecording(target: TARGET): boolean | undefined {
         if (this.$inReplay) {
-            return void 0;
+            return undefined;
         }
 
         if (this.recording) {
@@ -183,7 +183,7 @@ export class CommandManager<TARGET> implements CommandExecutor<TARGET>, EventBus
 
     replay(target: TARGET): boolean | undefined {
         if (this.$inReplay || !this.macros)
-            return void 0;
+            return undefined;
 
         if (this.recording)
             return this.toggleRecording(target);
@@ -200,7 +200,7 @@ export class CommandManager<TARGET> implements CommandExecutor<TARGET>, EventBus
         finally {
             this.$inReplay = false;
         }
-        return void 0;
+        return undefined;
     }
 
     trimMacro(m: any[]) {

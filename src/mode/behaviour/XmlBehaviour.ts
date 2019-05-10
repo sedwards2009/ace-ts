@@ -39,7 +39,7 @@ export class XmlBehaviour extends Behaviour {
                     if (selected !== "" && selected !== "'" && selected !== '"' && editor.getWrapBehavioursEnabled()) {
                         return {
                             text: quote + selected + quote,
-                            selection: void 0
+                            selection: undefined
                         };
                     }
 
@@ -61,7 +61,7 @@ export class XmlBehaviour extends Behaviour {
                         token = iterator.stepBackward();
 
                     if (!token)
-                        return void 0;
+                        return undefined;
 
                     while (is(token, "tag-whitespace") || is(token, "whitespace")) {
                         token = iterator.stepBackward();
@@ -74,7 +74,7 @@ export class XmlBehaviour extends Behaviour {
                         };
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -89,7 +89,7 @@ export class XmlBehaviour extends Behaviour {
                         return range;
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -102,18 +102,18 @@ export class XmlBehaviour extends Behaviour {
 
                     // exit if we're not in a tag
                     if (!token || !(is(token, "tag-name") || is(token, "tag-whitespace") || is(token, "attribute-name") || is(token, "attribute-equals") || is(token, "attribute-value")))
-                        return void 0;
+                        return undefined;
 
                     // exit if we're inside of a quoted attribute value
                     if (is(token, "reference.attribute-value"))
-                        return void 0;
+                        return undefined;
                     if (is(token, "attribute-value")) {
                         const firstChar = token.value.charAt(0);
                         if (firstChar === '"' || firstChar === "'") {
                             const lastChar = token.value.charAt(token.value.length - 1);
                             const tokenEnd = iterator.getCurrentTokenColumn() + token.value.length;
                             if (tokenEnd > position.column || tokenEnd === position.column && firstChar !== lastChar)
-                                return void 0;
+                                return undefined;
                         }
                     }
 
@@ -127,7 +127,7 @@ export class XmlBehaviour extends Behaviour {
 
                     // exit if the tag is ending
                     if (is(iterator.stepBackward(), "end-tag-open")) {
-                        return void 0;
+                        return undefined;
                     }
 
                     if (token) {
@@ -137,7 +137,7 @@ export class XmlBehaviour extends Behaviour {
 
                         // this refers to the LanguageMode, so we have a bit of a technical problem here.
                         if (this.voidElements.hasOwnProperty(element.toLowerCase()))
-                            return void 0;
+                            return undefined;
 
                         return {
                             text: '>' + '</' + element + '>',
@@ -145,7 +145,7 @@ export class XmlBehaviour extends Behaviour {
                         };
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -164,7 +164,7 @@ export class XmlBehaviour extends Behaviour {
                         };
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
     }

@@ -191,10 +191,10 @@ export class WorkerClient implements EventBus<string, MessageEvent, WorkerClient
         // We also don't get any notification that it has shut down.
         if (this.worker) {
             this.eventBus._signal("terminate", <MessageEvent>{});
-            this.deltaQueue = void 0;
+            this.deltaQueue = undefined;
 
             this.worker.terminate();
-            this.worker = void 0;
+            this.worker = undefined;
         }
     }
 
@@ -319,7 +319,7 @@ export class WorkerClient implements EventBus<string, MessageEvent, WorkerClient
         if (session) {
             const queue = this.deltaQueue;
             if (!queue) return;
-            this.deltaQueue = void 0;
+            this.deltaQueue = undefined;
 
             // We're going to post all the changes in one message, but we apply a
             // heuristic to just send the actual document if there are enough changes.

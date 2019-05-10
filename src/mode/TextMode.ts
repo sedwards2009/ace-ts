@@ -88,7 +88,7 @@ export function initWorker(worker: WorkerClient, moduleName: string, className: 
             if (!err) {
                 if (session) {
                     worker.attachToSession(session);
-                    callback(void 0, worker);
+                    callback(undefined, worker);
                 }
                 else {
                     const msg = `${className} init fail. Cause: session does not have an associated document.`;
@@ -429,7 +429,7 @@ export class TextMode implements LanguageMode {
 
     createWorker(session: EditSession, callback: (err: any, worker?: WorkerClient) => void): void {
         // TextMode does not create a worker.
-        callback(void 0);
+        callback(undefined);
     }
 
     createModeDelegates(mapping: { [prefix: string]: LanguageModeFactory }) {
@@ -500,7 +500,7 @@ export class TextMode implements LanguageMode {
                 }
             }
         }
-        return void 0;
+        return undefined;
     }
 
     getKeywords(append: boolean): string[] {

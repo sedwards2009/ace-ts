@@ -6,7 +6,7 @@
 let statistics: { [uuid: string]: { refCount: number; name: string; zombie: boolean } } = {};
 let running = 0;
 // let trace = false;
-// let traceName: string | undefined = void 0;
+// let traceName: string | undefined = undefined;
 
 const LOGGING_NAME_REF_CHANGE = 'refChange';
 
@@ -181,7 +181,7 @@ export function refChange(uuid: string, name?: string, change = 0): number | und
             else if (uuid === 'reset') {
                 statistics = {};
                 // trace = false;
-                // traceName = void 0;
+                // traceName = undefined;
             }
             else if (uuid === 'trace') {
                 // trace = true;
@@ -195,6 +195,6 @@ export function refChange(uuid: string, name?: string, change = 0): number | und
     else {
         throw new Error(prefix("change must be +1 or -1 for normal recording, or 0 for logging to the console."));
     }
-    return void 0;
+    return undefined;
 }
 

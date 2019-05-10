@@ -111,7 +111,7 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
             const row = annotation.row;
             let rowInfo = this.$annotations[row];
             if (!rowInfo) {
-                rowInfo = this.$annotations[row] = { className: void 0, text: [] };
+                rowInfo = this.$annotations[row] = { className: undefined, text: [] };
             }
 
             const annoText = annotation.text ? escapeHTML(annotation.text) : annotation.html || "";
@@ -563,6 +563,6 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
         if (this.$showFoldWidgets && point.clientX > rect.right - padding.right) {
             return "foldWidgets";
         }
-        return void 0;
+        return undefined;
     }
 }

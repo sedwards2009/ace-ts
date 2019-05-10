@@ -77,7 +77,7 @@ export class CstyleBehaviour extends Behaviour {
                     if (selected !== "" && selected !== "{" && editor.getWrapBehavioursEnabled()) {
                         return {
                             text: '{' + selected + '}',
-                            selection: void 0
+                            selection: undefined
                         };
                     }
                     else if (CstyleBehaviour.isSaneInsertion(editor, session)) {
@@ -128,7 +128,7 @@ export class CstyleBehaviour extends Behaviour {
                     }
                     else {
                         CstyleBehaviour.clearMaybeInsertedClosing();
-                        return void 0;
+                        return undefined;
                     }
                     const indent = next_indent + session.getTabString();
 
@@ -140,7 +140,7 @@ export class CstyleBehaviour extends Behaviour {
                 else {
                     CstyleBehaviour.clearMaybeInsertedClosing();
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -160,7 +160,7 @@ export class CstyleBehaviour extends Behaviour {
                         context.maybeInsertedBrackets--;
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -172,7 +172,7 @@ export class CstyleBehaviour extends Behaviour {
                     const doc = session.docOrThrow();
                     const selected: string = doc.getTextRange(selectionRange);
                     if (selected !== "" && editor.getWrapBehavioursEnabled()) {
-                        return { text: '(' + selected + ')', selection: void 0 };
+                        return { text: '(' + selected + ')', selection: undefined };
                     }
                     else if (CstyleBehaviour.isSaneInsertion(editor, session)) {
                         CstyleBehaviour.recordAutoInsert(editor, session, ")");
@@ -193,7 +193,7 @@ export class CstyleBehaviour extends Behaviour {
                         }
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -210,7 +210,7 @@ export class CstyleBehaviour extends Behaviour {
                         return range;
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -222,7 +222,7 @@ export class CstyleBehaviour extends Behaviour {
                     const doc = session.docOrThrow();
                     const selected: string = doc.getTextRange(selectionRange);
                     if (selected !== "" && editor.getWrapBehavioursEnabled()) {
-                        return { text: '[' + selected + ']', selection: void 0 };
+                        return { text: '[' + selected + ']', selection: undefined };
                     }
                     else if (CstyleBehaviour.isSaneInsertion(editor, session)) {
                         CstyleBehaviour.recordAutoInsert(editor, session, "]");
@@ -243,7 +243,7 @@ export class CstyleBehaviour extends Behaviour {
                         }
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -260,7 +260,7 @@ export class CstyleBehaviour extends Behaviour {
                         return range;
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -273,7 +273,7 @@ export class CstyleBehaviour extends Behaviour {
                     const doc = session.docOrThrow();
                     const selected = doc.getTextRange(selection);
                     if (selected !== "" && selected !== "'" && selected !== '"' && editor.getWrapBehavioursEnabled()) {
-                        return { text: quote + selected + quote, selection: void 0 };
+                        return { text: quote + selected + quote, selection: undefined };
                     }
                     else {
                         const cursor = editor.getCursorPosition();
@@ -308,7 +308,7 @@ export class CstyleBehaviour extends Behaviour {
                         // Try and be smart about when we auto insert.
                         if (!token || (quotepos < 0 && token.type !== "comment" && (token.type !== "string" || ((selection.start.column !== token.value.length + col - 1) && token.value.lastIndexOf(quote) === token.value.length - 1)))) {
                             if (!CstyleBehaviour.isSaneInsertion(editor, session)) {
-                                return void 0;
+                                return undefined;
                             }
                             return { text: quote + quote, selection: [1, 1] };
                         }
@@ -321,7 +321,7 @@ export class CstyleBehaviour extends Behaviour {
                         }
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
 
@@ -338,7 +338,7 @@ export class CstyleBehaviour extends Behaviour {
                         return range;
                     }
                 }
-                return void 0;
+                return undefined;
             }
         );
     }
