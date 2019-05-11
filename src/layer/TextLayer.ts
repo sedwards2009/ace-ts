@@ -9,7 +9,7 @@ import { AbstractLayer } from './AbstractLayer';
 import { Disposable } from '../Disposable';
 import { EditSession } from "../EditSession";
 import { EventBus } from "../EventBus";
-import { EventEmitterClass } from "../lib/EventEmitterClass";
+import { EventBusImpl } from "../lib/EventBusImpl";
 import { FoldLine } from "../FoldLine";
 import { FontMetricsMonitor } from "../layer/FontMetrics";
 import { changeCharacterSize } from '../layer/FontMetrics';
@@ -49,13 +49,13 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
 
     private $measureNode: Node;
 
-    private readonly eventBus: EventEmitterClass<TextLayerEventName, any, TextLayer>;
+    private readonly eventBus: EventBusImpl<TextLayerEventName, any, TextLayer>;
     selectedNode: HTMLElement;
 
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_text-layer");
         refChange(this.uuid, 'TextLayer', +1);
-        this.eventBus = new EventEmitterClass<TextLayerEventName, any, TextLayer>(this);
+        this.eventBus = new EventBusImpl<TextLayerEventName, any, TextLayer>(this);
         this.EOL_CHAR = EOL_CHAR_LF;
     }
 

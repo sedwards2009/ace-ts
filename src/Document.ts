@@ -6,7 +6,7 @@
 import { applyDelta } from './applyDelta';
 import { equalPositions } from './Position';
 import { Delta } from './Delta';
-import { EventEmitterClass } from './lib/EventEmitterClass';
+import { EventBusImpl } from './lib/EventBusImpl';
 import { Position, position } from './Position';
 import { Range } from './Range';
 import { Shareable } from './Shareable';
@@ -76,7 +76,7 @@ export class Document implements Shareable {
     private readonly _lines: string[] = [];
     private _autoNewLine = "";
     private _newLineMode: NewLineMode = "auto";
-    private _eventBus: EventEmitterClass<DocumentEventName, any, Document> | undefined;
+    private _eventBus: EventBusImpl<DocumentEventName, any, Document> | undefined;
 
     /**
      * Maintains a count of the number of references to this instance of Document.
@@ -92,7 +92,7 @@ export class Document implements Shareable {
     constructor(textOrLines: string | Array<string>) {
         this._lines = [""];
 
-        this._eventBus = new EventEmitterClass<DocumentEventName, any, Document>(this);
+        this._eventBus = new EventBusImpl<DocumentEventName, any, Document>(this);
         /*
         this.changeEvents = new Observable<Delta>((observer: Observer<Delta>) => {
             function changeListener(value: Delta, source: Document) {

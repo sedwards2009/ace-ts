@@ -6,7 +6,7 @@
 import { applyMixins } from "../lib/mix";
 import { KeyboardHandler, KeyboardType } from "../keyboard/KeyboardHandler";
 import { Action } from '../keyboard/Action';
-import { EventEmitterClass } from "../lib/EventEmitterClass";
+import { EventBusImpl } from "../lib/EventBusImpl";
 import { Command } from './Command';
 import { CommandExecutor } from './CommandExecutor';
 import { EventBus } from '../EventBus';
@@ -37,7 +37,7 @@ export class CommandManager<TARGET> implements CommandExecutor<TARGET>, EventBus
     private macros: CommandAndArgs<TARGET>[][];
     private oldMacros: CommandAndArgs<TARGET>[][];
     private $addCommandToMacro: (event: any, cm: CommandManager<TARGET>) => any;
-    private readonly eventBus: EventEmitterClass<CommandManagerEventName, any, CommandManager<TARGET>>;
+    private readonly eventBus: EventBusImpl<CommandManagerEventName, any, CommandManager<TARGET>>;
 
     _buildKeyHash: any;
 
@@ -46,7 +46,7 @@ export class CommandManager<TARGET> implements CommandExecutor<TARGET>, EventBus
      * @param commands A list of commands
      */
     constructor(platform: KeyboardType, commands: Command<TARGET>[]) {
-        this.eventBus = new EventEmitterClass<CommandManagerEventName, any, CommandManager<TARGET>>(this);
+        this.eventBus = new EventBusImpl<CommandManagerEventName, any, CommandManager<TARGET>>(this);
         this.hashHandler = new KeyboardHandler(commands, platform);
         this.eventBus.setDefaultHandler("exec", function (e) {
             if (e.command.exec) {

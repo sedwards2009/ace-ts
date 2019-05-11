@@ -6,7 +6,7 @@
 import { Document } from "./Document";
 import { Position, equalPositions } from "./Position";
 import { stringReverse } from "./lib/lang";
-import { EventEmitterClass } from "./lib/EventEmitterClass";
+import { EventBusImpl } from "./lib/EventBusImpl";
 import { Range } from "./Range";
 import { RangeBasic } from "./RangeBasic";
 import { clone, isEmpty, isEqual, isMultiLine } from "./RangeHelpers";
@@ -69,10 +69,10 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
 
     inVirtualMode: boolean;
 
-    private eventBus: EventEmitterClass<SelectionEventName, any, Selection>;
+    private eventBus: EventBusImpl<SelectionEventName, any, Selection>;
 
     constructor(session: EditSession) {
-        this.eventBus = new EventEmitterClass<SelectionEventName, any, Selection>(this);
+        this.eventBus = new EventBusImpl<SelectionEventName, any, Selection>(this);
         this.session = session;
         this.doc = session.getDocument();
 

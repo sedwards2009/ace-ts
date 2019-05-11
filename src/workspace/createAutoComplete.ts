@@ -9,7 +9,7 @@ import { CompletionService } from './CompletionService';
 import { AutoCompleteView } from './AutoCompleteView';
 import { Delta } from '../Delta';
 import { Editor } from '../Editor';
-import { EventEmitterClass } from '../lib/EventEmitterClass';
+import { EventBusImpl } from '../lib/EventBusImpl';
 import { KeyboardHandler } from '../keyboard/KeyboardHandler';
 import { Position } from './Position';
 import { COMMAND_NAME_BACKSPACE } from '../editor_protocol';
@@ -60,7 +60,7 @@ export function createAutoComplete(editor: Editor, fileNameProvider: () => strin
     /**
      *
      */
-    const _eventEmitter = new EventEmitterClass(that);
+    const _eventEmitter = new EventBusImpl(that);
 
     /**
      *

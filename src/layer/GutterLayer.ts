@@ -7,7 +7,7 @@ import { addCssClass, createElement, removeCssClass, setStyle } from "../lib/dom
 
 import { AbstractLayer } from './AbstractLayer';
 import { escapeHTML } from "../lib/escapeHTML";
-import { EventEmitterClass } from "../lib/EventEmitterClass";
+import { EventBusImpl } from "../lib/EventBusImpl";
 import { Delta } from "../Delta";
 import { EditSession } from "../EditSession";
 import { EventBus } from "../EventBus";
@@ -63,7 +63,7 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
     private $renderer: GutterRenderer | boolean | string = "";
     private session: EditSession;
     $padding: Padding | null;
-    private readonly eventBus = new EventEmitterClass<GutterLayerEventName, any, GutterLayer>(this);
+    private readonly eventBus = new EventBusImpl<GutterLayerEventName, any, GutterLayer>(this);
     private readonly $lines: Lines;
 
     constructor(parent: HTMLElement) {

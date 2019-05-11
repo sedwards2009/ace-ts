@@ -6,7 +6,7 @@
 import { createElement } from "./lib/dom";
 import { addListener, preventDefault, removeListener } from "./lib/event";
 import { Disposable } from './Disposable';
-import { EventEmitterClass } from "./lib/EventEmitterClass";
+import { EventBusImpl } from "./lib/EventBusImpl";
 import { EventBus } from "./EventBus";
 import { refChange } from './refChange';
 import { ScrollBarEvent } from './events/ScrollBarEvent';
@@ -56,11 +56,11 @@ export class ScrollBar implements EventBus<ScrollBarEventName, ScrollBarEvent, S
      */
     protected coeff = COEFF_DEFAULT;
 
-    protected readonly eventBus: EventEmitterClass<ScrollBarEventName, ScrollBarEvent, ScrollBar>;
+    protected readonly eventBus: EventBusImpl<ScrollBarEventName, ScrollBarEvent, ScrollBar>;
 
     constructor(private readonly parent: HTMLElement, classSuffix: string) {
         refChange(this.uuid, 'ScrollBar', +1);
-        this.eventBus = new EventEmitterClass<ScrollBarEventName, ScrollBarEvent, ScrollBar>(this);
+        this.eventBus = new EventBusImpl<ScrollBarEventName, ScrollBarEvent, ScrollBar>(this);
         this.element = <HTMLDivElement>createElement("div");
         this.element.className = `ace_scrollbar ace_scrollbar${classSuffix}`;
         parent.appendChild(this.element);

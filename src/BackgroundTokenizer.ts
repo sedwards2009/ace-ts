@@ -6,7 +6,7 @@
 import { EventBus } from './EventBus';
 import { Delta } from './Delta';
 import { Document } from './Document';
-import { EventEmitterClass } from "./lib/EventEmitterClass";
+import { EventBusImpl } from "./lib/EventBusImpl";
 import { FirstAndLast } from "./FirstAndLast";
 import { Tokenizer } from "./Tokenizer";
 import { HighlighterStackElement, HighlighterStack, HighlighterToken } from './mode/Highlighter';
@@ -55,13 +55,13 @@ export class BackgroundTokenizer implements EventBus<BackgroundTokenizerEventNam
     private $worker: () => void;
 
     // TODO: We would like type safety in the event name.
-    private eventBus: EventEmitterClass<BackgroundTokenizerEventName, any, BackgroundTokenizer>;
+    private eventBus: EventBusImpl<BackgroundTokenizerEventName, any, BackgroundTokenizer>;
 
     /**
      * Creates a new background tokenizer object using a tokenizer supplied by the language mode.
      */
     constructor(tokenizer: Tokenizer<HighlighterToken, HighlighterStackElement, HighlighterStack>, unused?: BackgroundTokenizerEditSession) {
-        this.eventBus = new EventEmitterClass<BackgroundTokenizerEventName, any, BackgroundTokenizer>(this);
+        this.eventBus = new EventBusImpl<BackgroundTokenizerEventName, any, BackgroundTokenizer>(this);
         this.tokenizer = tokenizer;
 
         /**

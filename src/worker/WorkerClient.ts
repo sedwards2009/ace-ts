@@ -6,7 +6,7 @@
 import { qualifyURL } from '../lib/net';
 import { Delta } from "../Delta";
 import { EventBus } from "../EventBus";
-import { EventEmitterClass } from '../lib/EventEmitterClass';
+import { EventBusImpl } from '../lib/EventBusImpl';
 import { CallbackManager } from './CallbackManager';
 import { Disposable } from '../Disposable';
 import { EditSession } from "../EditSession";
@@ -70,13 +70,13 @@ export class WorkerClient implements EventBus<string, MessageEvent, WorkerClient
     /**
      *
      */
-    private eventBus: EventEmitterClass<string, MessageEvent, WorkerClient>;
+    private eventBus: EventBusImpl<string, MessageEvent, WorkerClient>;
 
     /**
      *
      */
     constructor(private workerUrl: string) {
-        this.eventBus = new EventEmitterClass<string, MessageEvent, WorkerClient>(this);
+        this.eventBus = new EventBusImpl<string, MessageEvent, WorkerClient>(this);
         this.sendDeltaQueue = this.sendDeltaQueue.bind(this);
         this.changeListener = this.changeListener.bind(this);
         this.onMessage = this.onMessage.bind(this);

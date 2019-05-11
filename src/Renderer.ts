@@ -23,7 +23,7 @@ import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
 
 import { RenderLoop } from "./RenderLoop";
-import { EventEmitterClass } from "./lib/EventEmitterClass";
+import { EventBusImpl } from "./lib/EventBusImpl";
 import { EditSession } from './EditSession';
 import { EventBus } from './EventBus';
 import { OptionsProvider } from "./OptionsProvider";
@@ -166,7 +166,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * $timer is used for animated scrolling.
      */
-    private $timer: number | undefined;
+    private $timer: number;
 
     $keepTextAreaAtCursor: boolean = true;
     $gutter: HTMLDivElement;
@@ -185,8 +185,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * ScrollBar width in pixels.
      */
     $scrollbarWidth: number;
-    private session: EditSession | undefined;
-    private eventBus: EventEmitterClass<RendererEventName, any, Renderer>;
+    private session: EditSession;
+    private eventBus: EventBusImpl<RendererEventName, any, Renderer>;
 
     private scrollMargin = {
         left: 0,
@@ -197,12 +197,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         h: 0
     };
 
-    private fontMetrics: FontMetricsMonitor | undefined;
+    private fontMetrics: FontMetricsMonitor;
 
     /**
      * A function that removes the changeCharacterSize handler.
      */
-    private removeChangeCharacterSizeHandler: (() => void) | undefined;
+    private removeChangeCharacterSizeHandler: (() => void);
 
     private $allowBoldFonts: boolean;
 
@@ -252,7 +252,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     constructor(container: HTMLElement, options: RendererOptions={}) {
         refChange('start');
         refChange(this.uuid, 'Renderer', +1);
-        this.eventBus = new EventEmitterClass<RendererEventName, any, Renderer>(this);
+        this.eventBus = new EventBusImpl<RendererEventName, any, Renderer>(this);
 
         this.container = container || <HTMLDivElement>createElement("div");
         this.container.dir = 'ltr';
@@ -458,7 +458,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Associates the renderer with a different EditSession.
      */
-    setSession(session: EditSession | undefined): void {
+    setSession(session: EditSession): void {
         if (this.session) {
             if (this.session.doc) {
                 this.session.doc.removeChangeNewLineModeListener(this.onChangeNewLineMode);
@@ -651,7 +651,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return changes !== 0;
     }
 
-    private $updateCachedSize(force: boolean | undefined, gutterWidthPixels: number | undefined, width: number, height: number): number {
+    private $updateCachedSize(force: boolean, gutterWidthPixels: number, width: number, height: number): number {
         height -= (this.$extraHeight || 0);
         let changes = 0;
         const size = this.$size;

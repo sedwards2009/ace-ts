@@ -7,7 +7,7 @@ import { AnchorChangeEvent } from './events/AnchorChangeEvent';
 import { Delta } from './Delta';
 import { Document } from './Document';
 import { Position } from './Position';
-import { EventEmitterClass } from './lib/EventEmitterClass';
+import { EventBusImpl } from './lib/EventBusImpl';
 import { EventBus } from "./EventBus";
 import { Origin } from './OriginEnum';
 
@@ -68,7 +68,7 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      */
     insertRight: boolean;
 
-    private readonly eventBus: EventEmitterClass<AnchorEventName, AnchorChangeEvent, Anchor>;
+    private readonly eventBus: EventBusImpl<AnchorEventName, AnchorChangeEvent, Anchor>;
 
     /**
      * <p>
@@ -84,7 +84,7 @@ export class Anchor implements EventBus<AnchorEventName, AnchorChangeEvent, Anch
      * @param column The starting column position.
      */
     constructor(doc: Document, row: number, column: number) {
-        this.eventBus = new EventEmitterClass<AnchorEventName, AnchorChangeEvent, Anchor>(this);
+        this.eventBus = new EventBusImpl<AnchorEventName, AnchorChangeEvent, Anchor>(this);
 
         this.documentChangeHandler = (delta: Delta, doc: Document): void => {
             if (delta.start.row === delta.end.row && delta.start.row !== this.row) {

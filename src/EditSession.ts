@@ -13,7 +13,7 @@ import { DeltaIgnorable } from "./DeltaIgnorable";
 import { DeltaGroup } from './DeltaGroup';
 import { Disposable } from './Disposable';
 import { EditorMouseEvent } from './EditorMouseEvent';
-import { EventEmitterClass } from "./lib/EventEmitterClass";
+import { EventBusImpl } from "./lib/EventBusImpl";
 import { FirstAndLast } from "./FirstAndLast";
 import { FoldLine } from "./FoldLine";
 import { Fold } from "./Fold";
@@ -208,7 +208,7 @@ export class EditSession {
     // TODO: '$autoNewLine' is declared but its value is never read.
     // private $autoNewLine: string;
 
-    private eventBus: EventEmitterClass<EditSessionEventName, any, EditSession>;
+    private eventBus: EventBusImpl<EditSessionEventName, any, EditSession>;
 
     // private readonly changeModeBus = new EventEmitterClass<'changeMode', {}, EditSession>(this);
     // readonly changeModeEvents = this.changeModeBus.events('changeMode');
@@ -279,7 +279,7 @@ export class EditSession {
             throw new TypeError('doc must be an Document');
         }
         this.$breakpoints = [];
-        this.eventBus = new EventEmitterClass<EditSessionEventName, any, EditSession>(this);
+        this.eventBus = new EventBusImpl<EditSessionEventName, any, EditSession>(this);
 
         this.foldLines_.toString = function (this: FoldLine[]) {
             return this.join("\n");

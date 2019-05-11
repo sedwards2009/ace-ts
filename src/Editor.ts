@@ -31,7 +31,7 @@ import { RangeBasic } from "./RangeBasic";
 import { collapseRows, contains, compare, comparePoint, compareRange, insideStart, isEmpty, isEqual, isMultiLine, moveBy, setEnd } from "./RangeHelpers";
 import { RangeList } from './RangeList';
 import { TextAndSelection } from "./TextAndSelection";
-import { EventEmitterClass } from "./lib/EventEmitterClass";
+import { EventBusImpl } from "./lib/EventBusImpl";
 import { Command } from "./commands/Command";
 import { CommandManager } from "./commands/CommandManager";
 import { TokenIterator } from "./TokenIterator";
@@ -198,8 +198,8 @@ export class Editor {
     renderer: Renderer;
     session: NativeEditSession | undefined;
 
-    private eventBus: EventEmitterClass<EditorEventName, any, Editor>;
-    private readonly gotoDefinitionBus = new EventEmitterClass<'gotoDefinition', Position, Editor>(this);
+    private eventBus: EventBusImpl<EditorEventName, any, Editor>;
+    private readonly gotoDefinitionBus = new EventBusImpl<'gotoDefinition', Position, Editor>(this);
 
     /**
      * Have to make this public to support error marker extension.
@@ -251,7 +251,7 @@ export class Editor {
      * The default setting is `false`, meaning that the editor is writeable.
      */
     private $readOnly = false;
-    private readonly $readOnlyBus = new EventEmitterClass<'$readOnly', { oldValue: boolean; newValue: boolean }, Editor>(this);
+    private readonly $readOnlyBus = new EventBusImpl<'$readOnly', { oldValue: boolean; newValue: boolean }, Editor>(this);
 
     private _relayInput = false;
 
@@ -304,7 +304,7 @@ export class Editor {
     constructor(renderer: Renderer | undefined, session: EditSession | undefined) {
         refChange('start');
         refChange(this.uuid, 'Editor', +1);
-        this.eventBus = new EventEmitterClass<EditorEventName, any, Editor>(this);
+        this.eventBus = new EventBusImpl<EditorEventName, any, Editor>(this);
         this.curOp = null;
         this.prevOp = {};
         this.$mergeableCommands = [COMMAND_NAME_BACKSPACE, COMMAND_NAME_DEL, COMMAND_NAME_INSERT_STRING];

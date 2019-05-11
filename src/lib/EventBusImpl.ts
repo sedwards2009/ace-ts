@@ -17,7 +17,7 @@ export interface DefaultHandler<T> {
  * N.B. The original implementation was an object, the TypeScript way is
  * designed to satisfy the compiler.
  */
-export class EventEmitterClass<NAME extends string, E, T> implements EventBus<NAME, E, T> {
+export class EventBusImpl<NAME extends string, E, T> implements EventBus<NAME, E, T> {
 
     /**
      * Each event name has multiple callbacks.

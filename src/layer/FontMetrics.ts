@@ -7,9 +7,16 @@ import { createElement } from "../lib/dom";
 import { stringRepeat } from "../lib/lang";
 import { isIE } from "../lib/useragent";
 import { EventBus } from "../EventBus";
-import { EventEmitterClass } from "../lib/EventEmitterClass";
+import { EventBusImpl } from "../lib/EventBusImpl";
 import { refChange } from '../refChange';
 import { Shareable } from '../Shareable';
+
+
+export interface FontMetrics {
+    charHeight: number,
+    charWidth: number,
+}
+
 
 let CHAR_COUNT = 0;
 
@@ -35,7 +42,7 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
     allowBoldFonts: boolean;
     
     private $pollSizeChangesTimer: number;
-    private eventBus: EventEmitterClass<FontMetricsEventName, any, FontMetricsMonitor>;
+    private eventBus: EventBusImpl<FontMetricsEventName, any, FontMetricsMonitor>;
     private refCount = 1;
 
     protected readonly uuid = `${Math.random()}`;
@@ -47,7 +54,7 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
     // FIXME: The interval should be being used to configure the polling interval (normally 500ms)
     constructor(parent: HTMLElement, pollingInterval: number) {
         refChange(this.uuid, 'FontMetrics', +1);
-        this.eventBus = new EventEmitterClass<FontMetricsEventName, any, FontMetricsMonitor>(this);
+        this.eventBus = new EventBusImpl<FontMetricsEventName, any, FontMetricsMonitor>(this);
 
         this.el = <HTMLDivElement>createElement("div");
         this.$setMeasureNodeStyles(this.el.style, true);

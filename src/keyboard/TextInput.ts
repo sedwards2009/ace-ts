@@ -9,7 +9,7 @@ import { createElement } from "../lib/dom";
 import { createDelayedCall } from "../lib/lang/createDelayedCall";
 import { DelayedCall } from "../lib/lang/DelayedCall";
 import { RangeBasic } from '../RangeBasic';
-import { EventEmitterClass } from "../lib/EventEmitterClass";
+import { EventBusImpl } from "../lib/EventBusImpl";
 
 const PLACEHOLDER = "\u200a\u200a";
 const PLACEHOLDER_CHAR_FIRST = PLACEHOLDER.charAt(0);
@@ -48,10 +48,10 @@ export class TextInput {
     private pasted: boolean;
     private syncValue: DelayedCall;
     
-    private _eventBus: EventEmitterClass<TextInputEventName, any, TextInput>;
+    private _eventBus: EventBusImpl<TextInputEventName, any, TextInput>;
 
     constructor(private _containerElement: HTMLElement) {
-        this._eventBus = new EventEmitterClass<TextInputEventName, any, TextInput>(this);
+        this._eventBus = new EventBusImpl<TextInputEventName, any, TextInput>(this);
         this.tempStyle = '';
         this.afterContextMenu = false;
         this.inComposition = null;
