@@ -5,7 +5,6 @@
  */
 import { createElement } from "../lib/dom";
 import { stringRepeat } from "../lib/lang";
-import { isIE } from "../lib/useragent";
 import { EventBus } from "../EventBus";
 import { EventBusImpl } from "../lib/EventBusImpl";
 import { refChange } from '../refChange';
@@ -129,13 +128,7 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
         style.visibility = "hidden";
         style.position = "absolute";
         style.whiteSpace = "pre";
-
-        if (isIE < 8) {
-            style["font-family"] = "inherit";
-        }
-        else {
-            style.font = "inherit";
-        }
+        style.font = "inherit";
         style.overflow = isRoot ? "hidden" : "visible";
     }
 

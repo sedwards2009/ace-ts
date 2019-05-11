@@ -9,7 +9,7 @@ import { computedStyle, hasCssClass } from "./lib/dom";
 import { createDelayedCall } from './lib/lang/createDelayedCall';
 import { DelayedCall } from './lib/lang/DelayedCall';
 import { stringRepeat } from "./lib/lang";
-import { isIE, isMac, isWebKit, isMozilla } from "./lib/useragent";
+import { isMac, isWebKit, isMozilla } from "./lib/useragent";
 import { EditorMouseEvent } from './EditorMouseEvent';
 import { EditSession as NativeEditSession } from './EditSession';
 import { GutterLayer } from "./layer/GutterLayer";

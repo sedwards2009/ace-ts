@@ -48,12 +48,6 @@ export function getOS() {
   }
 }
 
-// Windows Store JavaScript apps (aka Metro apps written in HTML5 and JavaScript) do not use the "Microsoft Internet Explorer" string in their user agent, but "MSAppHost" instead.
-export const isIE =
-  (navigator.appName === "Microsoft Internet Explorer" || navigator.appName.indexOf("MSAppHost") >= 0)
-    ? parseFloat((ua.match(/(?:MSIE |Trident\/[0-9]+[\.0-9]+;.*rv:)([0-9]+[\.0-9]+)/) || [])[1])
-    : parseFloat((ua.match(/(?:Trident\/[0-9]+[\.0-9]+;.*rv:)([0-9]+[\.0-9]+)/) || [])[1]); // for ie
-
 // Is this Firefox or related?
 // The cast to any is required to stop the TypeScript compiler from being too smart, concluding that the last window reference has the never type.
 export const isGecko = (('Controllers' in window) || ('controllers' in window as any)) && window.navigator.product === "Gecko";

@@ -33,7 +33,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 import { FUNCTION_KEYS, KEY_MODS, MODIFIER_KEYS, PRINTABLE_KEYS } from './keys';
-import { isChromeOS, isIE, isMac, isOldGecko, isOpera } from './useragent';
+import { isChromeOS, isMac, isOldGecko, isOpera } from './useragent';
 
 export interface ListenerTarget extends EventTarget {
 }
@@ -213,19 +213,6 @@ export function addMultiMouseDownListener(el: ListenerTarget, timeouts: number[]
                 clicks = 1;
         } else {
             clicks = 1;
-        }
-        if (isIE) {
-            const isNewClick = Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5;
-            if (!timer || isNewClick)
-                clicks = 1;
-            if (timer)
-                clearTimeout(timer);
-            timer = window.setTimeout(function () { timer = null; }, timeouts[clicks - 1] || 600);
-
-            if (clicks === 1) {
-                startX = e.clientX;
-                startY = e.clientY;
-            }
         }
 
         // TODO. This custom property is not part of MouseEvent.

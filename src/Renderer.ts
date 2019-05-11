@@ -4,7 +4,6 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { addCssClass, createElement, createHTMLDivElement, removeCssClass, setCssClass } from "./lib/dom";
-import { isIE } from './lib/useragent';
 import { appendHTMLLinkElement } from './dom/appendHTMLLinkElement';
 import { removeHTMLLinkElement } from './dom/removeHTMLLinkElement';
 import { Disposable } from './Disposable';
@@ -766,7 +765,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (value === 'ltr' || value === 'rtl') {
             this.container.dir = value;
         }
-        else if (value === 'auto' && !isIE) {
+        else if (value === 'auto') {
             this.container.dir = value;
         }
     }
