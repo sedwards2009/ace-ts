@@ -307,12 +307,9 @@ export class ListViewPopup implements ListView {
         return this.editor.off(eventName, callback, capturing);
     }
 
-    /**
-     *
-     */
     getTextLeftOffset(): number {
         // The imageSize is currently always zero.
-        return this.$borderSize + this.editor.renderer.getPadding() + this.imageSize;
+        return this.$borderSize + this.imageSize;
     }
 
     /**

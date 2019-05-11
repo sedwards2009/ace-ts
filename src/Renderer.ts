@@ -123,7 +123,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     layerConfig = {
         width: 1,
         visibleWidth: 1,
-        padding: 0,
         firstRow: 0,
         firstRowScreen: 0,
         lastRow: 0,
@@ -152,11 +151,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     readonly textLayer: TextLayer;
 
-    /**
-     * Used by TokenTooltip...
-     */
-    $padding = 0;
-
     private $frozen = false;
 
     /**
@@ -178,12 +172,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     $gutter: HTMLDivElement;
     scroller: HTMLDivElement;
     content: HTMLDivElement;
-
-    /**
-     * This is the element that is created by the text layer.
-     * I don't think it is being used, and it's private.
-     */
-    // private canvas: HTMLDivElement;
 
     private $horizScroll: boolean;
     private $vScroll: boolean;
@@ -344,7 +332,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                                     this.container.ownerDocument.defaultView);
         this.$loop.schedule(CHANGE_FULL);
 
-        this.setPadding(4);
         this.setFontSize(options.fontSize === undefined ? "16px" : options.fontSize);
         this.setShowFoldWidgets(true);
         this.updateCharacterSize();
@@ -749,7 +736,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Adjusts the wrap limit, which is the number of characters that can fit within the width of the edit area on screen.
      */
     adjustWrapLimit(): boolean {
-        const availableWidth = this.$size.scrollerWidth - this.$padding * 2;
+        const availableWidth = this.$size.scrollerWidth;
         const limit = Math.floor(availableWidth / this.characterWidth);
         if (this.$showPrintMargin) {
             return this.sessionOrThrow().adjustWrapLimit(limit, this.$printMarginColumn);
@@ -955,7 +942,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const style = this.$printMarginEl.style;
-        style.left = pixelStyle((this.characterWidth * this.$printMarginColumn) + this.$padding);
+        style.left = pixelStyle((this.characterWidth * this.$printMarginColumn));
         style.visibility = this.$showPrintMargin ? "visible" : "hidden";
 
         // FIXME: Should this be $useWrapMode?
@@ -1061,31 +1048,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return this.layerConfig.lastRow;
     }
 
-    /**
-     * Gets the padding.
-     */
-    getPadding(): number {
-        return this.$padding;
-    }
-
-    /**
-     * Sets the padding for all the layers.
-     *
-     * @param padding A new padding value (in pixels).
-     */
-    setPadding(padding: number): void {
-        if (typeof padding !== 'number') {
-            throw new TypeError("padding must be a number");
-        }
-        this.$padding = padding;
-        this.textLayer.setPadding(padding);
-        this.cursorLayer.setPadding(padding);
-        this.$markerFront.setPadding(padding);
-        this.$markerBack.setPadding(padding);
-        this.$loop.schedule(CHANGE_FULL);
-        this.$updatePrintMargin();
-    }
-
     setScrollMargin(top: number, bottom: number, left: number, right: number): void {
         const sm = this.scrollMargin;
         sm.top = top | 0;
@@ -1167,7 +1129,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const layerWidth = this._scrollHTracking === HScrollTracking.WHOLE_DOCUMENT
                                 ? this.layerConfig.width
                                 : this.layerConfig.visibleWidth;
-        const scrollWidth = layerWidth + 2 * this.$padding + this.scrollMargin.h;
+        const scrollWidth = layerWidth + this.scrollMargin.h;
         this.scrollBarH
             .setScrollWidth(scrollWidth)
             .setScrollLeft(this.scrollLeft + this.scrollMargin.left);
@@ -1232,7 +1194,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
             this.$gutterLayer.element.style.marginTop = pixelStyle(-config.offset);
             this.content.style.marginTop = pixelStyle(-config.offset);
-            this.content.style.width = pixelStyle(config.width + 2 * this.$padding);
+            this.content.style.width = pixelStyle(config.width);
             this.content.style.height = pixelStyle(config.minHeight);
         }
 
@@ -1360,7 +1322,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             longestLine = longestVisibleLine;
         }
 
-        const horizScroll = !hideScrollbars && (this.$hScrollBarAlwaysVisible || size.scrollerWidth - longestLine - 2 * this.$padding < 0);
+        const horizScroll = !hideScrollbars && (this.$hScrollBarAlwaysVisible || size.scrollerWidth - longestLine < 0);
 
         const hScrollChanged = this.$horizScroll !== horizScroll;
         if (hScrollChanged) {
@@ -1381,7 +1343,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         this.setScrollTop(Math.max(-this.scrollMargin.top, Math.min(this.scrollTop, maxHeight - size.scrollerHeight + this.scrollMargin.bottom)));
 
-        session.setScrollLeft(Math.max(-this.scrollMargin.left, Math.min(this.scrollLeft, longestLine + 2 * this.$padding - size.scrollerWidth + this.scrollMargin.right)));
+        session.setScrollLeft(Math.max(-this.scrollMargin.left, Math.min(this.scrollLeft, longestLine - size.scrollerWidth + this.scrollMargin.right)));
 
         const lineCount = Math.ceil(minHeight / this.lineHeight) - 1;
         let firstRow = Math.max(0, Math.round((this.scrollTop - offset) / this.lineHeight));
@@ -1422,7 +1384,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.layerConfig = {
             width: longestLine,
             visibleWidth: longestVisibleLine,
-            padding: this.$padding,
             firstRow: firstRow,
             firstRowScreen: firstRowScreen,
             lastRow: lastRow,
@@ -1471,7 +1432,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private $getLongestLinePixels(): number {
         const session = this.sessionOrThrow();
         const charCount = session.getScreenWidth() + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
-        return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.floor(charCount * this.characterWidth));
+        return Math.max(this.$size.scrollerWidth, Math.floor(charCount * this.characterWidth));
     }
 
     private _getLongestVisibleLinePixels(): number {
@@ -1480,7 +1441,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const docLength = doc.getLength();
         const widthInRange = session.getWidthInRange(this.getFirstVisibleRow(), Math.min(docLength, this.getLastVisibleRow() + 1));
         const charCount = widthInRange + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
-        return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.floor(charCount * this.characterWidth));
+        return Math.max(this.$size.scrollerWidth, Math.floor(charCount * this.characterWidth));
     }
 
     /**
@@ -1585,13 +1546,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const scrollLeft = this.scrollLeft;
 
         if (scrollLeft > left) {
-            if (left < this.$padding + 2 * this.layerConfig.characterWidth) {
+            if (left < 2 * this.layerConfig.characterWidth) {
                 left = -this.scrollMargin.left;
             }
             session.setScrollLeft(left);
         } else if (scrollLeft + this.$size.scrollerWidth < left + this.characterWidth) {
             session.setScrollLeft(Math.round(left + this.characterWidth - this.$size.scrollerWidth));
-        } else if (scrollLeft <= this.$padding && left - scrollLeft < this.characterWidth) {
+        } else if (scrollLeft <= 0 && left - scrollLeft < this.characterWidth) {
             session.setScrollLeft(0);
         }
     }
@@ -1804,7 +1765,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     pixelToScreenCoordinates(x: number, y: number) {
         const canvasPos = this.scroller.getBoundingClientRect();
 
-        const offset = (x + this.scrollLeft - canvasPos.left - this.$padding) / this.characterWidth;
+        const offset = (x + this.scrollLeft - canvasPos.left) / this.characterWidth;
         const row = Math.floor((y + this.scrollTop - canvasPos.top) / this.lineHeight);
         const col = Math.round(offset);
 
@@ -1815,7 +1776,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const session = this.sessionOrThrow();
         const canvasPos = this.scroller.getBoundingClientRect();
 
-        const column = Math.round((clientX + this.scrollLeft - canvasPos.left - this.$padding) / this.characterWidth);
+        const column = Math.round((clientX + this.scrollLeft - canvasPos.left) / this.characterWidth);
 
         const row = (clientY + this.scrollTop - canvasPos.top) / this.lineHeight;
 
@@ -1830,7 +1791,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const canvasPos: ClientRect = this.scroller.getBoundingClientRect();
         const pos: Position = session.documentToScreenPosition(row, column);
 
-        const x = this.$padding + Math.round(pos.column * this.characterWidth);
+        const x = Math.round(pos.column * this.characterWidth);
         const y = pos.row * this.lineHeight;
 
         return {
@@ -1910,12 +1871,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         if (this.theme) {
             removeCssClass(this.container, this.theme.cssClass);
-        }
-
-        const padding = "padding" in modJs ? modJs.padding : "padding" in (this.theme || {}) ? 4 : this.$padding;
-
-        if (this.$padding && padding !== this.$padding) {
-            this.setPadding(padding);
         }
 
         this.theme = modJs;

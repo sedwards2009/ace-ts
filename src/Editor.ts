@@ -1620,13 +1620,6 @@ export class Editor {
     }
 
     /**
-     * @param padding
-     */
-    setPadding(padding: number): void {
-        return this.renderer.setPadding(padding);
-    }
-
-    /**
      * @param themeId
      * @param href
      */

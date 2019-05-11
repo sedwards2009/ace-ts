@@ -72,7 +72,7 @@ export class TokenTooltip extends Tooltip {
             }
 
             const canvasPos: ClientRect = r.rect || (r.rect = r.scroller.getBoundingClientRect());
-            const offset = (this.x + r.scrollLeft - canvasPos.left - r.$padding) / r.characterWidth;
+            const offset = (this.x + r.scrollLeft - canvasPos.left) / r.characterWidth;
             const row = Math.floor((this.y + r.scrollTop - canvasPos.top) / r.lineHeight);
             const col = Math.round(offset);
 

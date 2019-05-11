@@ -25,7 +25,6 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
     private session: EditSession;
     private markers: { [id: number]: Marker } = {};
     private config: MarkerConfig;
-    private $padding = 0;
 
     constructor(parent: HTMLDivElement) {
         super(parent, "ace_layer ace_marker-layer");
@@ -35,10 +34,6 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
     dispose(): void {
         refChange(this.uuid, 'MarkerLayer', -1);
         super.dispose();
-    }
-
-    setPadding(padding: number): void {
-        this.$padding = padding;
     }
 
     setSession(session: EditSession): void {
@@ -83,7 +78,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
             const range = this.session.documentToScreenRange(rangeClipRows);
             if (marker.renderer) {
                 const top = this.$getTop(range.start.row, config);
-                const left = this.$padding + range.start.column * config.characterWidth;
+                const left = range.start.column * config.characterWidth;
                 marker.renderer(html, range, left, top, config);
             } else if (marker.type === "fullLine") {
                 this.drawFullLineMarker(html, range, marker.clazz, config);
@@ -157,10 +152,9 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
      */
     private drawMultiLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: MarkerConfig, extraStyle = ""): void {
         // from selection start to the end of the line
-        const padding = this.$padding;
         let height = config.lineHeight;
         let top = this.$getTop(range.start.row, config);
-        const left = padding + range.start.column * config.characterWidth;
+        const left = range.start.column * config.characterWidth;
 
         stringBuilder.push(
             "<div class='", clazz, " ace_br1 ace_start' style='",
@@ -179,7 +173,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
             "height:", "" + height, "px;",
             "width:", "" + width, "px;",
             "top:", "" + top, "px;",
-            "left:", "" + padding, "px;", extraStyle, "'></div>"
+            "left: 0px;", extraStyle, "'></div>"
         );
 
         // all the complete lines
@@ -196,7 +190,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
             "height:", "" + height, "px;",
             "right:0;",
             "top:", "" + top, "px;",
-            "left:", "" + padding, "px;", extraStyle, "'></div>"
+            "left: 0px;", extraStyle, "'></div>"
         );
     }
 
@@ -208,7 +202,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
         const width = (range.end.column + extraLength - range.start.column) * config.characterWidth;
 
         const top = this.$getTop(range.start.row, config);
-        const left = this.$padding + range.start.column * config.characterWidth;
+        const left = range.start.column * config.characterWidth;
 
         stringBuilder.push(
             "<div class='", clazz, "' style='",

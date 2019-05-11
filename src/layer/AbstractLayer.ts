@@ -13,7 +13,7 @@ export class AbstractLayer implements Disposable {
     /**
      * This is the child of the DOM element that the layer is associated with.
      */
-    element: HTMLDivElement;
+    element: HTMLDivElement = null;
 
     /**
      * A random string for identifying an instance of this class.
@@ -34,7 +34,7 @@ export class AbstractLayer implements Disposable {
 
     dispose(): void {
         this.parent.removeChild(this.element);
-        this.element = <any>undefined;
+        this.element = null;
         refChange(this.uuid, 'AbstractLayer', -1);
     }
 

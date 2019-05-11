@@ -28,7 +28,6 @@ export type TextLayerEventName = 'changeCharacterSize';
 
 export class TextLayer extends AbstractLayer implements Disposable, EventBus<TextLayerEventName, any, TextLayer> {
     allowBoldFonts = false;
-    $padding = 0;
     private EOL_CHAR: string;
 
     private fontMetrics: FontMetrics | undefined;
@@ -86,11 +85,6 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         } else {
             return false;
         }
-    }
-
-    setPadding(padding: number): void {
-        this.$padding = padding;
-        this.element.style.padding = "0 " + padding + "px";
     }
 
     getLineHeight(): number {

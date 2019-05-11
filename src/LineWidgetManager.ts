@@ -413,7 +413,7 @@ export class LineWidgetManager {
             w.el.style.left = left + "px";
 
             if (w.fullWidth && w.screenWidth) {
-                w.el.style.minWidth = config.width + 2 * config.padding + "px";
+                w.el.style.minWidth = config.width + "px";
             }
 
             if (w.fixedWidth) {

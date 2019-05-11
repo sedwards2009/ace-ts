@@ -28,7 +28,6 @@ export class CursorLayer extends AbstractLayer implements Disposable {
     private timeoutId: number;
     private cursors: HTMLDivElement[] = [];
     cursor: HTMLDivElement;
-    private $padding = 0;
     private overwrite: boolean;
     private $updateCursors: (opacity: boolean) => void;
     config: CursorConfig;
@@ -68,10 +67,6 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         for (let i = cursors.length; i--;) {
             cursors[i].style.opacity = opacity ? "" : "0";
         }
-    }
-
-    setPadding(padding: number): void {
-        this.$padding = padding;
     }
 
     setSession(session: EditSession): void {
@@ -202,7 +197,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
 
     private getPixelPositionForRow(position: Position, firstRow: number): PixelPosition {
         const pos = this.session.documentToScreenPosition(position.row, position.column);
-        const cursorLeft = this.$padding + pos.column * this.config.characterWidth;
+        const cursorLeft = pos.column * this.config.characterWidth;
         const cursorTop = (pos.row - firstRow) * this.config.lineHeight;
 
         return { left: cursorLeft, top: cursorTop };
