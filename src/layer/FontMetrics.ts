@@ -5,55 +5,38 @@
  */
 import { createElement } from "../lib/dom";
 import { stringRepeat } from "../lib/lang";
-import { EventBus } from "../EventBus";
-import { EventBusImpl } from "../lib/EventBusImpl";
-import { refChange } from '../refChange';
-import { Shareable } from '../Shareable';
+import { Disposable } from "../Disposable";
+import { Event } from '../Event';
+import { EventEmitter } from "../EventEmitter";
 
 
 export interface FontMetrics {
-    charHeight: number,
-    charWidth: number,
+    charHeightPx: number;
+    charWidthPx: number;
+    isBoldCompatible: boolean;
 }
-
 
 let CHAR_COUNT = 0;
 
-export const changeCharacterSize = 'changeCharacterSize';
-
-// TODO: Can the constants be combined with this type?
-export type FontMetricsEventName = 'changeCharacterSize';
-
 /**
  * FontMetricsMonitor sets up a timer that repeatedly checks for changes in font sizes.
- * It raises the event 'changeCharacterSize'.
- * It is used by the Renderer and the TextLayer.
+ * It is used by the Renderer.
  */
-export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, FontMetricsMonitor>, Shareable {
+export class FontMetricsMonitor implements Disposable {
     private el: HTMLDivElement;
     private $main: HTMLDivElement;
     private $measureNode: HTMLDivElement;
 
-    $characterSize = { width: 0, height: 0 };
+    private _fontMetrics: FontMetrics = { charWidthPx: 8, charHeightPx: 8, isBoldCompatible: false };
 
-    private charSizes: { [ch: string]: number };
-
-    allowBoldFonts: boolean;
-    
     private $pollSizeChangesTimer: number;
-    private eventBus: EventBusImpl<FontMetricsEventName, any, FontMetricsMonitor>;
-    private refCount = 1;
 
-    protected readonly uuid = `${Math.random()}`;
+    private _onChangeEventEmitter = new EventEmitter<FontMetrics>();
+    onChange: Event<FontMetrics>;
 
-    /**
-     * @param parent
-     * @param pollingInterval
-     */
     // FIXME: The interval should be being used to configure the polling interval (normally 500ms)
     constructor(parent: HTMLElement, pollingInterval: number) {
-        refChange(this.uuid, 'FontMetrics', +1);
-        this.eventBus = new EventBusImpl<FontMetricsEventName, any, FontMetricsMonitor>(this);
+        this.onChange = this._onChangeEventEmitter.event;
 
         this.el = <HTMLDivElement>createElement("div");
         this.$setMeasureNodeStyles(this.el.style, true);
@@ -73,41 +56,18 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
         }
         this.$measureNode.innerHTML = stringRepeat("X", CHAR_COUNT);
 
-        this.$characterSize = { width: 0, height: 0 };
         this.checkForSizeChanges();
     }
 
-    protected destructor(): void {
+    dispose(): void {
         clearInterval(this.$pollSizeChangesTimer);
         if (this.el && this.el.parentNode) {
             this.el.parentNode.removeChild(this.el);
         }
     }
 
-    addRef(): number {
-        refChange(this.uuid, 'FontMetrics', +1);
-        this.refCount++;
-        return this.refCount;
-    }
-
-    release(): number {
-        refChange(this.uuid, 'FontMetrics', -1);
-        this.refCount--;
-        if (this.refCount === 0) {
-            this.destructor();
-        }
-        return this.refCount;
-    }
-
-    /**
-     * Returns a function that will remove the event handler.
-     */
-    on(eventName: FontMetricsEventName, callback: (event: any, source: FontMetricsMonitor) => any): () => void {
-        return this.eventBus.on(eventName, callback, false);
-    }
-
-    off(eventName: FontMetricsEventName, callback: (event: any, source: FontMetricsMonitor) => any): void {
-        this.eventBus.off(eventName, callback);
+    getFontMetrics(): FontMetrics {
+        return this._fontMetrics;
     }
 
     private $testFractionalRect(): void {
@@ -133,32 +93,30 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
     }
 
     checkForSizeChanges(): void {
-        const size = this.$measureSizes();
-        if (size && (this.$characterSize.width !== size.width || this.$characterSize.height !== size.height)) {
+        const newRawFontMetrics = this.$measureFontDimensions();
+        if (newRawFontMetrics != null &&
+                (this._fontMetrics.charWidthPx !== newRawFontMetrics.charWidthPx ||
+                    this._fontMetrics.charHeightPx !== newRawFontMetrics.charHeightPx)) {
             this.$measureNode.style.fontWeight = "bold";
+            let isBoldCompatible = false;
             try {
-                const boldSize = this.$measureSizes();
-                if (boldSize) {
-                    this.allowBoldFonts = boldSize.width === size.width && boldSize.height === size.height;
-                }
-                else {
-                    this.allowBoldFonts = false;
+                const boldFontMetrics = this.$measureFontDimensions();
+                if (boldFontMetrics != null) {
+                    isBoldCompatible = boldFontMetrics.charWidthPx === newRawFontMetrics.charWidthPx &&
+                                        boldFontMetrics.charHeightPx === newRawFontMetrics.charHeightPx;
+                } else {
+                    isBoldCompatible = false;
                 }
             }
             finally {
                 this.$measureNode.style.fontWeight = "";
             }
-            this.$characterSize = size;
-            this.charSizes = Object.create(null);
-            // const ws = "xiXbm".split("").map(this.$measureCharWidth, this);
-            /**
-             * @event changeCharacterSize
-             */
-            this.eventBus._emit(changeCharacterSize, { data: size });
+            this._fontMetrics = { ...newRawFontMetrics, isBoldCompatible };
+            this._onChangeEventEmitter.fire(this._fontMetrics);
         }
     }
 
-    $pollSizeChanges(): number {
+    startPolling(): number {
         if (this.$pollSizeChangesTimer) {
             return this.$pollSizeChangesTimer;
         }
@@ -169,7 +127,7 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
 
     setPolling(val: boolean): void {
         if (val) {
-            this.$pollSizeChanges();
+            this.startPolling();
         }
         else {
             if (this.$pollSizeChangesTimer) {
@@ -179,8 +137,8 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
         }
     }
 
-    private $measureSizes(): { width: number; height: number } | null {
-        let size: { height: number; width: number };
+    private $measureFontDimensions(): { charWidthPx: number, charHeightPx: number } {
+        let fontMetrics: { charWidthPx: number, charHeightPx: number };
         if (CHAR_COUNT === 50) {
             let rect: ClientRect;
             try {
@@ -189,36 +147,21 @@ export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, F
             catch (e) {
                 rect = { width: 0, height: 0, left: 0, right: 0, top: 0, bottom: 0 };
             }
-            size = {
-                height: rect.height,
-                width: rect.width / CHAR_COUNT
+            fontMetrics = {
+                charHeightPx: rect.height,
+                charWidthPx: rect.width / CHAR_COUNT
             };
-        }
-        else {
-            size = {
-                height: this.$measureNode.clientHeight,
-                width: this.$measureNode.clientWidth / CHAR_COUNT
+        } else {
+            fontMetrics = {
+                charHeightPx: this.$measureNode.clientHeight,
+                charWidthPx: this.$measureNode.clientWidth / CHAR_COUNT
             };
         }
         // width and height can be null if the editor is not visible or detached from the document.
-        if (size.width === 0 || size.height === 0) {
+        if (fontMetrics.charWidthPx === 0 || fontMetrics.charHeightPx === 0) {
             return null;
         }
-        return size;
-    }
-
-    private $measureCharWidth(ch: string): number {
-        this.$main.innerHTML = stringRepeat(ch, CHAR_COUNT);
-        const rect = this.$main.getBoundingClientRect();
-        return rect.width / CHAR_COUNT;
-    }
-
-    getCharacterWidth(ch: string): number {
-        let w = this.charSizes[ch];
-        if (w === undefined) {
-            w = this.charSizes[ch] = this.$measureCharWidth(ch) / this.$characterSize.width;
-        }
-        return w;
+        return fontMetrics;
     }
 }
 

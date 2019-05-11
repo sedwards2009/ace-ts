@@ -9,7 +9,6 @@ import { MarkerConfig } from "./MarkerConfig";
 import { Range } from "../Range";
 import { RangeBasic } from "../RangeBasic";
 import { clipRows, isEmpty, isMultiLine } from "../RangeHelpers";
-import { refChange } from '../refChange';
 import { EditSession } from '../EditSession';
 import { Marker } from '../Marker';
 
@@ -28,12 +27,6 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
     constructor(parent: HTMLDivElement) {
         super(parent, "ace_layer ace_marker-layer");
-        refChange(this.uuid, 'MarkerLayer', +1);
-    }
-
-    dispose(): void {
-        refChange(this.uuid, 'MarkerLayer', -1);
-        super.dispose();
     }
 
     setSession(session: EditSession): void {

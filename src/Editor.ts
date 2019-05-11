@@ -1712,10 +1712,6 @@ export class Editor {
         return this._autoscroll;
     }
 
-    updateFontSize(): void {
-        this.renderer.updateFontSize();
-    }
-
     /**
      * @returns The set theme
      */

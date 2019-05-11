@@ -8,12 +8,7 @@ import { stringRepeat } from "../lib/lang";
 import { AbstractLayer } from './AbstractLayer';
 import { Disposable } from '../Disposable';
 import { EditSession } from "../EditSession";
-import { EventBus } from "../EventBus";
-import { EventBusImpl } from "../lib/EventBusImpl";
 import { FoldLine } from "../FoldLine";
-import { FontMetricsMonitor } from "../layer/FontMetrics";
-import { changeCharacterSize } from '../layer/FontMetrics';
-import { refChange } from '../refChange';
 import { TextConfig } from './TextConfig';
 import { Token } from "../Token";
 
@@ -23,21 +18,11 @@ const EOL_CHAR_CRLF = "\xa4";
 const TAB_CHAR = "\u2192";
 const SPACE_CHAR = "\xB7";
 
-export type TextLayerEventName = 'changeCharacterSize';
 
-
-export class TextLayer extends AbstractLayer implements Disposable, EventBus<TextLayerEventName, any, TextLayer> {
-    allowBoldFonts = false;
+export class TextLayer extends AbstractLayer implements Disposable {
     private EOL_CHAR: string;
 
-    private fontMetrics: FontMetricsMonitor | undefined;
-    /**
-     * Used to remove the handler for when the character size changes.
-     */
-    private removeChangeCharacterSizeHandler: (() => void) | undefined;
-
     private session: EditSession;
-    private $pollSizeChangesTimer = 0;
     private showInvisibles = false;
     private displayIndentGuides = true;
 
@@ -47,34 +32,9 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
     private $indentGuideRe: RegExp;
     config: TextConfig;
 
-    private $measureNode: Node;
-
-    private readonly eventBus: EventBusImpl<TextLayerEventName, any, TextLayer>;
-    selectedNode: HTMLElement;
-
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_text-layer");
-        refChange(this.uuid, 'TextLayer', +1);
-        this.eventBus = new EventBusImpl<TextLayerEventName, any, TextLayer>(this);
         this.EOL_CHAR = EOL_CHAR_LF;
-    }
-
-    dispose(): void {
-        if (this.removeChangeCharacterSizeHandler) {
-            this.removeChangeCharacterSizeHandler();
-            this.removeChangeCharacterSizeHandler = undefined;
-        }
-        if (this.fontMetrics) {
-            this.fontMetrics.release();
-            this.fontMetrics = undefined;
-        }
-        clearInterval(this.$pollSizeChangesTimer);
-        if (this.$measureNode && this.$measureNode.parentNode) {
-            this.$measureNode.parentNode.removeChild(this.$measureNode);
-        }
-        delete this.$measureNode;
-        refChange(this.uuid, 'TextLayer', -1);
-        super.dispose();
     }
 
     updateEolChar(): boolean {
@@ -84,48 +44,6 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
             return true;
         } else {
             return false;
-        }
-    }
-
-    getLineHeight(): number {
-        if (this.fontMetrics) {
-            return this.fontMetrics.$characterSize.height || 0;
-        } else {
-            throw new Error("Must set font metrics before calling getLineHeight.");
-        }
-    }
-
-    getCharacterWidth(): number {
-        if (this.fontMetrics) {
-            return this.fontMetrics.$characterSize.width || 0;
-        } else {
-            throw new Error("Must set font metrics before calling getCharacterWidth.");
-        }
-    }
-
-    setFontMetrics(fontMetrics: FontMetricsMonitor): void {
-        this.fontMetrics = fontMetrics;
-        this.fontMetrics.addRef();
-        // TODO: Make sure off is called when fontMetrics are released
-        this.removeChangeCharacterSizeHandler = this.fontMetrics.on(changeCharacterSize, (e) => {
-            this.eventBus._signal(changeCharacterSize, e);
-        });
-        this.$pollSizeChanges();
-    }
-
-    checkForSizeChanges(): void {
-        if (this.fontMetrics) {
-            this.fontMetrics.checkForSizeChanges();
-        } else {
-            throw new Error("Must set font metrics before calling checkForSizeChanges.");
-        }
-    }
-
-    private $pollSizeChanges(): number {
-        if (this.fontMetrics) {
-            return this.$pollSizeChangesTimer = this.fontMetrics.$pollSizeChanges();
-        } else {
-            throw new Error();
         }
     }
 
@@ -166,20 +84,6 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
             this.$computeTabString();
             return true;
         }
-    }
-
-    /**
-     * Returns a function that when called will remove the callback for the specified event.
-     */
-    on(eventName: TextLayerEventName, callback: (event: any, source: TextLayer) => any): () => void {
-        this.eventBus.on(eventName, callback, false);
-        return () => {
-            this.eventBus.off(eventName, callback);
-        };
-    }
-
-    off(eventName: TextLayerEventName, callback: (event: any, source: TextLayer) => any): void {
-        this.eventBus.off(eventName, callback);
     }
 
     // FIXME: DGH Check that this is consistent with ACE

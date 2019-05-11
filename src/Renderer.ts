@@ -13,7 +13,6 @@ import { Annotation } from './Annotation';
 
 import { CursorLayer } from "./layer/CursorLayer";
 import { FontMetricsMonitor } from "./layer/FontMetrics";
-import { changeCharacterSize } from './layer/FontMetrics';
 import { GutterLayer } from "./layer/GutterLayer";
 import { MarkerLayer } from "./layer/MarkerLayer";
 import { TextLayer } from "./layer/TextLayer";
@@ -32,6 +31,10 @@ import { ScreenCoordinates } from './ScreenCoordinates';
 import { ScrollBarEvent } from './events/ScrollBarEvent';
 import { EditorRenderer } from './EditorRenderer';
 import { refChange } from './refChange';
+
+
+export const changeCharacterSize = 'changeCharacterSize';
+
 
 let editorCss: string = null;
 
@@ -196,7 +199,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         h: 0
     };
 
-    private fontMetrics: FontMetricsMonitor;
+    private _fontMetricsMonitor: FontMetricsMonitor;
 
     /**
      * A function that removes the changeCharacterSize handler.
@@ -280,7 +283,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.scroller.appendChild(this.content);
 
         this.$gutterLayer = new GutterLayer(this.$gutter);
-        this.$gutterLayer.on("changeGutterWidth", this.onGutterResize.bind(this));
+        this.$gutterLayer.onWidthChange(this.onGutterResize.bind(this));
 
         this.$markerBack = new MarkerLayer(this.content);
 
@@ -309,11 +312,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
         });
 
-        this.fontMetrics = new FontMetricsMonitor(this.container, 500);
-
-        this.textLayer.setFontMetrics(this.fontMetrics);
-
-        this.removeChangeCharacterSizeHandler = this.textLayer.on(changeCharacterSize, (event, text: TextLayer) => {
+        this._fontMetricsMonitor = new FontMetricsMonitor(this.container, 500);
+        this._fontMetricsMonitor.onChange( () => {
             this.updateCharacterSize();
             this.onResize(true, this.gutterWidth, this.$size.width, this.$size.height);
             this.eventBus._signal(changeCharacterSize, event);
@@ -334,6 +334,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.setFontSize(options.fontSize === undefined ? "16px" : options.fontSize);
         this.setShowFoldWidgets(true);
         this.updateCharacterSize();
+
+        this._fontMetricsMonitor.startPolling();
     }
 
     protected createVScrollBar(container: HTMLElement): VScrollBar {
@@ -353,12 +355,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.removeChangeCharacterSizeHandler = undefined;
         }
 
-        // TODO: Do we need to have the textLayer release the fontMetrics?
-
-        if (this.fontMetrics) {
-            this.fontMetrics.release();
-            this.fontMetrics = undefined;
-        }
+        this._fontMetricsMonitor.dispose();
 
         this.scrollBarHscrollUnhook();
         this.scrollBarH.dispose();
@@ -367,13 +364,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.scrollBarV.dispose();
 
         this.cursorLayer.dispose();
-
         this.$markerFront.dispose();
-
         this.textLayer.dispose();
-
         this.$markerBack.dispose();
-
         this.$gutterLayer.dispose();
 
         this.scroller.removeChild(this.content);
@@ -443,14 +436,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     updateCharacterSize(): void {
-        // FIXME: DGH allowBoldFonts does not exist on TextLayer
-        if (this.textLayer.allowBoldFonts !== this.$allowBoldFonts) {
-            this.$allowBoldFonts = this.textLayer.allowBoldFonts;
+        const newFontMetrics =  this._fontMetricsMonitor.getFontMetrics();
+        if (newFontMetrics.isBoldCompatible !== this.$allowBoldFonts) {
+            this.$allowBoldFonts = newFontMetrics.isBoldCompatible;
             this.setStyle("ace_nobold", !this.$allowBoldFonts);
         }
 
-        this.layerConfig.characterWidth = this.characterWidth = this.textLayer.getCharacterWidth();
-        this.layerConfig.lineHeight = this.lineHeight = this.textLayer.getLineHeight();
+        this.layerConfig.characterWidth = this.characterWidth = newFontMetrics.charWidthPx;
+        this.layerConfig.lineHeight = this.lineHeight = newFontMetrics.charHeightPx;
         this.$updatePrintMargin();
     }
 
@@ -573,21 +566,17 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param force If `true`, forces the changes through.
      */
     updateFull(force?: boolean): void {
-        if (force)
+        if (force) {
             this.$renderChanges(CHANGE_FULL, true);
-        else
+        } else {
             this.$loop.schedule(CHANGE_FULL);
-    }
-
-    updateFontSize(): void {
-        this.textLayer.checkForSizeChanges();
+        }
     }
 
     private $updateSizeAsync(): void {
         if (this.$loop.pending) {
             this.$size.$dirty = true;
-        }
-        else {
+        } else {
             this.onResize();
         }
     }
@@ -886,6 +875,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
     }
 
+    updateFontSize(): void {
+
+    }
+    
     setHighlightGutterLine(highlightGutterLine: boolean): void {
         this.$highlightGutterLine = highlightGutterLine;
         if (!this.$gutterLineHighlight) {
@@ -1155,9 +1148,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$changes |= changes;
             this.onResize(true);
             return;
-        }
-        if (!this.lineHeight) {
-            this.textLayer.checkForSizeChanges();
         }
 
         this.eventBus._signal("beforeRender");

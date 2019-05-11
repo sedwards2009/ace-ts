@@ -152,17 +152,21 @@ export class ListViewPopup implements ListView {
                 this.setHoverMarker(row, true);
             }
         });
+        let textLayerSelectedNode = null;
         this.editor.renderer.on("afterRender", () => {
             const row = this.getRow();
             const t = this.editor.renderer.textLayer;
             const selected = <HTMLElement>t.element.childNodes[row - t.config.firstRow];
-            if (selected === t.selectedNode)
+            if (selected === textLayerSelectedNode) {
                 return;
-            if (t.selectedNode)
-                removeCssClass(t.selectedNode, "ace_selected");
-            t.selectedNode = selected;
-            if (selected)
+            }
+            if (textLayerSelectedNode) {
+                removeCssClass(textLayerSelectedNode, "ace_selected");
+            }
+            textLayerSelectedNode = selected;
+            if (selected) {
                 addCssClass(selected, "ace_selected");
+            }
         });
 
         const hideHoverMarker = () => { this.setHoverMarker(-1); };
@@ -256,7 +260,6 @@ export class ListViewPopup implements ListView {
         }
 
         el.style.display = "";
-        renderer.textLayer.checkForSizeChanges();
 
         let left = pos.left;
         if (left + el.offsetWidth > screenWidth) {

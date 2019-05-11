@@ -183,7 +183,7 @@ export function createAutoComplete(editor: Editor, fileNameProvider: () => strin
                         const rect: ClientRect = editor.container.getBoundingClientRect();
                         pos.top += rect.top - editor.renderer.layerConfig.offset;
                         pos.left += rect.left - editor.renderer.scrollLeft;
-                        pos.left += editor.renderer.$gutterLayer.gutterWidth;
+                        pos.left += editor.renderer.$gutterLayer.getGutterWidthPx();
 
                         _view.listElement.innerHTML = html;
                         _view.show(pos, lineHeight, false);

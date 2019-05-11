@@ -120,9 +120,6 @@ export class AutoCompleteView {
         }
 
         el.style.display = "block";
-        // FIXME: This seems to be correct. Why is it not caught by TypeScript?
-        // renderer.textLayer.checkForSizeChanges();
-        renderer.textLayer.checkForSizeChanges();
 
         let left = pos.left;
         if (left + el.offsetWidth > screenWidth) {

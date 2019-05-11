@@ -7,23 +7,20 @@ import { addCssClass, createElement, removeCssClass, setStyle } from "../lib/dom
 
 import { AbstractLayer } from './AbstractLayer';
 import { escapeHTML } from "../lib/escapeHTML";
-import { EventBusImpl } from "../lib/EventBusImpl";
 import { Delta } from "../Delta";
 import { EditSession } from "../EditSession";
-import { EventBus } from "../EventBus";
 import { FoldWidget } from "../FoldWidget";
 import { Annotation } from "../Annotation";
 import { GutterConfig } from "./GutterConfig";
 import { Padding } from './Padding';
 import { GutterRenderer } from './GutterRenderer';
 import { GutterCell } from './GutterCell';
-import { refChange } from '../refChange';
 import { Cell, Lines } from './Lines';
 import { FoldLine } from "../FoldLine";
 import { toPixelString } from "../dom/toPixelString";
+import { EventEmitter } from "../EventEmitter";
+import { Event } from '../Event';
 
-export const changeGutterWidth = 'changeGutterWidth';
-export type GutterLayerEventName = 'changeGutterWidth';
 
 function isGutterRenderer(x: GutterRenderer | boolean | string): x is GutterRenderer {
     return x && typeof x !== 'boolean' && typeof x !== 'string';
@@ -39,9 +36,9 @@ function onCreateCell(element: HTMLDivElement) {
     return element;
 }
 
-export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEventName, number, GutterLayer> {
+export class GutterLayer extends AbstractLayer {
 
-    gutterWidth = 0;
+    private _gutterWidthPx = 0;
     private oldLastRow: number;
 
     /**
@@ -63,34 +60,21 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
     private $renderer: GutterRenderer | boolean | string = "";
     private session: EditSession;
     $padding: Padding | null;
-    private readonly eventBus = new EventBusImpl<GutterLayerEventName, any, GutterLayer>(this);
     private readonly $lines: Lines;
+
+    private _onWidthChangeEventEmitter = new EventEmitter<number>();
+    onWidthChange: Event<number>;
 
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_gutter-layer");
-        refChange(this.uuid, 'GutterLayer', +1);
+        this.onWidthChange = this._onWidthChangeEventEmitter.event;
         this.setShowFoldWidgets(true);
         this.$lines = new Lines(this.element);
         this.$lines.$offsetCoefficient = 1;
     }
 
-    dispose(): void {
-        refChange(this.uuid, 'GutterLayer', -1);
-        super.dispose();
-    }
-
-    /**
-     * Returns a function for removing the callback, or you can call the `off` method.
-     */
-    on(eventName: GutterLayerEventName, callback: (event: any, source: GutterLayer) => any): () => void {
-        this.eventBus.on(eventName, callback, false);
-        return () => {
-            this.eventBus.off(eventName, callback);
-        };
-    }
-
-    off(eventName: GutterLayerEventName, callback: (event: any, source: GutterLayer) => any): void {
-        this.eventBus.off(eventName, callback);
+    getGutterWidthPx(): number {
+        return this._gutterWidthPx;
     }
 
     setSession(session: EditSession): void {
@@ -269,10 +253,10 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
 
         const padding = this.$padding || this.$computePadding();
         gutterWidth += padding.left + padding.right;
-        if (gutterWidth !== this.gutterWidth && !isNaN(gutterWidth)) {
-            this.gutterWidth = gutterWidth;
-            this.element.style.width = Math.ceil(this.gutterWidth) + "px";
-            this.eventBus._emit(changeGutterWidth, gutterWidth);
+        if (gutterWidth !== this._gutterWidthPx && !isNaN(gutterWidth)) {
+            this._gutterWidthPx = gutterWidth;
+            this.element.style.width = Math.ceil(this._gutterWidthPx) + "px";
+            this._onWidthChangeEventEmitter.fire(gutterWidth);
         }
     }
 
@@ -295,10 +279,10 @@ export class GutterLayer extends AbstractLayer implements EventBus<GutterLayerEv
 
         const padding = this.$padding || this.$computePadding();
         gutterWidth += padding.left + padding.right;
-        if (gutterWidth !== this.gutterWidth && !isNaN(gutterWidth)) {
-            this.gutterWidth = gutterWidth;
-            (this.element.parentNode as HTMLElement).style.width = this.element.style.width = Math.ceil(this.gutterWidth) + "px";
-            this.eventBus._emit(changeGutterWidth, gutterWidth);
+        if (gutterWidth !== this._gutterWidthPx && !isNaN(gutterWidth)) {
+            this._gutterWidthPx = gutterWidth;
+            (this.element.parentNode as HTMLElement).style.width = this.element.style.width = Math.ceil(this._gutterWidthPx) + "px";
+            this._onWidthChangeEventEmitter.fire(gutterWidth);
         }
     }
 

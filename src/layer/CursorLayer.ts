@@ -11,7 +11,6 @@ import { EditSession } from '../EditSession';
 import { PixelPosition } from '../PixelPosition';
 import { Position } from '../Position';
 import { Interval } from '../Interval';
-import { refChange } from '../refChange';
 
 const PIXEL_POSITION_ZERO = { left: 0, top: 0 };
 
@@ -35,7 +34,6 @@ export class CursorLayer extends AbstractLayer implements Disposable {
 
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_cursor-layer");
-        refChange(this.uuid, 'CursorLayer', +1);
 
         this.cursor = this.addCursor();
         addCssClass(this.element, "ace_hidden-cursors");
@@ -45,7 +43,6 @@ export class CursorLayer extends AbstractLayer implements Disposable {
     dispose(): void {
         this.blinker.release();
         clearTimeout(this.timeoutId);
-        refChange(this.uuid, 'CursorLayer', -1);
         super.dispose();
     }
 
