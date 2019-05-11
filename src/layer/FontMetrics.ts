@@ -27,15 +27,17 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
     private el: HTMLDivElement;
     private $main: HTMLDivElement;
     private $measureNode: HTMLDivElement;
-    public $characterSize = { width: 0, height: 0 };
+
+    $characterSize = { width: 0, height: 0 };
+
     private charSizes: { [ch: string]: number };
-    public allowBoldFonts: boolean;
+
+    allowBoldFonts: boolean;
+    
     private $pollSizeChangesTimer: number;
     private eventBus: EventEmitterClass<FontMetricsEventName, any, FontMetrics>;
     private refCount = 1;
-    /**
-     * 
-     */
+
     protected readonly uuid = `${Math.random()}`;
 
     /**
@@ -98,9 +100,6 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
         return this.eventBus.on(eventName, callback, false);
     }
 
-    /**
-     * 
-     */
     off(eventName: FontMetricsEventName, callback: (event: any, source: FontMetrics) => any): void {
         this.eventBus.off(eventName, callback);
     }
@@ -133,7 +132,7 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
         style.overflow = isRoot ? "hidden" : "visible";
     }
 
-    public checkForSizeChanges(): void {
+    checkForSizeChanges(): void {
         const size = this.$measureSizes();
         if (size && (this.$characterSize.width !== size.width || this.$characterSize.height !== size.height)) {
             this.$measureNode.style.fontWeight = "bold";
@@ -159,7 +158,7 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
         }
     }
 
-    public $pollSizeChanges(): number {
+    $pollSizeChanges(): number {
         if (this.$pollSizeChangesTimer) {
             return this.$pollSizeChangesTimer;
         }
@@ -168,7 +167,7 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
         }, 500);
     }
 
-    public setPolling(val: boolean): void {
+    setPolling(val: boolean): void {
         if (val) {
             this.$pollSizeChanges();
         }
@@ -214,7 +213,7 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
         return rect.width / CHAR_COUNT;
     }
 
-    public getCharacterWidth(ch: string): number {
+    getCharacterWidth(ch: string): number {
         let w = this.charSizes[ch];
         if (w === undefined) {
             w = this.charSizes[ch] = this.$measureCharWidth(ch) / this.$characterSize.width;
