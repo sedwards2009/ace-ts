@@ -13,7 +13,7 @@ import { hasHTMLLinkElement } from './dom/hasHTMLLinkElement';
 import { Annotation } from './Annotation';
 
 import { CursorLayer } from "./layer/CursorLayer";
-import { FontMetrics } from "./layer/FontMetrics";
+import { FontMetricsMonitor } from "./layer/FontMetrics";
 import { changeCharacterSize } from './layer/FontMetrics';
 import { GutterLayer } from "./layer/GutterLayer";
 import { MarkerLayer } from "./layer/MarkerLayer";
@@ -197,7 +197,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         h: 0
     };
 
-    private fontMetrics: FontMetrics | undefined;
+    private fontMetrics: FontMetricsMonitor | undefined;
 
     /**
      * A function that removes the changeCharacterSize handler.
@@ -310,7 +310,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
         });
 
-        this.fontMetrics = new FontMetrics(this.container, 500);
+        this.fontMetrics = new FontMetricsMonitor(this.container, 500);
 
         this.textLayer.setFontMetrics(this.fontMetrics);
 

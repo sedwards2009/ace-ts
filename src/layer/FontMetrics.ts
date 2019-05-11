@@ -19,11 +19,11 @@ export const changeCharacterSize = 'changeCharacterSize';
 export type FontMetricsEventName = 'changeCharacterSize';
 
 /**
- * FontMetrics sets up a timer that repeatedly checks for changes in font sizes.
+ * FontMetricsMonitor sets up a timer that repeatedly checks for changes in font sizes.
  * It raises the event 'changeCharacterSize'.
  * It is used by the Renderer and the TextLayer.
  */
-export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetrics>, Shareable {
+export class FontMetricsMonitor implements EventBus<FontMetricsEventName, any, FontMetricsMonitor>, Shareable {
     private el: HTMLDivElement;
     private $main: HTMLDivElement;
     private $measureNode: HTMLDivElement;
@@ -35,7 +35,7 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
     allowBoldFonts: boolean;
     
     private $pollSizeChangesTimer: number;
-    private eventBus: EventEmitterClass<FontMetricsEventName, any, FontMetrics>;
+    private eventBus: EventEmitterClass<FontMetricsEventName, any, FontMetricsMonitor>;
     private refCount = 1;
 
     protected readonly uuid = `${Math.random()}`;
@@ -47,7 +47,7 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
     // FIXME: The interval should be being used to configure the polling interval (normally 500ms)
     constructor(parent: HTMLElement, pollingInterval: number) {
         refChange(this.uuid, 'FontMetrics', +1);
-        this.eventBus = new EventEmitterClass<FontMetricsEventName, any, FontMetrics>(this);
+        this.eventBus = new EventEmitterClass<FontMetricsEventName, any, FontMetricsMonitor>(this);
 
         this.el = <HTMLDivElement>createElement("div");
         this.$setMeasureNodeStyles(this.el.style, true);
@@ -96,11 +96,11 @@ export class FontMetrics implements EventBus<FontMetricsEventName, any, FontMetr
     /**
      * Returns a function that will remove the event handler.
      */
-    on(eventName: FontMetricsEventName, callback: (event: any, source: FontMetrics) => any): () => void {
+    on(eventName: FontMetricsEventName, callback: (event: any, source: FontMetricsMonitor) => any): () => void {
         return this.eventBus.on(eventName, callback, false);
     }
 
-    off(eventName: FontMetricsEventName, callback: (event: any, source: FontMetrics) => any): void {
+    off(eventName: FontMetricsEventName, callback: (event: any, source: FontMetricsMonitor) => any): void {
         this.eventBus.off(eventName, callback);
     }
 

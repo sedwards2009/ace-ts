@@ -11,7 +11,7 @@ import { EditSession } from "../EditSession";
 import { EventBus } from "../EventBus";
 import { EventEmitterClass } from "../lib/EventEmitterClass";
 import { FoldLine } from "../FoldLine";
-import { FontMetrics } from "../layer/FontMetrics";
+import { FontMetricsMonitor } from "../layer/FontMetrics";
 import { changeCharacterSize } from '../layer/FontMetrics';
 import { refChange } from '../refChange';
 import { TextConfig } from './TextConfig';
@@ -30,7 +30,7 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
     allowBoldFonts = false;
     private EOL_CHAR: string;
 
-    private fontMetrics: FontMetrics | undefined;
+    private fontMetrics: FontMetricsMonitor | undefined;
     /**
      * Used to remove the handler for when the character size changes.
      */
@@ -103,7 +103,7 @@ export class TextLayer extends AbstractLayer implements Disposable, EventBus<Tex
         }
     }
 
-    setFontMetrics(fontMetrics: FontMetrics): void {
+    setFontMetrics(fontMetrics: FontMetricsMonitor): void {
         this.fontMetrics = fontMetrics;
         this.fontMetrics.addRef();
         // TODO: Make sure off is called when fontMetrics are released
