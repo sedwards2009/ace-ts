@@ -194,8 +194,8 @@ export class CursorLayer extends AbstractLayer implements Disposable {
 
     private getPixelPositionForRow(position: Position, firstRow: number): PixelPosition {
         const pos = this.session.documentToScreenPosition(position.row, position.column);
-        const cursorLeft = pos.column * this.config.characterWidth;
-        const cursorTop = (pos.row - firstRow) * this.config.lineHeight;
+        const cursorLeft = pos.column * this.config.charWidthPx;
+        const cursorTop = (pos.row - firstRow) * this.config.charHeightPx;
 
         return { left: cursorLeft, top: cursorTop };
     }
@@ -218,7 +218,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         for (let i = 0; i < n; i++) {
             pixelPos = this.getPixelPosition(selections[i].cursor, true);
 
-            if ((pixelPos.top > config.height + config.verticalOffsetPx ||
+            if ((pixelPos.top > config.docHeightPx + config.verticalOffsetPx ||
                 pixelPos.top < 0) && i > 1) {
                 continue;
             }
@@ -227,8 +227,8 @@ export class CursorLayer extends AbstractLayer implements Disposable {
 
             style.left = pixelPos.left + "px";
             style.top = pixelPos.top + "px";
-            style.width = config.characterWidth + "px";
-            style.height = config.lineHeight + "px";
+            style.width = config.charWidthPx + "px";
+            style.height = config.charHeightPx + "px";
         }
 
         while (this.cursors.length > cursorIndex) {

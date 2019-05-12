@@ -181,7 +181,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
                 this.$renderLine(
                     html, row, !this.$useLineGroups(), row === foldStart ? foldLine : false
                 );
-                lineElement.style.height = config.lineHeight * this.session.getRowLength(row) + "px";
+                lineElement.style.height = config.charHeightPx * this.session.getRowLength(row) + "px";
                 lineElement.innerHTML = html.join("");
             }
             row++;
@@ -262,7 +262,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
             if (this.$useLineGroups()) {
                 container.className = 'ace_line_group';
                 fragment.appendChild(container);
-                container.style.height = config.lineHeight * this.session.getRowLength(row) + "px";
+                container.style.height = config.charHeightPx * this.session.getRowLength(row) + "px";
 
             } else {
                 while (container.firstChild) {
@@ -300,7 +300,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
             }
 
             if (this.$useLineGroups()) {
-                html.push("<div class='ace_line_group' style='height:", config.lineHeight * this.session.getRowLength(row), "px'>");
+                html.push("<div class='ace_line_group' style='height:", config.charHeightPx * this.session.getRowLength(row), "px'>");
             }
 
             this.$renderLine(html, row, false, row === foldStart ? foldLine : false);
@@ -336,14 +336,14 @@ export class TextLayer extends AbstractLayer implements Disposable {
                 const space = this.showInvisibles ? SPACE_CHAR : "";
                 screenColumn += 1;
                 return "<span class='" + classToUse + "' style='width:" +
-                    (this.config.characterWidth * 2) +
+                    (this.config.charWidthPx * 2) +
                     "px'>" + space + "</span>";
             } else if (b) {
                 return "<span class='ace_invisible ace_invisible_space ace_invalid'>" + SPACE_CHAR + "</span>";
             } else {
                 screenColumn += 1;
                 return "<span class='ace_cjk' style='width:" +
-                    (this.config.characterWidth * 2) +
+                    (this.config.charWidthPx * 2) +
                     "px'>" + c + "</span>";
             }
         };
@@ -354,7 +354,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
             const classes = "ace_" + token.type.replace(/\./g, " ace_");
             let style = "";
             if (token.type === "fold")
-                style = " style='width:" + (token.value.length * this.config.characterWidth) + "px;' ";
+                style = " style='width:" + (token.value.length * this.config.charWidthPx) + "px;' ";
             stringBuilder.push("<span class='", classes, "'", style, ">", output, "</span>");
         } else {
             stringBuilder.push(output);
@@ -412,7 +412,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
                     if (!onlyContents) {
                         stringBuilder.push("</div>",
                             "<div class='ace_line' style='height:",
-                            this.config.lineHeight, "px'>"
+                            this.config.charHeightPx, "px'>"
                         );
                     }
 
@@ -458,7 +458,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
         if (!onlyContents) {
             stringBuilder.push(
                 "<div class='ace_line' style='height:",
-                this.config.lineHeight * (
+                this.config.charHeightPx * (
                     this.$useLineGroups() ? 1 : this.session.getRowLength(row)
                 ), "px'>"
             );

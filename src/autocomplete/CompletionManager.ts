@@ -128,13 +128,8 @@ export class CompletionManager {
             "Return": (editor: Editor) => { return this.insertMatch(); },
             "Shift-Return": (editor: Editor) => { this.insertMatch(null, { deleteSuffix: true }); },
             "Tab": (editor: Editor) => {
-                const result = this.insertMatch();
-                if (!result) {
-                    this.goTo("down");
-                }
-                else {
-                    return result;
-                }
+                this.insertMatch();
+                this.goTo("down");
             },
 
             "PageUp": (editor: Editor) => { this.goTo('pageUp'); },
@@ -214,9 +209,6 @@ export class CompletionManager {
         this.completions = null;
     }
 
-    /**
-     *
-     */
     private insertMatch(data?: Completion | null, options?: { deleteSuffix: boolean }): void {
         if (!data) {
             if (this.popup) {
@@ -438,14 +430,14 @@ export class CompletionManager {
             this.popup.setThemeDark(true);
             this.popup.setFontSize(editor.getFontSize());
 
-            const lineHeight = renderer.layerConfig.lineHeight;
+            const lineHeight = renderer.layerConfig.charHeightPx;
 
             const pos: PixelPosition = renderer.getPixelPosition(this.base, /*onScreen*/true);
             pos.left -= this.popup.getTextLeftOffset();
 
             const rect: ClientRect = editor.container.getBoundingClientRect();
             pos.top += rect.top - renderer.layerConfig.verticalOffsetPx;
-            pos.left += rect.left - renderer.scrollLeft;
+            pos.left += rect.left - renderer.scrollLeftPx;
             pos.left += renderer.gutterWidth;
 
             this.popup.show(pos, lineHeight);

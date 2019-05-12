@@ -30,25 +30,25 @@ export class Lines {
     }
 
     moveContainer(config: LayerConfig): void {
-        translate(this.element, 0, -((config.firstRowScreen * config.lineHeight) % this.canvasHeight) - config.verticalOffsetPx * this.$offsetCoefficient);
+        translate(this.element, 0, -((config.firstRowScreen * config.charHeightPx) % this.canvasHeight) - config.verticalOffsetPx * this.$offsetCoefficient);
     }
 
     pageChanged(oldConfig: LayerConfig, newConfig: LayerConfig): boolean {
         return (
-            Math.floor((oldConfig.firstRowScreen * oldConfig.lineHeight) / this.canvasHeight) !==
-            Math.floor((newConfig.firstRowScreen * newConfig.lineHeight) / this.canvasHeight)
+            Math.floor((oldConfig.firstRowScreen * oldConfig.charHeightPx) / this.canvasHeight) !==
+            Math.floor((newConfig.firstRowScreen * newConfig.charHeightPx) / this.canvasHeight)
         );
     }
 
     computeLineTop(row: number, config: LayerConfig, session: EditSession): number {
-        const screenTop = config.firstRowScreen * config.lineHeight;
+        const screenTop = config.firstRowScreen * config.charHeightPx;
         const screenPage = Math.floor(screenTop / this.canvasHeight);
-        const lineTop = session.documentToScreenRow(row, 0) * config.lineHeight;
+        const lineTop = session.documentToScreenRow(row, 0) * config.charHeightPx;
         return lineTop - (screenPage * this.canvasHeight);
     }
 
     computeLineHeight(row: number, config: LayerConfig, session: EditSession): number {
-        return config.lineHeight * session.getRowLength(row);
+        return config.charHeightPx * session.getRowLength(row);
     }
 
     getLength(): number {

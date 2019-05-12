@@ -121,21 +121,21 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     textarea: HTMLTextAreaElement;
     container: HTMLElement;
-    scrollLeft = 0;
-    scrollTop = 0;
+    scrollLeftPx = 0;
+    scrollTopPx = 0;
     layerConfig: LayerConfig = {
-        width: 1,
-        visibleWidth: 1,
+        docWidthPx: 1,
+        visibleWidthPx: 1,
         firstRow: 0,
         firstRowScreen: 0,
         lastRow: 0,
-        lineHeight: 0,
-        characterWidth: 0,
-        minHeight: 1,
-        maxHeight: 1,
+        charHeightPx: 0,
+        charWidthPx: 0,
+        minHeightPx: 1,
+        maxHeightPx: 1,
         verticalOffsetPx: 0,
-        height: 1,
-        gutterOffset: 1
+        docHeightPx: 1,
+        gutterOffsetRows: 1
     };
 
     private $maxLines: number;
@@ -212,16 +212,23 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * A cache of various sizes TBA.
      */
-    $size: { height: number; width: number; scrollerHeight: number; scrollerWidth: number; $dirty: boolean };
+    $size: {
+        heightPx: number;
+        widthPx: number;
+        scrollerHeightPx: number;
+        scrollerWidthPx: number;
+        $dirty: boolean;
+    };
 
     private $loop: RenderLoop;
     private $changedLines: { firstRow: number; lastRow: number; } | null;
     private $changes = 0;
     private resizing: number;
     private $gutterLineHighlight: HTMLDivElement;
+
     // FIXME: Why do we have two?
     gutterWidth: number;
-    private $gutterWidth: number;
+    private $gutterWidth: number;   // FIXME remove this
 
     /**
      * TODO: Create a PrintMarginLayer class in the layer folder.
@@ -230,11 +237,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private $printMarginColumn = 80;
     private $showPrintMargin: boolean;
 
-    /**
-     * The character width, in pixels.
-     */
-    characterWidth: number;
-    lineHeight: number;
+    charWidthPx: number;
+    charHeightPx: number;
 
     private $extraHeight: number;
     private $composition: { keepTextAreaAtCursor: boolean | null; cssText: string } | null;
@@ -316,15 +320,15 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this._fontMetricsMonitor = new FontMetricsMonitor(this.container, 500);
         this._fontMetricsMonitor.onChange( () => {
             this.updateCharacterSize();
-            this.onResize(true, this.gutterWidth, this.$size.width, this.$size.height);
+            this.onResize(true, this.gutterWidth, this.$size.widthPx, this.$size.heightPx);
             this.eventBus._signal(changeCharacterSize, event);
         });
 
         this.$size = {
-            width: 0,
-            height: 0,
-            scrollerHeight: 0,
-            scrollerWidth: 0,
+            widthPx: 0,
+            heightPx: 0,
+            scrollerHeightPx: 0,
+            scrollerWidthPx: 0,
             $dirty: true
         };
 
@@ -443,8 +447,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.setStyle("ace_nobold", !this.$allowBoldFonts);
         }
 
-        this.layerConfig.characterWidth = this.characterWidth = newFontMetrics.charWidthPx;
-        this.layerConfig.lineHeight = this.lineHeight = newFontMetrics.charHeightPx;
+        this.layerConfig.charWidthPx = this.charWidthPx = newFontMetrics.charWidthPx;
+        this.layerConfig.charHeightPx = this.charHeightPx = newFontMetrics.charHeightPx;
         this.$updatePrintMargin();
     }
 
@@ -606,8 +610,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             height = rect.height;
 
             // If the height fails to be a multiple of lineHeight by more than 1px, then trim it.
-            if (this.lineHeight - (height % this.lineHeight) > 1) {
-                height -= height % this.lineHeight;
+            if (this.charHeightPx - (height % this.charHeightPx) > 1) {
+                height -= height % this.charHeightPx;
             }
         }
 
@@ -616,7 +620,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
         const changes = this.$updateCachedSize(force, gutterWidth, width, height);
 
-        if (!this.$size.scrollerHeight || (!width && !height)) {
+        if (!this.$size.scrollerHeightPx || (!width && !height)) {
             this.resizing = 0
             return false;
         }
@@ -640,23 +644,23 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return changes !== 0;
     }
 
-    private $updateCachedSize(force: boolean, gutterWidthPixels: number, width: number, height: number): number {
-        height -= (this.$extraHeight || 0);
+    private $updateCachedSize(force: boolean, gutterWidthPixels: number, widthPx: number, heightPx: number): number {
+        heightPx -= (this.$extraHeight || 0);
         let changes = 0;
         const size = this.$size;
         const oldSize = {
-            width: size.width,
-            height: size.height,
-            scrollerHeight: size.scrollerHeight,
-            scrollerWidth: size.scrollerWidth
+            width: size.widthPx,
+            height: size.heightPx,
+            scrollerHeight: size.scrollerHeightPx,
+            scrollerWidth: size.scrollerWidthPx
         };
-        if (height && (force || size.height !== height)) {
-            size.height = height;
+        if (heightPx && (force || size.heightPx !== heightPx)) {
+            size.heightPx = heightPx;
             changes |= CHANGE_SIZE;
 
-            size.scrollerHeight = size.height;
+            size.scrollerHeightPx = size.heightPx;
             if (this.$horizScroll) {
-                size.scrollerHeight -= this.scrollBarH.height;
+                size.scrollerHeightPx -= this.scrollBarH.height;
             }
 
             this.scrollBarV.element.style.bottom = pixelStyle(this.scrollBarH.height);
@@ -664,9 +668,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             changes = changes | CHANGE_SCROLL;
         }
 
-        if (width && (force || size.width !== width)) {
+        if (widthPx && (force || size.widthPx !== widthPx)) {
             changes |= CHANGE_SIZE;
-            size.width = width;
+            size.widthPx = widthPx;
 
             if (typeof gutterWidthPixels !== 'number') {
                 gutterWidthPixels = this.$showGutter ? this.$gutter.offsetWidth : 0;
@@ -675,7 +679,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.gutterWidth = gutterWidthPixels;
 
             this.scrollBarH.element.style.left = this.scroller.style.left = pixelStyle(gutterWidthPixels);
-            size.scrollerWidth = Math.max(0, width - gutterWidthPixels - this.scrollBarV.width);
+            size.scrollerWidthPx = Math.max(0, widthPx - gutterWidthPixels - this.scrollBarV.width);
 
             this.scrollBarH.element.style.right = this.scroller.style.right = pixelStyle(this.scrollBarV.width);
             this.scroller.style.bottom = pixelStyle(this.scrollBarH.height);
@@ -685,7 +689,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
         }
 
-        size.$dirty = !width || !height;
+        size.$dirty = !widthPx || !heightPx;
 
         if (changes) {
             this.eventBus._signal("resize", oldSize);
@@ -697,7 +701,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private onGutterResize() {
         const gutterWidth = this.$showGutter ? this.$gutter.offsetWidth : 0;
         if (gutterWidth !== this.gutterWidth) {
-            this.$changes |= this.$updateCachedSize(true, gutterWidth, this.$size.width, this.$size.height);
+            this.$changes |= this.$updateCachedSize(true, gutterWidth, this.$size.widthPx, this.$size.heightPx);
         }
 
         if (this.session && this.session.getUseWrapMode() && this.adjustWrapLimit()) {
@@ -725,8 +729,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Adjusts the wrap limit, which is the number of characters that can fit within the width of the edit area on screen.
      */
     adjustWrapLimit(): boolean {
-        const availableWidth = this.$size.scrollerWidth;
-        const limit = Math.floor(availableWidth / this.characterWidth);
+        const availableWidth = this.$size.scrollerWidthPx;
+        const limit = Math.floor(availableWidth / this.charWidthPx);
         if (this.$showPrintMargin) {
             return this.sessionOrThrow().adjustWrapLimit(limit, this.$printMarginColumn);
         }
@@ -907,7 +911,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     $updateGutterLineHighlight() {
         const session = this.sessionOrThrow();
         let pos = this.cursorLayer.$pixelPos;
-        let height = this.layerConfig.lineHeight;
+        let height = this.layerConfig.charHeightPx;
         if (session.getUseWrapMode()) {
             const selection = session.selection;
             if (selection) {
@@ -935,7 +939,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const style = this.$printMarginEl.style;
-        style.left = pixelStyle((this.characterWidth * this.$printMarginColumn));
+        style.left = pixelStyle((this.charWidthPx * this.$printMarginColumn));
         style.visibility = this.$showPrintMargin ? "visible" : "hidden";
 
         // FIXME: Should this be $useWrapMode?
@@ -987,27 +991,27 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         let posLeft = this.cursorLayer.$pixelPos.left;
         posTop -= config.verticalOffsetPx;
 
-        let h = this.lineHeight;
-        if (posTop < 0 || posTop > config.height - h) {
+        let h = this.charHeightPx;
+        if (posTop < 0 || posTop > config.docHeightPx - h) {
             return;
         }
 
-        let w = this.characterWidth;
+        let w = this.charWidthPx;
         if (this.$composition) {
             const val = this.textarea.value.replace(/^\x01+/, "");
             w *= session.$getStringScreenWidth(val)[0];
         }
 
-        posLeft -= this.scrollLeft;
-        if (posLeft > this.$size.scrollerWidth - w) {
-            posLeft = this.$size.scrollerWidth - w;
+        posLeft -= this.scrollLeftPx;
+        if (posLeft > this.$size.scrollerWidthPx - w) {
+            posLeft = this.$size.scrollerWidthPx - w;
         }
         posLeft -= this.scrollBarV.width;
 
         this.textarea.style.height = pixelStyle(h);
         this.textarea.style.width = pixelStyle(w);
-        this.textarea.style.right = pixelStyle(Math.max(0, this.$size.scrollerWidth - posLeft - w));
-        this.textarea.style.bottom = pixelStyle(Math.max(0, this.$size.height - posTop - h));
+        this.textarea.style.right = pixelStyle(Math.max(0, this.$size.scrollerWidthPx - posLeft - w));
+        this.textarea.style.bottom = pixelStyle(Math.max(0, this.$size.heightPx - posTop - h));
     }
 
     /**
@@ -1030,7 +1034,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * "Fully" here means that the characters in the row are not truncated; that the top and the bottom of the row are on the screen.
      */
     getLastFullyVisibleRow(): number {
-        const flint = Math.floor((this.layerConfig.height + this.layerConfig.verticalOffsetPx) / this.layerConfig.lineHeight);
+        const flint = Math.floor((this.layerConfig.docHeightPx + this.layerConfig.verticalOffsetPx) / this.layerConfig.charHeightPx);
         return this.layerConfig.firstRow - 1 + flint;
     }
 
@@ -1049,7 +1053,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         sm.left = left | 0;
         sm.v = sm.top + sm.bottom;
         sm.h = sm.left + sm.right;
-        if (sm.top && this.scrollTop <= 0 && this.session)
+        if (sm.top && this.scrollTopPx <= 0 && this.session)
             this.setScrollTop(-sm.top);
         this.updateFull();
     }
@@ -1102,30 +1106,30 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
 
     private $updateScrollBarV(): void {
-        let scrollHeight = this.layerConfig.maxHeight;
-        const scrollerHeight = this.$size.scrollerHeight;
+        let scrollHeightPx = this.layerConfig.maxHeightPx;
+        const scrollerHeightPx = this.$size.scrollerHeightPx;
         if (!this.$maxLines && this.$scrollPastEnd) {
-            scrollHeight -= (scrollerHeight - this.lineHeight) * this.$scrollPastEnd;
-            if (this.scrollTop > scrollHeight - scrollerHeight) {
-                scrollHeight = this.scrollTop + scrollerHeight;
+            scrollHeightPx -= (scrollerHeightPx - this.charHeightPx) * this.$scrollPastEnd;
+            if (this.scrollTopPx > scrollHeightPx - scrollerHeightPx) {
+                scrollHeightPx = this.scrollTopPx + scrollerHeightPx;
                 // FIXME: This is hacky.
                 // The idea seems to be to force the scrollbar to change.
                 this.scrollBarV.scrollTop = null;
             }
         }
         this.scrollBarV
-            .setScrollHeight(scrollHeight + this.scrollMargin.v)
-            .setScrollTop(this.scrollTop + this.scrollMargin.top);
+            .setScrollHeight(scrollHeightPx + this.scrollMargin.v)
+            .setScrollTop(this.scrollTopPx + this.scrollMargin.top);
     }
 
     private $updateScrollBarH(): void {
         const layerWidth = this._scrollHTracking === HScrollTracking.WHOLE_DOCUMENT
-                                ? this.layerConfig.width
-                                : this.layerConfig.visibleWidth;
+                                ? this.layerConfig.docWidthPx
+                                : this.layerConfig.visibleWidthPx;
         const scrollWidth = layerWidth + this.scrollMargin.h;
         this.scrollBarH
             .setScrollWidth(scrollWidth)
-            .setScrollLeft(this.scrollLeft + this.scrollMargin.left);
+            .setScrollLeft(this.scrollLeftPx + this.scrollMargin.left);
     }
 
     freeze(): void {
@@ -1172,7 +1176,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             // have changed, but the first actual row will. In that case, adjust 
             // scrollTop so that the cursor and onscreen content stays in the same place.
             if (config.firstRow !== this.layerConfig.firstRow && config.firstRowScreen === this.layerConfig.firstRowScreen) {
-                this.scrollTop = this.scrollTop + (config.firstRow - this.layerConfig.firstRow) * this.lineHeight;
+                this.scrollTopPx = this.scrollTopPx + (config.firstRow - this.layerConfig.firstRow) * this.charHeightPx;
                 changes = changes | CHANGE_SCROLL;
                 changes |= this.$computeLayerConfig();
             }
@@ -1184,13 +1188,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
             this.$gutterLayer.element.style.marginTop = pixelStyle(-config.verticalOffsetPx);
             this.content.style.marginTop = pixelStyle(-config.verticalOffsetPx);
-            this.content.style.width = pixelStyle(config.width);
-            this.content.style.height = pixelStyle(config.minHeight);
+            this.content.style.width = pixelStyle(config.docWidthPx);
+            this.content.style.height = pixelStyle(config.minHeightPx);
         }
 
         if (changes & CHANGE_H_SCROLL) {
-            this.content.style.marginLeft = pixelStyle(-this.scrollLeft);
-            this.scroller.className = this.scrollLeft <= 0 ? "ace_scroller" : "ace_scroller ace_scroll-left";
+            this.content.style.marginLeft = pixelStyle(-this.scrollLeftPx);
+            this.scroller.className = this.scrollLeftPx <= 0 ? "ace_scroller" : "ace_scroller ace_scroll-left";
         }
 
         if (changes & CHANGE_FULL) {
@@ -1267,16 +1271,16 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private $autosize(): void {
         const session = this.sessionOrThrow();
-        const height = session.getScreenLength() * this.lineHeight;
-        const maxHeight = this.$maxLines * this.lineHeight;
+        const height = session.getScreenLength() * this.charHeightPx;
+        const maxHeight = this.$maxLines * this.charHeightPx;
         const desiredHeight = Math.max(
-            (this.$minLines || 1) * this.lineHeight,
+            (this.$minLines || 1) * this.charHeightPx,
             Math.min(maxHeight, height)
         ) + this.scrollMargin.v + (this.$extraHeight || 0);
         const vScroll = height > maxHeight;
 
         if (desiredHeight !== this.desiredHeight ||
-            this.$size.height !== this.desiredHeight || vScroll !== this.$vScroll) {
+            this.$size.heightPx !== this.desiredHeight || vScroll !== this.$vScroll) {
             if (vScroll !== this.$vScroll) {
                 this.$vScroll = vScroll;
                 this.scrollBarV.setVisible(vScroll);
@@ -1292,27 +1296,27 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private $computeLayerConfig(): number {
 
-        if (this.$maxLines && this.lineHeight > 1) {
+        if (this.$maxLines && this.charHeightPx > 1) {
             this.$autosize();
         }
 
         const session = this.sessionOrThrow();
         const size = this.$size;
 
-        const hideScrollbars = size.height <= 2 * this.lineHeight;
+        const hideScrollbars = size.heightPx <= 2 * this.charHeightPx;
         const screenLines = session.getScreenLength();
-        let maxHeight = screenLines * this.lineHeight;
+        let maxHeight = screenLines * this.charHeightPx;
 
-        let offset = this.scrollTop % this.lineHeight;
-        let minHeight = size.scrollerHeight + this.lineHeight;
+        let verticalOffsetPx = this.scrollTopPx % this.charHeightPx;
+        let minHeight = size.scrollerHeightPx + this.charHeightPx;
 
-        let longestLine = this.$getLongestLinePixels();
-        let longestVisibleLine = this._getLongestVisibleLinePixels();
+        let longestLinePx = this._getLongestLinePx();
+        let longestVisibleLinePx = this._getLongestVisibleLinePx();
         if (this._scrollHTracking === HScrollTracking.VISIBLE) {
-            longestLine = longestVisibleLine;
+            longestLinePx = longestVisibleLinePx;
         }
 
-        const horizScroll = !hideScrollbars && (this.$hScrollBarAlwaysVisible || size.scrollerWidth - longestLine < 0);
+        const horizScroll = !hideScrollbars && (this.$hScrollBarAlwaysVisible || size.scrollerWidthPx - longestLinePx < 0);
 
         const hScrollChanged = this.$horizScroll !== horizScroll;
         if (hScrollChanged) {
@@ -1321,26 +1325,26 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         if (!this.$maxLines && this.$scrollPastEnd) {
-            maxHeight += (size.scrollerHeight - this.lineHeight) * this.$scrollPastEnd;
+            maxHeight += (size.scrollerHeightPx - this.charHeightPx) * this.$scrollPastEnd;
         }
 
-        const vScroll = !hideScrollbars && (this.$vScrollBarAlwaysVisible || size.scrollerHeight - maxHeight < 0);
+        const vScroll = !hideScrollbars && (this.$vScrollBarAlwaysVisible || size.scrollerHeightPx - maxHeight < 0);
         const vScrollChanged = this.$vScroll !== vScroll;
         if (vScrollChanged) {
             this.$vScroll = vScroll;
             this.scrollBarV.setVisible(vScroll);
         }
 
-        this.setScrollTop(Math.max(-this.scrollMargin.top, Math.min(this.scrollTop, maxHeight - size.scrollerHeight + this.scrollMargin.bottom)));
+        this.setScrollTop(Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeight - size.scrollerHeightPx + this.scrollMargin.bottom)));
 
-        session.setScrollLeft(Math.max(-this.scrollMargin.left, Math.min(this.scrollLeft, longestLine - size.scrollerWidth + this.scrollMargin.right)));
+        session.setScrollLeft(Math.max(-this.scrollMargin.left, Math.min(this.scrollLeftPx, longestLinePx - size.scrollerWidthPx + this.scrollMargin.right)));
 
-        const lineCount = Math.ceil(minHeight / this.lineHeight) - 1;
-        let firstRow = Math.max(0, Math.round((this.scrollTop - offset) / this.lineHeight));
+        const lineCount = Math.ceil(minHeight / this.charHeightPx) - 1;
+        let firstRow = Math.max(0, Math.round((this.scrollTopPx - verticalOffsetPx) / this.charHeightPx));
         let lastRow = firstRow + lineCount;
 
         // Map lines on the screen to lines in the document.
-        const lineHeight = this.lineHeight;
+        const charHeightPx = this.charHeightPx;
         firstRow = session.screenToDocumentRow(firstRow, 0);
 
         // Check if firstRow is inside of a foldLine. If true, then use the first
@@ -1351,39 +1355,39 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const firstRowScreen = session.documentToScreenRow(firstRow, 0);
-        const firstRowHeight = session.getRowLength(firstRow) * lineHeight;
+        const firstRowHeight = session.getRowLength(firstRow) * charHeightPx;
 
         lastRow = Math.min(session.screenToDocumentRow(lastRow, 0), session.getLength() - 1);
-        minHeight = size.scrollerHeight + session.getRowLength(lastRow) * lineHeight + firstRowHeight;
+        minHeight = size.scrollerHeightPx + session.getRowLength(lastRow) * charHeightPx + firstRowHeight;
 
-        offset = this.scrollTop - firstRowScreen * lineHeight;
+        verticalOffsetPx = this.scrollTopPx - firstRowScreen * charHeightPx;
 
         let changes = 0;
-        if (this.layerConfig.width !== longestLine)
+        if (this.layerConfig.docWidthPx !== longestLinePx)
             changes = CHANGE_H_SCROLL;
         // Horizontal scrollbar visibility may have changed, which changes
         // the client height of the scroller
         if (hScrollChanged || vScrollChanged) {
-            changes = this.$updateCachedSize(true, this.gutterWidth, size.width, size.height);
+            changes = this.$updateCachedSize(true, this.gutterWidth, size.widthPx, size.heightPx);
             this.eventBus._signal("scrollbarVisibilityChanged");
             if (vScrollChanged) {
-                longestLine = this.$getLongestLinePixels();
+                longestLinePx = this._getLongestLinePx();
             }
         }
 
         this.layerConfig = {
-            width: longestLine,
-            visibleWidth: longestVisibleLine,
+            docWidthPx: longestLinePx,
+            visibleWidthPx: longestVisibleLinePx,
             firstRow: firstRow,
             firstRowScreen: firstRowScreen,
             lastRow: lastRow,
-            lineHeight: lineHeight,
-            characterWidth: this.characterWidth,
-            minHeight: minHeight,
-            maxHeight: maxHeight,
-            verticalOffsetPx: offset,
-            gutterOffset: Math.max(0, Math.ceil((offset + size.height - size.scrollerHeight) / lineHeight)),
-            height: this.$size.scrollerHeight
+            charHeightPx: charHeightPx,
+            charWidthPx: this.charWidthPx,
+            minHeightPx: minHeight,
+            maxHeightPx: maxHeight,
+            verticalOffsetPx: verticalOffsetPx,
+            gutterOffsetRows: Math.max(0, Math.ceil((verticalOffsetPx + size.heightPx - size.scrollerHeightPx) / charHeightPx)),
+            docHeightPx: this.$size.scrollerHeightPx
         };
 
         return changes;
@@ -1419,19 +1423,19 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return false;
     }
 
-    private $getLongestLinePixels(): number {
+    private _getLongestLinePx(): number {
         const session = this.sessionOrThrow();
-        const charCount = session.getScreenWidth() + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
-        return Math.max(this.$size.scrollerWidth, Math.floor(charCount * this.characterWidth));
+        const charCount = session.getScreenWidthChars() + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
+        return Math.max(this.$size.scrollerWidthPx, Math.floor(charCount * this.charWidthPx));
     }
 
-    private _getLongestVisibleLinePixels(): number {
+    private _getLongestVisibleLinePx(): number {
         const session = this.sessionOrThrow();
         const doc = this.session.getDocument();
         const docLength = doc.getLength();
         const widthInRange = session.getWidthInRange(this.getFirstVisibleRow(), Math.min(docLength, this.getLastVisibleRow() + 1));
         const charCount = widthInRange + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
-        return Math.max(this.$size.scrollerWidth, Math.floor(charCount * this.characterWidth));
+        return Math.max(this.$size.scrollerWidthPx, Math.floor(charCount * this.charWidthPx));
     }
 
     /**
@@ -1502,7 +1506,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     scrollCursorIntoView(cursor?: Position | null, offset?: number, viewMargin?: { top?: number; bottom?: number }): void {
         // the editor is not visible
-        if (this.$size.scrollerHeight === 0) {
+        if (this.$size.scrollerHeightPx === 0) {
             return;
         }
 
@@ -1516,33 +1520,33 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const topMargin = viewMargin && viewMargin.top || 0;
         const bottomMargin = viewMargin && viewMargin.bottom || 0;
 
-        const scrollTop = this.$scrollAnimation ? session.getScrollTop() : this.scrollTop;
+        const scrollTop = this.$scrollAnimation ? session.getScrollTop() : this.scrollTopPx;
 
         if (scrollTop + topMargin > top) {
             if (offset) {
-                top -= offset * this.$size.scrollerHeight;
+                top -= offset * this.$size.scrollerHeightPx;
             }
             if (top === 0) {
                 top = -this.scrollMargin.top;
             }
             this.setScrollTop(top);
-        } else if (scrollTop + this.$size.scrollerHeight - bottomMargin < top + this.lineHeight) {
+        } else if (scrollTop + this.$size.scrollerHeightPx - bottomMargin < top + this.charHeightPx) {
             if (offset) {
-                top += offset * this.$size.scrollerHeight;
+                top += offset * this.$size.scrollerHeightPx;
             }
-            this.setScrollTop(top + this.lineHeight - this.$size.scrollerHeight);
+            this.setScrollTop(top + this.charHeightPx - this.$size.scrollerHeightPx);
         }
 
-        const scrollLeft = this.scrollLeft;
+        const scrollLeft = this.scrollLeftPx;
 
         if (scrollLeft > left) {
-            if (left < 2 * this.layerConfig.characterWidth) {
+            if (left < 2 * this.layerConfig.charWidthPx) {
                 left = -this.scrollMargin.left;
             }
             session.setScrollLeft(left);
-        } else if (scrollLeft + this.$size.scrollerWidth < left + this.characterWidth) {
-            session.setScrollLeft(Math.round(left + this.characterWidth - this.$size.scrollerWidth));
-        } else if (scrollLeft <= 0 && left - scrollLeft < this.characterWidth) {
+        } else if (scrollLeft + this.$size.scrollerWidthPx < left + this.charWidthPx) {
+            session.setScrollLeft(Math.round(left + this.charWidthPx - this.$size.scrollerWidthPx));
+        } else if (scrollLeft <= 0 && left - scrollLeft < this.charWidthPx) {
             session.setScrollLeft(0);
         }
     }
@@ -1559,7 +1563,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Returns the first visible row, regardless of whether it's fully visible or not.
      */
     getScrollTopRow(): number {
-        return this.scrollTop / this.lineHeight;
+        return this.scrollTopPx / this.charHeightPx;
     }
 
     /**
@@ -1567,7 +1571,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      *
      */
     getScrollBottomRow(): number {
-        return Math.max(0, Math.floor((this.scrollTop + this.$size.scrollerHeight) / this.lineHeight) - 1);
+        return Math.max(0, Math.floor((this.scrollTopPx + this.$size.scrollerHeightPx) / this.charHeightPx) - 1);
     }
 
     /**
@@ -1576,14 +1580,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param row A row id.
      */
     scrollToRow(row: number): void {
-        this.setScrollTop(row * this.lineHeight);
+        this.setScrollTop(row * this.charHeightPx);
     }
 
     setScrollTop(topPx: number): void {
         const session = this.sessionOrThrow();
         const screenLines = session.getScreenLength();
-        let maxHeight = screenLines * this.lineHeight;
-        const maxTopPx = Math.max(-this.scrollMargin.top, Math.min(this.scrollTop, maxHeight - this.$size.scrollerHeight + this.scrollMargin.bottom));
+        let maxHeight = screenLines * this.charHeightPx;
+        const maxTopPx = Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeight - this.$size.scrollerHeightPx + this.scrollMargin.bottom));
 
         const newTopPx = Math.min(topPx, maxTopPx);
         session.setScrollTop(newTopPx);
@@ -1595,7 +1599,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const pos = this.getPixelPosition(cursor, false);
-        const h = this.$size.scrollerHeight - this.lineHeight;
+        const h = this.$size.scrollerHeightPx - this.charHeightPx;
         const offset = pos.top - h * (alignment || 0);
 
         this.setScrollTop(offset);
@@ -1614,10 +1618,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const pos = this.getPixelPosition({ row: line, column: 0 }, false);
         let offset = pos.top;
         if (center) {
-            offset -= this.$size.scrollerHeight / 2;
+            offset -= this.$size.scrollerHeightPx / 2;
         }
 
-        const initialScroll = this.scrollTop;
+        const initialScroll = this.scrollTopPx;
         this.setScrollTop(offset);
         if (animate) {
             this.animateScrolling(initialScroll, callback);
@@ -1629,7 +1633,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     animateScrolling(fromValue: number, callback?: () => any): void {
         const session = this.sessionOrThrow();
-        const toValue = this.scrollTop;
+        const toValue = this.scrollTopPx;
         if (!this.animatedScroll) {
             return;
         }
@@ -1692,8 +1696,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     scrollToY(scrollTopPx: number): void {
         // after calling scrollBar.setScrollTop
         // scrollbar sends us event with same scrollTop. ignore it
-        if (this.scrollTop !== scrollTopPx) {
-            this.scrollTop = scrollTopPx;
+        if (this.scrollTopPx !== scrollTopPx) {
+            this.scrollTopPx = scrollTopPx;
             this.$loop.schedule(CHANGE_SCROLL);
         }
     }
@@ -1704,8 +1708,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param scrollLeftPx The position to scroll to.
      */
     scrollToX(scrollLeftPx: number): void {
-        if (this.scrollLeft !== scrollLeftPx) {
-            this.scrollLeft = scrollLeftPx;
+        if (this.scrollLeftPx !== scrollLeftPx) {
+            this.scrollLeftPx = scrollLeftPx;
             this.$loop.schedule(CHANGE_H_SCROLL);
         }
     }
@@ -1740,13 +1744,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (deltaY < 0 && session.getScrollTop() >= 1 - this.scrollMargin.top) {
             return true;
         }
-        if (deltaY > 0 && session.getScrollTop() + this.$size.scrollerHeight - this.layerConfig.maxHeight < -1 + this.scrollMargin.bottom) {
+        if (deltaY > 0 && session.getScrollTop() + this.$size.scrollerHeightPx - this.layerConfig.maxHeightPx < -1 + this.scrollMargin.bottom) {
             return true;
         }
         if (deltaX < 0 && session.getScrollLeft() >= 1 - this.scrollMargin.left) {
             return true;
         }
-        if (deltaX > 0 && session.getScrollLeft() + this.$size.scrollerWidth - this.layerConfig.width < -1 + this.scrollMargin.right) {
+        if (deltaX > 0 && session.getScrollLeft() + this.$size.scrollerWidthPx - this.layerConfig.docWidthPx < -1 + this.scrollMargin.right) {
             return true;
         }
         return false;
@@ -1755,8 +1759,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     pixelToScreenCoordinates(x: number, y: number) {
         const canvasPos = this.scroller.getBoundingClientRect();
 
-        const offset = (x + this.scrollLeft - canvasPos.left) / this.characterWidth;
-        const row = Math.floor((y + this.scrollTop - canvasPos.top) / this.lineHeight);
+        const offset = (x + this.scrollLeftPx - canvasPos.left) / this.charWidthPx;
+        const row = Math.floor((y + this.scrollTopPx - canvasPos.top) / this.charHeightPx);
         const col = Math.round(offset);
 
         return { row: row, column: col, side: offset - col > 0 ? 1 : -1 };
@@ -1766,9 +1770,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const session = this.sessionOrThrow();
         const canvasPos = this.scroller.getBoundingClientRect();
 
-        const column = Math.round((clientX + this.scrollLeft - canvasPos.left) / this.characterWidth);
+        const column = Math.round((clientX + this.scrollLeftPx - canvasPos.left) / this.charWidthPx);
 
-        const row = (clientY + this.scrollTop - canvasPos.top) / this.lineHeight;
+        const row = (clientY + this.scrollTopPx - canvasPos.top) / this.charHeightPx;
 
         return session.screenToDocumentPosition(row, Math.max(column, 0));
     }
@@ -1781,12 +1785,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const canvasPos: ClientRect = this.scroller.getBoundingClientRect();
         const pos: Position = session.documentToScreenPosition(row, column);
 
-        const x = Math.round(pos.column * this.characterWidth);
-        const y = pos.row * this.lineHeight;
+        const x = Math.round(pos.column * this.charWidthPx);
+        const y = pos.row * this.charHeightPx;
 
         return {
-            pageX: canvasPos.left + x - this.scrollLeft,
-            pageY: canvasPos.top + y - this.scrollTop
+            pageX: canvasPos.left + x - this.scrollLeftPx,
+            pageY: canvasPos.top + y - this.scrollTopPx
         };
     }
 
@@ -1869,7 +1873,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         // force re-measure of the gutter width
         if (this.$size) {
-            this.$size.width = 0;
+            this.$size.widthPx = 0;
             this.$updateSizeAsync();
         }
 

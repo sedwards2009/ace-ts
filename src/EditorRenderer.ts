@@ -30,7 +30,7 @@ export interface EditorRenderer {
     /**
      *
      */
-    scrollTop: number;
+    scrollTopPx: number;
     /**
      * 
      */

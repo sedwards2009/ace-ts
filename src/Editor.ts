@@ -1302,7 +1302,7 @@ export class Editor {
         this.curOp = {
             command: commandEvent.command || {},
             args: commandEvent.args,
-            scrollTop: this.renderer ? this.renderer.scrollTop : 0
+            scrollTop: this.renderer ? this.renderer.scrollTopPx : 0
         };
 
         const command = this.curOp.command;
@@ -3449,7 +3449,7 @@ export class Editor {
         const renderer = this.renderer;
         if (renderer) {
             const config = renderer.layerConfig;
-            const rows = direction * Math.floor(config.height / config.lineHeight);
+            const rows = direction * Math.floor(config.docHeightPx / config.charHeightPx);
 
             this.$blockScrolling++;
             try {
@@ -3469,9 +3469,9 @@ export class Editor {
                 this.$blockScrolling--;
             }
 
-            const scrollTop = renderer.scrollTop;
+            const scrollTop = renderer.scrollTopPx;
 
-            renderer.scrollBy(0, rows * config.lineHeight);
+            renderer.scrollBy(0, rows * config.charHeightPx);
             // FIXME: Why don't we assert our args and do typeof select === 'undefined'?
             if (select != null) {
                 // This is called when select is undefined.
@@ -3600,13 +3600,13 @@ export class Editor {
 
     scrollDown(): void {
         const deltaX = 0;
-        const deltaY = 2 * this.renderer.layerConfig.lineHeight;
+        const deltaY = 2 * this.renderer.layerConfig.charHeightPx;
         this.renderer.scrollBy(deltaX, deltaY);
     }
 
     scrollUp(): void {
         const deltaX = 0;
-        const deltaY = -2 * this.renderer.layerConfig.lineHeight;
+        const deltaY = -2 * this.renderer.layerConfig.charHeightPx;
         this.renderer.scrollBy(deltaX, deltaY);
     }
 
@@ -4381,7 +4381,7 @@ export class Editor {
         }
         this.$blockScrolling -= 1;
 
-        const scrollTop = this.renderer.scrollTop;
+        const scrollTop = this.renderer.scrollTopPx;
         this.renderer.scrollSelectionIntoView(range.start, range.end, 0.5);
         if (animate) {
             this.renderer.animateScrolling(scrollTop);
@@ -4449,8 +4449,8 @@ export class Editor {
                 if (pos.top >= 0 && top + rect.top < 0) {
                     shouldScroll = true;
                 }
-                else if (pos.top < config.height &&
-                    pos.top + rect.top + config.lineHeight > window.innerHeight) {
+                else if (pos.top < config.docHeightPx &&
+                    pos.top + rect.top + config.charHeightPx > window.innerHeight) {
                     shouldScroll = false;
                 }
                 else {
@@ -4459,7 +4459,7 @@ export class Editor {
                 if (shouldScroll != null) {
                     scrollAnchor.style.top = top + "px";
                     scrollAnchor.style.left = pos.left + "px";
-                    scrollAnchor.style.height = config.lineHeight + "px";
+                    scrollAnchor.style.height = config.charHeightPx + "px";
                     scrollAnchor.scrollIntoView(shouldScroll);
                 }
                 shouldScroll = rect = null;

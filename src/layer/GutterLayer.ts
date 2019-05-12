@@ -144,7 +144,7 @@ export class GutterLayer extends AbstractLayer {
         const session = this.session;
         const firstRow = config.firstRow;
         // Compensate for horizontal scollbar.
-        const lastRow = Math.min(config.lastRow + config.gutterOffset, session.getLength() - 1);
+        const lastRow = Math.min(config.lastRow + config.gutterOffsetRows, session.getLength() - 1);
         let fold = session.getNextFoldLine(firstRow);
         let foldStart = fold ? fold.start.row : Infinity;
         const foldWidgets = this.$showFoldWidgets && session.foldWidgets;
@@ -196,7 +196,7 @@ export class GutterLayer extends AbstractLayer {
             if (cell.element.className !== className)
                 cell.element.className = className;
 
-            const height = session.getRowLength(row) * config.lineHeight + "px";
+            const height = session.getRowLength(row) * config.charHeightPx + "px";
             if (height !== cell.element.style.height)
                 cell.element.style.height = height;
 
@@ -221,7 +221,7 @@ export class GutterLayer extends AbstractLayer {
                 if (cell.foldWidget.className !== className)
                     cell.foldWidget.className = className;
 
-                const height = config.lineHeight + "px";
+                const height = config.charHeightPx + "px";
                 if (cell.foldWidget.style.height !== height)
                     cell.foldWidget.style.height = height;
             } else {
@@ -242,14 +242,14 @@ export class GutterLayer extends AbstractLayer {
             row++;
         }
 
-        this.element.style.height = config.minHeight + "px";
+        this.element.style.height = config.minHeightPx + "px";
 
         if (this.$fixedWidth || session.$useWrapMode)
             lastLineNumber = session.getLength() + firstLineNumber;
 
         let gutterWidth = isGutterRenderer(gutterRenderer)
             ? gutterRenderer.getWidth(session, lastLineNumber, config)
-            : lastLineNumber.toString().length * config.characterWidth;
+            : lastLineNumber.toString().length * config.charWidthPx;
 
         const padding = this.$padding || this.$computePadding();
         gutterWidth += padding.left + padding.right;
@@ -275,7 +275,7 @@ export class GutterLayer extends AbstractLayer {
 
         let gutterWidth = isGutterRenderer(gutterRenderer)
             ? gutterRenderer.getWidth(session, lastLineNumber, config)
-            : lastLineText.toString().length * config.characterWidth;
+            : lastLineText.toString().length * config.charWidthPx;
 
         const padding = this.$padding || this.$computePadding();
         gutterWidth += padding.left + padding.right;
@@ -339,7 +339,7 @@ export class GutterLayer extends AbstractLayer {
 
         this.$lines.moveContainer(config);
 
-        const lastRow = Math.min(config.lastRow + config.gutterOffset, this.session.getLength() - 1);
+        const lastRow = Math.min(config.lastRow + config.gutterOffsetRows, this.session.getLength() - 1);
         const oldLastRow = this.oldLastRow;
         this.oldLastRow = lastRow;
 
@@ -449,7 +449,7 @@ export class GutterLayer extends AbstractLayer {
             if (foldWidget.className !== className)
                 foldWidget.className = className;
 
-            const foldHeight = toPixelString(config.lineHeight);
+            const foldHeight = toPixelString(config.charHeightPx);
             setStyle(foldWidget.style, "height", foldHeight);
             setStyle(foldWidget.style, "display", "inline-block");
         } else {

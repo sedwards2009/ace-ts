@@ -212,7 +212,7 @@ export class ListViewPopup implements ListView {
             }
 
             if (data.meta) {
-                const maxW = this.editor.renderer.$size.scrollerWidth / this.editor.renderer.layerConfig.characterWidth;
+                const maxW = this.editor.renderer.$size.scrollerWidthPx / this.editor.renderer.layerConfig.charWidthPx;
                 if (data.meta.length + data.caption.length < maxW - 2) {
                     tokens.push({ type: "rightAlignedText", value: data.meta });
                 }

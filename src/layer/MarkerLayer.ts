@@ -70,7 +70,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
             const range = this.session.documentToScreenRange(rangeClipRows);
             if (marker.renderer) {
                 const top = this.$getTop(range.start.row, config);
-                const left = range.start.column * config.characterWidth;
+                const left = range.start.column * config.charWidthPx;
                 marker.renderer(html, range, left, top, config);
             } else if (marker.type === "fullLine") {
                 this.drawFullLineMarker(html, range, marker.clazz, config);
@@ -102,7 +102,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
     }
 
     private $getTop(row: number, layerConfig: LayerConfig): number {
-        return (row - layerConfig.firstRowScreen) * layerConfig.lineHeight;
+        return (row - layerConfig.firstRowScreen) * layerConfig.charHeightPx;
     }
 
     /**
@@ -144,9 +144,9 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
      */
     private drawMultiLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: LayerConfig, extraStyle = ""): void {
         // from selection start to the end of the line
-        let height = config.lineHeight;
+        let height = config.charHeightPx;
         let top = this.$getTop(range.start.row, config);
-        const left = range.start.column * config.characterWidth;
+        const left = range.start.column * config.charWidthPx;
 
         stringBuilder.push(
             "<div class='", clazz, " ace_br1 ace_start' style='",
@@ -158,7 +158,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
         // from start of the last line to the selection end
         top = this.$getTop(range.end.row, config);
-        const width = range.end.column * config.characterWidth;
+        const width = range.end.column * config.charWidthPx;
 
         stringBuilder.push(
             "<div class='", clazz, " ace_br12' style='",
@@ -169,7 +169,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
         );
 
         // all the complete lines
-        height = (range.end.row - range.start.row - 1) * config.lineHeight;
+        height = (range.end.row - range.start.row - 1) * config.charHeightPx;
         if (height < 0) {
             return;
         }
@@ -190,11 +190,11 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
      * Draws a marker which covers part or whole width of a single screen line.
      */
     drawSingleLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: LayerConfig, extraLength = 0, extraStyle = ""): void {
-        const height = config.lineHeight;
-        const width = (range.end.column + extraLength - range.start.column) * config.characterWidth;
+        const height = config.charHeightPx;
+        const width = (range.end.column + extraLength - range.start.column) * config.charWidthPx;
 
         const top = this.$getTop(range.start.row, config);
-        const left = range.start.column * config.characterWidth;
+        const left = range.start.column * config.charWidthPx;
 
         stringBuilder.push(
             "<div class='", clazz, "' style='",
@@ -207,7 +207,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
     private drawFullLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: LayerConfig, extraStyle = ""): void {
         const top = this.$getTop(range.start.row, config);
-        let height = config.lineHeight;
+        let height = config.charHeightPx;
         if (range.start.row !== range.end.row) {
             height += this.$getTop(range.end.row, config) - top;
         }
@@ -222,7 +222,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
 
     private drawScreenLineMarker(stringBuilder: string[], range: RangeBasic, clazz: string, config: LayerConfig, extraStyle = ""): void {
         const top = this.$getTop(range.start.row, config);
-        const height = config.lineHeight;
+        const height = config.charHeightPx;
 
         stringBuilder.push(
             "<div class='", clazz, "' style='",

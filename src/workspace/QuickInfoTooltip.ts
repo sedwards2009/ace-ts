@@ -16,12 +16,12 @@ import { QuickInfoTooltipHost } from './QuickInfoTooltipHost';
 function getDocumentPositionFromScreenOffset(editor: Editor, x: number, y: number): Position | undefined {
 
     const renderer = editor.renderer;
-    const offset = x / renderer.characterWidth;
+    const offset = x / renderer.charWidthPx;
 
     // @BUG: Quickfix for strange issue with top
-    const correction = renderer.scrollTop ? 7 : 0;
+    const correction = renderer.scrollTopPx ? 7 : 0;
 
-    const row = Math.floor((y + renderer.scrollTop - correction) / renderer.lineHeight);
+    const row = Math.floor((y + renderer.scrollTopPx - correction) / renderer.charHeightPx);
     const col = Math.round(offset);
 
     const session = editor.getSession();

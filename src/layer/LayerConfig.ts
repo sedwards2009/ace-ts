@@ -7,25 +7,22 @@ export interface LayerConfig {
 
     firstRowScreen: number;
 
-    lineHeight: number;
+    charWidthPx: number;
+    charHeightPx: number;
 
     verticalOffsetPx: number;
 
     firstRow: number;
-
     lastRow: number;
 
-    characterWidth: number;
+    docHeightPx: number;
+    docWidthPx: number;
 
-    height: number;
+    minHeightPx: number;
+    maxHeightPx: number;
 
-    minHeight: number;
-    maxHeight: number;
+    gutterOffsetRows: number;
 
-    gutterOffset: number;
-
-    width: number;          // FIXME px
-    visibleWidth: number;   // FIXME px
-
+    visibleWidthPx: number;
 }
 

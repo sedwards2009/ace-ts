@@ -178,11 +178,11 @@ export function createAutoComplete(editor: Editor, fileNameProvider: () => strin
                         }
 
                         const pos = editor.renderer.getPixelPosition(position, true);
-                        const lineHeight = editor.renderer.layerConfig.lineHeight;
+                        const lineHeight = editor.renderer.layerConfig.charHeightPx;
 
                         const rect: ClientRect = editor.container.getBoundingClientRect();
                         pos.top += rect.top - editor.renderer.layerConfig.verticalOffsetPx;
-                        pos.left += rect.left - editor.renderer.scrollLeft;
+                        pos.left += rect.left - editor.renderer.scrollLeftPx;
                         pos.left += editor.renderer.$gutterLayer.getGutterWidthPx();
 
                         _view.listElement.innerHTML = html;

@@ -249,7 +249,7 @@ export class EditSession {
     mergeUndoDeltas: boolean;
     private $useSoftTabs = true;
     private $tabSize = 4;
-    private screenWidth: number;
+    private screenWidthChars: number;
     lineWidgets: (LineWidget | undefined)[] | null = null;
     private lineWidgetsWidth: number;
     lineWidgetWidth: number | null;
@@ -1328,15 +1328,12 @@ export class EditSession {
         return this.$scrollLeft;
     }
 
-    /**
-     * Returns the width of the screen.
-     */
-    getScreenWidth(): number {
+    getScreenWidthChars(): number {
         this.$computeWidth();
         if (this.lineWidgets) {
-            return Math.max(this.getLineWidgetMaxWidth(), this.screenWidth);
+            return Math.max(this.getLineWidgetMaxWidth(), this.screenWidthChars);
         }
-        return this.screenWidth;
+        return this.screenWidthChars;
     }
 
     private getLineWidgetMaxWidth(): number {
@@ -1357,16 +1354,16 @@ export class EditSession {
         if (this.$modified || force) {
             this.$modified = false;
             if (this.$useWrapMode) {
-                this.screenWidth = this.$wrapLimit;
+                this.screenWidthChars = this.$wrapLimit;
                 return;
             }
 
             const lines = doc.getAllLines();
-            this.screenWidth = this._computeWidestLineInRange(0, lines.length);
+            this.screenWidthChars = this._computeLongestLineInRange(0, lines.length);
         }
     }
 
-    private _computeWidestLineInRange(startRow: number, endRow: number): number {
+    private _computeLongestLineInRange(startRow: number, endRow: number): number {
         const doc = this.docOrThrow();
         const lines = doc.getAllLines();
         const cache = this.$rowLengthCache;
@@ -1398,7 +1395,7 @@ export class EditSession {
     }
 
     getWidthInRange(startRow: number, endRow: number): number {
-        const widestLine = this._computeWidestLineInRange(startRow, endRow);
+        const widestLine = this._computeLongestLineInRange(startRow, endRow);
         if (this.$useWrapMode) {
             return Math.min(this.$wrapLimit, widestLine);
         } else {

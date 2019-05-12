@@ -249,7 +249,7 @@ export class LineWidgetManager {
             w.pixelHeight = w.el.offsetHeight;
         }
         if (w.rowCount == null) {
-            w.rowCount = w.pixelHeight as number / renderer.layerConfig.lineHeight;
+            w.rowCount = w.pixelHeight as number / renderer.layerConfig.charHeightPx;
         }
 
         const fold = this.session.getFoldAt(w.row, 0);
@@ -346,10 +346,10 @@ export class LineWidgetManager {
 
             if (!w.fixedWidth) {
                 w.w = w.el.offsetWidth;
-                w.screenWidth = Math.ceil(w.w / config.characterWidth);
+                w.screenWidth = Math.ceil(w.w / config.charWidthPx);
             }
 
-            let rowCount = w.h / config.lineHeight;
+            let rowCount = w.h / config.charHeightPx;
             if (w.coverLine) {
                 rowCount -= this.session.getRowLineCount(w.row);
                 if (rowCount < 0)
@@ -402,18 +402,18 @@ export class LineWidgetManager {
             }
             let top: number = renderer.getPixelPosition({ row: i, column: 0 }, true).top;
             if (!w.coverLine) {
-                top += config.lineHeight * this.session.getRowLineCount(w.row);
+                top += config.charHeightPx * this.session.getRowLineCount(w.row);
             }
             w.el.style.top = top - config.verticalOffsetPx + "px";
 
             let left = w.coverGutter ? 0 : renderer.gutterWidth;
             if (!w.fixedWidth) {
-                left -= renderer.scrollLeft;
+                left -= renderer.scrollLeftPx;
             }
             w.el.style.left = left + "px";
 
             if (w.fullWidth && w.screenWidth) {
-                w.el.style.minWidth = config.width + "px";
+                w.el.style.minWidth = config.docWidthPx + "px";
             }
 
             if (w.fixedWidth) {
