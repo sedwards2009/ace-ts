@@ -20,7 +20,7 @@ const SPACE_CHAR = "\xB7";
 
 
 export class TextLayer extends AbstractLayer implements Disposable {
-    private EOL_CHAR: string;
+    private _eolChar: string;
 
     private session: EditSession;
     private showInvisibles = false;
@@ -34,17 +34,11 @@ export class TextLayer extends AbstractLayer implements Disposable {
 
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_text-layer");
-        this.EOL_CHAR = EOL_CHAR_LF;
+        this._eolChar = EOL_CHAR_LF;
     }
 
-    updateEolChar(): boolean {
-        const EOL_CHAR = this.session.docOrThrow().getNewLineCharacter() === "\n" ? EOL_CHAR_LF : EOL_CHAR_CRLF;
-        if (this.EOL_CHAR !== EOL_CHAR) {
-            this.EOL_CHAR = EOL_CHAR;
-            return true;
-        } else {
-            return false;
-        }
+    setEolChar(eolChar: string): void {
+        this._eolChar = eolChar === "\n" ? EOL_CHAR_LF : EOL_CHAR_CRLF;
     }
 
     setSession(session: EditSession): void {
@@ -487,7 +481,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
 
             stringBuilder.push(
                 "<span class='ace_invisible ace_invisible_eol'>",
-                row === this.session.getLength() - 1 ? EOF_CHAR : this.EOL_CHAR,
+                row === this.session.getLength() - 1 ? EOF_CHAR : this._eolChar,
                 "</span>"
             );
         }

@@ -537,7 +537,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     private onChangeNewLineMode = (): void => {
         this.$loop.schedule(CHANGE_TEXT);
-        this.textLayer.updateEolChar();
+        this.textLayer.setEolChar(this.sessionOrThrow().getDocument().getNewLineCharacter());
     }
 
     onChangeTabSize(): void {
