@@ -444,7 +444,7 @@ export class CompletionManager {
             pos.left -= this.popup.getTextLeftOffset();
 
             const rect: ClientRect = editor.container.getBoundingClientRect();
-            pos.top += rect.top - renderer.layerConfig.offset;
+            pos.top += rect.top - renderer.layerConfig.verticalOffsetPx;
             pos.left += rect.left - renderer.scrollLeft;
             pos.left += renderer.gutterWidth;
 

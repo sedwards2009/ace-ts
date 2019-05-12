@@ -181,7 +181,7 @@ export function createAutoComplete(editor: Editor, fileNameProvider: () => strin
                         const lineHeight = editor.renderer.layerConfig.lineHeight;
 
                         const rect: ClientRect = editor.container.getBoundingClientRect();
-                        pos.top += rect.top - editor.renderer.layerConfig.offset;
+                        pos.top += rect.top - editor.renderer.layerConfig.verticalOffsetPx;
                         pos.left += rect.left - editor.renderer.scrollLeft;
                         pos.left += editor.renderer.$gutterLayer.getGutterWidthPx();
 

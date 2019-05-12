@@ -4445,7 +4445,7 @@ export class Editor {
                 const renderer = this.renderer;
                 const pos = renderer.cursorLayer.$pixelPos;
                 const config = renderer.layerConfig;
-                const top = pos.top - config.offset;
+                const top = pos.top - config.verticalOffsetPx;
                 if (pos.top >= 0 && top + rect.top < 0) {
                     shouldScroll = true;
                 }

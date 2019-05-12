@@ -13,16 +13,15 @@ export interface CursorConfig extends LayerConfig {
     /**
      *
      */
-    characterWidth: number;
 
     /**
      *
      */
-    height: number;
+    // height: number;
 
     /**
      *
      */
-    offset: number;
+    // offset: number;
 }
 

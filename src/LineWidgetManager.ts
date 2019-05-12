@@ -404,7 +404,7 @@ export class LineWidgetManager {
             if (!w.coverLine) {
                 top += config.lineHeight * this.session.getRowLineCount(w.row);
             }
-            w.el.style.top = top - config.offset + "px";
+            w.el.style.top = top - config.verticalOffsetPx + "px";
 
             let left = w.coverGutter ? 0 : renderer.gutterWidth;
             if (!w.fixedWidth) {

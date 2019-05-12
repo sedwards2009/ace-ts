@@ -103,7 +103,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         return cursor;
     }
 
-    private removeCursor(): HTMLDivElement | undefined {
+    private removeCursor(): HTMLDivElement {
         if (this.cursors.length > 1) {
             const cursor = <HTMLDivElement>this.cursors.pop();
             (<Node>cursor.parentNode).removeChild(cursor);
@@ -218,7 +218,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         for (let i = 0; i < n; i++) {
             pixelPos = this.getPixelPosition(selections[i].cursor, true);
 
-            if ((pixelPos.top > config.height + config.offset ||
+            if ((pixelPos.top > config.height + config.verticalOffsetPx ||
                 pixelPos.top < 0) && i > 1) {
                 continue;
             }

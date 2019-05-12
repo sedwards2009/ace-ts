@@ -31,7 +31,7 @@ export class Lines {
     }
 
     moveContainer(config: LayerConfig): void {
-        translate(this.element, 0, -((config.firstRowScreen * config.lineHeight) % this.canvasHeight) - config.offset * this.$offsetCoefficient);
+        translate(this.element, 0, -((config.firstRowScreen * config.lineHeight) % this.canvasHeight) - config.verticalOffsetPx * this.$offsetCoefficient);
     }
 
     pageChanged(oldConfig: LayerConfig, newConfig: LayerConfig): boolean {

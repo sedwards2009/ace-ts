@@ -9,6 +9,23 @@ export interface LayerConfig {
 
     lineHeight: number;
 
-    offset: number;
+    verticalOffsetPx: number;
+
+    firstRow: number;
+
+    lastRow: number;
+
+    characterWidth: number;
+
+    height: number;
+
+    minHeight: number;
+    maxHeight: number;
+
+    gutterOffset: number;
+
+    width: number;          // FIXME px
+    visibleWidth: number;   // FIXME px
+
 }
 

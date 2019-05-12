@@ -6,11 +6,11 @@
 import { LayerConfig } from "./LayerConfig";
 
 export interface TextConfig extends LayerConfig {
+// FIXME delete this interface
+    // firstRow: number;
 
-    firstRow: number;
+    // lastRow: number;
 
-    lastRow: number;
-
-    characterWidth: number;
+    // characterWidth: number;
 }
 

@@ -31,6 +31,7 @@ import { ScreenCoordinates } from './ScreenCoordinates';
 import { ScrollBarEvent } from './events/ScrollBarEvent';
 import { EditorRenderer } from './EditorRenderer';
 import { refChange } from './refChange';
+import { LayerConfig } from "./layer/LayerConfig";
 
 
 export const changeCharacterSize = 'changeCharacterSize';
@@ -122,7 +123,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     container: HTMLElement;
     scrollLeft = 0;
     scrollTop = 0;
-    layerConfig = {
+    layerConfig: LayerConfig = {
         width: 1,
         visibleWidth: 1,
         firstRow: 0,
@@ -132,7 +133,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         characterWidth: 0,
         minHeight: 1,
         maxHeight: 1,
-        offset: 0,
+        verticalOffsetPx: 0,
         height: 1,
         gutterOffset: 1
     };
@@ -916,7 +917,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 height *= session.getRowLength(cursor.row);
             }
         }
-        this.$gutterLineHighlight.style.top = pixelStyle(pos.top - this.layerConfig.offset);
+        this.$gutterLineHighlight.style.top = pixelStyle(pos.top - this.layerConfig.verticalOffsetPx);
         this.$gutterLineHighlight.style.height = pixelStyle(height);
     }
 
@@ -984,7 +985,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         let posTop = this.cursorLayer.$pixelPos.top;
         let posLeft = this.cursorLayer.$pixelPos.left;
-        posTop -= config.offset;
+        posTop -= config.verticalOffsetPx;
 
         let h = this.lineHeight;
         if (posTop < 0 || posTop > config.height - h) {
@@ -1021,7 +1022,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * "Fully" here means that the characters in the row are not truncated; that the top and the bottom of the row are on the screen.
      */
     getFirstFullyVisibleRow(): number {
-        return this.layerConfig.firstRow + (this.layerConfig.offset === 0 ? 0 : 1);
+        return this.layerConfig.firstRow + (this.layerConfig.verticalOffsetPx === 0 ? 0 : 1);
     }
 
     /**
@@ -1029,7 +1030,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * "Fully" here means that the characters in the row are not truncated; that the top and the bottom of the row are on the screen.
      */
     getLastFullyVisibleRow(): number {
-        const flint = Math.floor((this.layerConfig.height + this.layerConfig.offset) / this.layerConfig.lineHeight);
+        const flint = Math.floor((this.layerConfig.height + this.layerConfig.verticalOffsetPx) / this.layerConfig.lineHeight);
         return this.layerConfig.firstRow - 1 + flint;
     }
 
@@ -1181,8 +1182,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             if (changes & CHANGE_H_SCROLL) {
                 this.$updateScrollBarH();
             }
-            this.$gutterLayer.element.style.marginTop = pixelStyle(-config.offset);
-            this.content.style.marginTop = pixelStyle(-config.offset);
+            this.$gutterLayer.element.style.marginTop = pixelStyle(-config.verticalOffsetPx);
+            this.content.style.marginTop = pixelStyle(-config.verticalOffsetPx);
             this.content.style.width = pixelStyle(config.width);
             this.content.style.height = pixelStyle(config.minHeight);
         }
@@ -1380,7 +1381,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             characterWidth: this.characterWidth,
             minHeight: minHeight,
             maxHeight: maxHeight,
-            offset: offset,
+            verticalOffsetPx: offset,
             gutterOffset: Math.max(0, Math.ceil((offset + size.height - size.scrollerHeight) / lineHeight)),
             height: this.$size.scrollerHeight
         };

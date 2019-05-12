@@ -13,11 +13,11 @@ export interface GutterConfig extends MarkerConfig {
     /**
      *
      */
-    minHeight: number;
+    // minHeight: number;
 
     /**
      *
      */
-    gutterOffset: number;
+    // gutterOffset: number;
 }
 
