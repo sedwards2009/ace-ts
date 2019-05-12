@@ -3,7 +3,7 @@
  * Copyright (c) 2015-2018, David Holmes
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
-import { MarkerConfig } from './layer/MarkerConfig';
+import { LayerConfig } from './layer/LayerConfig';
 import { IMarkerLayer } from './layer/MarkerLayer';
 import { MarkerRenderer } from './layer/MarkerRenderer';
 import { EditSession } from './EditSession';
@@ -49,6 +49,6 @@ export interface Marker {
     /**
      * The MarkerLayer will call this method.
      */
-    update?: (html: string[], markerLayer: IMarkerLayer, session: EditSession, config: MarkerConfig) => void;
+    update?: (html: string[], markerLayer: IMarkerLayer, session: EditSession, config: LayerConfig) => void;
 }
 

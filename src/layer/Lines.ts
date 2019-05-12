@@ -7,7 +7,6 @@ import { createFragment } from '../dom/createFragment';
 import { translate } from '../dom/translate';
 import { createElement } from "../lib/dom";
 import { EditSession } from '../EditSession';
-import { GutterConfig } from './GutterConfig';
 import { LayerConfig } from './LayerConfig';
 
 export type Cell = { row: number; element: HTMLDivElement; text: string };
@@ -41,14 +40,14 @@ export class Lines {
         );
     }
 
-    computeLineTop(row: number, config: GutterConfig, session: EditSession): number {
+    computeLineTop(row: number, config: LayerConfig, session: EditSession): number {
         const screenTop = config.firstRowScreen * config.lineHeight;
         const screenPage = Math.floor(screenTop / this.canvasHeight);
         const lineTop = session.documentToScreenRow(row, 0) * config.lineHeight;
         return lineTop - (screenPage * this.canvasHeight);
     }
 
-    computeLineHeight(row: number, config: GutterConfig, session: EditSession): number {
+    computeLineHeight(row: number, config: LayerConfig, session: EditSession): number {
         return config.lineHeight * session.getRowLength(row);
     }
 
@@ -60,7 +59,7 @@ export class Lines {
         return this.cells[index];
     }
 
-    shift() {
+    shift(): void {
         this.$cacheCell(this.cells.shift());
     }
 
@@ -68,7 +67,7 @@ export class Lines {
         this.$cacheCell(this.cells.pop());
     }
 
-    push(cell: Cell[] | Cell) {
+    push(cell: Cell[] | Cell): void {
         if (Array.isArray(cell)) {
             this.cells.push.apply(this.cells, cell);
             const fragment = createFragment(this.element);
@@ -114,7 +113,7 @@ export class Lines {
         this.cellCache.push(cell);
     }
 
-    createCell(row: number, unused: GutterConfig, session: EditSession, initElement: (element: HTMLDivElement) => any): Cell {
+    createCell(row: number, unused: LayerConfig, session: EditSession, initElement: (element: HTMLDivElement) => any): Cell {
         let cell = this.cellCache.pop();
         if (!cell) {
             const element = createElement("div") as HTMLDivElement;

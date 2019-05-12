@@ -9,7 +9,7 @@ import { AbstractLayer } from './AbstractLayer';
 import { Disposable } from '../Disposable';
 import { EditSession } from "../EditSession";
 import { FoldLine } from "../FoldLine";
-import { TextConfig } from './TextConfig';
+import { LayerConfig } from './LayerConfig';
 import { Token } from "../Token";
 
 const EOF_CHAR = "\xB6";
@@ -30,7 +30,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
     private $textToken = { "text": true, "rparen": true, "lparen": true };
     private tabSize: number;
     private $indentGuideRe: RegExp;
-    config: TextConfig;
+    config: LayerConfig;
 
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_text-layer");
@@ -130,7 +130,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
         }
     }
 
-    updateLines(config: TextConfig, firstRow: number, lastRow: number): void {
+    updateLines(config: LayerConfig, firstRow: number, lastRow: number): void {
         // Due to wrap line changes there can be new lines if e.g.
         // the line to updated wrapped in the meantime.
         if (this.config.lastRow !== config.lastRow ||
@@ -188,7 +188,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
         }
     }
 
-    scrollLines(config: TextConfig): void {
+    scrollLines(config: LayerConfig): void {
         const oldConfig = this.config;
         this.config = config;
 
@@ -232,7 +232,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
         }
     }
 
-    private $renderLinesFragment(config: TextConfig, firstRow: number, lastRow: number) {
+    private $renderLinesFragment(config: LayerConfig, firstRow: number, lastRow: number) {
         const fragment = this.element.ownerDocument.createDocumentFragment();
         let row = firstRow;
         let foldLine = this.session.getNextFoldLine(row);
@@ -275,7 +275,7 @@ export class TextLayer extends AbstractLayer implements Disposable {
         return fragment;
     }
 
-    update(config: TextConfig): void {
+    update(config: LayerConfig): void {
 
         this.config = config;
 

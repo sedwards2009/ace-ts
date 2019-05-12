@@ -11,7 +11,7 @@ import { Delta } from "../Delta";
 import { EditSession } from "../EditSession";
 import { FoldWidget } from "../FoldWidget";
 import { Annotation } from "../Annotation";
-import { GutterConfig } from "./GutterConfig";
+import { LayerConfig } from "./LayerConfig";
 import { Padding } from './Padding';
 import { GutterRenderer } from './GutterRenderer';
 import { GutterCell } from './GutterCell';
@@ -56,7 +56,7 @@ export class GutterLayer extends AbstractLayer {
     private $highlightGutterLine = true;
     private $cursorRow: number;
     private $cursorCell: Cell;
-    private config: GutterConfig;
+    private config: LayerConfig;
     private $renderer: GutterRenderer | boolean | string = "";
     private session: EditSession;
     $padding: Padding | null;
@@ -140,7 +140,7 @@ export class GutterLayer extends AbstractLayer {
         }
     }
 
-    update(config: GutterConfig): void {
+    update(config: LayerConfig): void {
         const session = this.session;
         const firstRow = config.firstRow;
         // Compensate for horizontal scollbar.
@@ -260,7 +260,7 @@ export class GutterLayer extends AbstractLayer {
         }
     }
 
-    private $updateGutterWidth(config: GutterConfig) {
+    private $updateGutterWidth(config: LayerConfig): void {
         const session = this.session;
 
         const gutterRenderer = session.gutterRenderer || this.$renderer;
@@ -286,7 +286,7 @@ export class GutterLayer extends AbstractLayer {
         }
     }
 
-    private $updateCursorRow() {
+    private $updateCursorRow(): void {
         if (!this.$highlightGutterLine)
             return;
 
@@ -297,7 +297,7 @@ export class GutterLayer extends AbstractLayer {
         this.$cursorRow = position.row;
     }
 
-    updateLineHighlight() {
+    updateLineHighlight(): void {
         if (!this.$highlightGutterLine) {
             return;
         }
@@ -329,7 +329,7 @@ export class GutterLayer extends AbstractLayer {
         }
     }
 
-    scrollLines(config: GutterConfig) {
+    scrollLines(config: LayerConfig): void {
         const oldConfig = this.config;
         this.config = config;
 
@@ -370,7 +370,7 @@ export class GutterLayer extends AbstractLayer {
         this.$updateGutterWidth(config);
     }
 
-    private $renderLines(config: GutterConfig, firstRow: number, lastRow: number) {
+    private $renderLines(config: LayerConfig, firstRow: number, lastRow: number): Cell[] {
         const fragment: Cell[] = [];
         let row = firstRow;
         let foldLine = this.session.getNextFoldLine(row);
@@ -394,7 +394,7 @@ export class GutterLayer extends AbstractLayer {
         return fragment;
     }
 
-    private $renderCell(cell: Cell, config: GutterConfig, fold: FoldLine, row: number) {
+    private $renderCell(cell: Cell, config: LayerConfig, fold: FoldLine, row: number): Cell {
         const element = cell.element;
 
         const textNode = element.childNodes[0] as Text;
@@ -473,7 +473,7 @@ export class GutterLayer extends AbstractLayer {
         return cell;
     }
 
-    setHighlightGutterLine(highlightGutterLine: boolean) {
+    setHighlightGutterLine(highlightGutterLine: boolean): void {
         this.$highlightGutterLine = highlightGutterLine;
     }
 

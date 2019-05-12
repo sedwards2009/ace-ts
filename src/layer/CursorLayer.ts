@@ -5,7 +5,7 @@
  */
 import { addCssClass, createElement, removeCssClass, setCssClass } from "../lib/dom";
 import { AbstractLayer } from './AbstractLayer';
-import { CursorConfig } from './CursorConfig';
+import { LayerConfig } from './LayerConfig';
 import { Disposable } from '../Disposable';
 import { EditSession } from '../EditSession';
 import { PixelPosition } from '../PixelPosition';
@@ -29,7 +29,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
     cursor: HTMLDivElement;
     private overwrite: boolean;
     private $updateCursors: (opacity: boolean) => void;
-    config: CursorConfig;
+    config: LayerConfig;
     $pixelPos: PixelPosition;
 
     constructor(parent: HTMLElement) {
@@ -200,7 +200,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         return { left: cursorLeft, top: cursorTop };
     }
 
-    update(config: CursorConfig): void {
+    update(config: LayerConfig): void {
         this.config = config;
 
         // Selection markers is a concept from multi selection.

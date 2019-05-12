@@ -7,7 +7,7 @@ import { getMatchOffsets } from "./lib/lang";
 import { Marker, MarkerType } from "./Marker";
 import { Range } from "./Range";
 import { MarkerLayer } from "./layer/MarkerLayer";
-import { MarkerConfig } from "./layer/MarkerConfig";
+import { LayerConfig } from "./layer/LayerConfig";
 import { EditSession } from "./EditSession";
 import { DeltaIgnorable } from "./DeltaIgnorable";
 
@@ -63,7 +63,7 @@ export class SearchHighlight implements Marker {
         }
     }
 
-    update(html: string[], markerLayer: MarkerLayer, session: EditSession, config: MarkerConfig): void {
+    update(html: string[], markerLayer: MarkerLayer, session: EditSession, config: LayerConfig): void {
         if (this.regExp == null) {
             return;
         }
