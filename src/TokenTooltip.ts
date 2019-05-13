@@ -78,7 +78,7 @@ export class TokenTooltip extends Tooltip {
 
             const screenPos = { row: row, column: col, side: offset - col > 0 ? 1 : -1 };
             const session = this.editor.session;
-            const docPos = session.screenToDocumentPosition(screenPos.row, screenPos.column);
+            const docPos = session.screenPositionToDocumentPosition(screenPos.row, screenPos.column);
             let token: TokenEx = session.getTokenAt(docPos.row, docPos.column);
 
             if (!token && !session.getLine(docPos.row)) {

@@ -26,7 +26,7 @@ function getDocumentPositionFromScreenOffset(editor: Editor, x: number, y: numbe
 
     const session = editor.getSession();
     if (session) {
-        return session.screenToDocumentPosition(row, col);
+        return session.screenPositionToDocumentPosition(row, col);
     }
     else {
         return undefined;

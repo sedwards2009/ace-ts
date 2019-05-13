@@ -67,7 +67,7 @@ export class MarkerLayer extends AbstractLayer implements IMarkerLayer {
                 continue;
             }
 
-            const range = this.session.documentToScreenRange(rangeClipRows);
+            const range = this.session.documentRangeToScreenRange(rangeClipRows);
             if (marker.renderer) {
                 const top = this.$getTop(range.start.row, config);
                 const left = range.start.column * config.charWidthPx;

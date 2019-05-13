@@ -20,7 +20,6 @@ import { Fold } from "./Fold";
 import { FoldEvent } from "./FoldEvent";
 import { FoldWidget } from "./FoldWidget";
 import { FoldStyle } from "./FoldStyle";
-import { GutterRenderer } from './layer/GutterRenderer';
 import { Selection } from "./Selection";
 import { Marker, MarkerType } from "./Marker";
 import { MarkerRenderer } from "./layer/MarkerRenderer";
@@ -139,7 +138,6 @@ export type EditSessionEventName =
 
 export class EditSession {
     private firstLineNumber_ = 1;
-    gutterRenderer: GutterRenderer;
     $breakpoints: string[] = [];
     $decorations: string[] = [];
     private $frontMarkers: { [id: number]: Marker } = {};
@@ -2427,7 +2425,7 @@ export class EditSession {
 
     getRowWrapIndent(screenRow: number): number {
         if (this.$useWrapMode) {
-            const pos = this.screenToDocumentPosition(screenRow, Number.MAX_VALUE);
+            const pos = this.screenPositionToDocumentPosition(screenRow, Number.MAX_VALUE);
             const splits: number[] = this.$wrapData[pos.row];
             // FIXME: indent does not exists on number[]
             return splits.length && splits[0] < pos.column ? splits['indent'] : 0;
@@ -2441,15 +2439,15 @@ export class EditSession {
      * Returns the position (on screen) for the last character in the provided screen row.
      */
     getScreenLastRowColumn(screenRow: number): number {
-        const pos = this.screenToDocumentPosition(screenRow, Number.MAX_VALUE);
-        return this.documentToScreenColumn(pos.row, pos.column);
+        const pos = this.screenPositionToDocumentPosition(screenRow, Number.MAX_VALUE);
+        return this.documentPositionToScreenColumn(pos.row, pos.column);
     }
 
     /**
      * For the given document row and column, this returns the column position of the last screen row.
      */
     getDocumentLastRowColumn(docRow: number, docColumn: number): number {
-        const screenRow = this.documentToScreenRow(docRow, docColumn);
+        const screenRow = this.documentPositionToScreenRow(docRow, docColumn);
         return this.getScreenLastRowColumn(screenRow);
     }
 
@@ -2457,8 +2455,8 @@ export class EditSession {
      * For the given document row and column, this returns the document position of the last row.
      */
     getDocumentLastRowColumnPosition(docRow: number, docColumn: number): Position {
-        const screenRow = this.documentToScreenRow(docRow, docColumn);
-        return this.screenToDocumentPosition(screenRow, Number.MAX_VALUE / 10);
+        const screenRow = this.documentPositionToScreenRow(docRow, docColumn);
+        return this.screenPositionToDocumentPosition(screenRow, Number.MAX_VALUE / 10);
     }
 
     /**
@@ -2482,13 +2480,13 @@ export class EditSession {
         return this.$tabSize - screenColumn % this.$tabSize;
     }
 
-    screenToDocumentRow(screenRow: number, screenColumn: number): number {
-        return this.screenToDocumentPosition(screenRow, screenColumn).row;
+    screenPositionToDocumentRow(screenRow: number, screenColumn: number): number {
+        return this.screenPositionToDocumentPosition(screenRow, screenColumn).row;
     }
 
 
-    screenToDocumentColumn(screenRow: number, screenColumn: number): number {
-        return this.screenToDocumentPosition(screenRow, screenColumn).column;
+    screenPositionToDocumentColumn(screenRow: number, screenColumn: number): number {
+        return this.screenPositionToDocumentPosition(screenRow, screenColumn).column;
     }
 
     /**
@@ -2500,7 +2498,7 @@ export class EditSession {
      * @param screenColumn {number} The screen column to check
      * @returns {Position} The object returned has two properties: `row` and `column`.
      */
-    screenToDocumentPosition(screenRow: number, screenColumn: number): Position {
+    screenPositionToDocumentPosition(screenRow: number, screenColumn: number): Position {
         if (screenRow < 0) {
             return { row: 0, column: 0 };
         }
@@ -2601,7 +2599,7 @@ export class EditSession {
      * @param docColumn {number} The document column to check
      * @returns {Position} The object returned by this method has two properties: `row` and `column`.
      */
-    documentToScreenPosition(docRow: number, docColumn: number): Position {
+    documentPositionToScreenPosition(docRow: number, docColumn: number): Position {
         const pos = this.$clipPositionToDocument(docRow, docColumn);
 
         docRow = pos.row;
@@ -2700,8 +2698,8 @@ export class EditSession {
      * @param {Number} docColumn
      * @returns {Number}
      */
-    documentToScreenColumn(docRow: number, docColumn: number): number {
-        return this.documentToScreenPosition(docRow, docColumn).column;
+    documentPositionToScreenColumn(docRow: number, docColumn: number): number {
+        return this.documentPositionToScreenPosition(docRow, docColumn).column;
     }
 
     /**
@@ -2712,13 +2710,13 @@ export class EditSession {
      * @param {Number} docColumn
      * @returns {number}
      */
-    documentToScreenRow(docRow: number, docColumn: number): number {
-        return this.documentToScreenPosition(docRow, docColumn).row;
+    documentPositionToScreenRow(docRow: number, docColumn: number): number {
+        return this.documentPositionToScreenPosition(docRow, docColumn).row;
     }
 
-    documentToScreenRange(range: RangeBasic): Range {
-        const screenPosStart = this.documentToScreenPosition(range.start.row, range.start.column);
-        const screenPosEnd = this.documentToScreenPosition(range.end.row, range.end.column);
+    documentRangeToScreenRange(range: RangeBasic): Range {
+        const screenPosStart = this.documentPositionToScreenPosition(range.start.row, range.start.column);
+        const screenPosEnd = this.documentPositionToScreenPosition(range.end.row, range.end.column);
         return new Range(screenPosStart.row, screenPosStart.column, screenPosEnd.row, screenPosEnd.column);
     }
 

@@ -43,7 +43,7 @@ export class Lines {
     computeLineTop(row: number, config: LayerConfig, session: EditSession): number {
         const screenTop = config.firstRowScreen * config.charHeightPx;
         const screenPage = Math.floor(screenTop / this.canvasHeight);
-        const lineTop = session.documentToScreenRow(row, 0) * config.charHeightPx;
+        const lineTop = session.documentPositionToScreenRow(row, 0) * config.charHeightPx;
         return lineTop - (screenPage * this.canvasHeight);
     }
 
@@ -59,7 +59,7 @@ export class Lines {
         return this.cells[index];
     }
 
-    shift(): void {
+    shift() {
         this.$cacheCell(this.cells.shift());
     }
 
@@ -67,7 +67,7 @@ export class Lines {
         this.$cacheCell(this.cells.pop());
     }
 
-    push(cell: Cell[] | Cell): void {
+    push(cell: Cell[] | Cell) {
         if (Array.isArray(cell)) {
             this.cells.push.apply(this.cells, cell);
             const fragment = createFragment(this.element);

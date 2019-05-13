@@ -644,10 +644,10 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         const session = this.sessionOrThrow();
         const row = this.lead.row;
         const column = this.lead.column;
-        const screenRow = session.documentToScreenRow(row, column);
+        const screenRow = session.documentPositionToScreenRow(row, column);
 
         // Determine the document position of the first character at the screen line.
-        const firstColumnPosition = session.screenToDocumentPosition(screenRow, 0);
+        const firstColumnPosition = session.screenPositionToDocumentPosition(screenRow, 0);
 
         // Determine the line
         // How does getDisplayLine get from folding onto session?
@@ -930,7 +930,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
      */
     moveCursorBy(rows: number, chars: number): void {
         const session = this.sessionOrThrow();
-        const screenPos = session.documentToScreenPosition(this.lead.row, this.lead.column);
+        const screenPos = session.documentPositionToScreenPosition(this.lead.row, this.lead.column);
 
         if (chars === 0) {
             if (this.$desiredColumn)
@@ -939,7 +939,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
                 this.$desiredColumn = screenPos.column;
         }
 
-        const docPos = session.screenToDocumentPosition(screenPos.row + rows, screenPos.column);
+        const docPos = session.screenPositionToDocumentPosition(screenPos.row + rows, screenPos.column);
 
         if (rows !== 0 && chars === 0 && docPos.row === this.lead.row && docPos.column === this.lead.column) {
             if (session.lineWidgets && session.lineWidgets[docPos.row])
@@ -983,7 +983,7 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
      */
     moveCursorToScreen(row: number, column: number, keepDesiredColumn: boolean): void {
         const session = this.sessionOrThrow();
-        const pos = session.screenToDocumentPosition(row, column);
+        const pos = session.screenPositionToDocumentPosition(row, column);
         this.moveCursorTo(pos.row, pos.column, keepDesiredColumn);
     }
 
@@ -1256,8 +1256,8 @@ export class Selection implements EventBus<SelectionEventName, any, Selection> {
         let docEnd: Position;
         for (let row = startRow; row <= endRow; row++) {
             const range = Range.fromPoints(
-                this.session.screenToDocumentPosition(row, startColumn),
-                this.session.screenToDocumentPosition(row, endColumn)
+                this.session.screenPositionToDocumentPosition(row, startColumn),
+                this.session.screenPositionToDocumentPosition(row, endColumn)
             );
             if (range.isEmpty()) {
                 if (docEnd && equalPositions(range.end, docEnd)) {

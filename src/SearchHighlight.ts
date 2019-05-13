@@ -86,7 +86,7 @@ export class SearchHighlight implements Marker {
             }
 
             for (let j = ranges.length; j--;) {
-                markerLayer.drawSingleLineMarker(html, session.documentToScreenRange(ranges[j]), this.clazz, config);
+                markerLayer.drawSingleLineMarker(html, session.documentRangeToScreenRange(ranges[j]), this.clazz, config);
             }
         }
     }

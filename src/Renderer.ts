@@ -422,15 +422,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.content.style.cursor = "default";
     }
 
-    /**
-     * Sets the <code>opacity</code> of the cursor layer to "0".
-     */
-    setCursorLayerOff(): void {
-        const noop = function () {/* Do nothing.*/ };
-        this.cursorLayer.restartTimer = noop;
-        this.cursorLayer.element.style.opacity = "0";
-    }
-
     setHScrollTracking(tracking: HScrollTracking): void {
         this._scrollHTracking = tracking;
     }
@@ -1342,7 +1333,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         // Map lines on the screen to lines in the document.
         const charHeightPx = this.charHeightPx;
-        firstRow = session.screenToDocumentRow(firstRow, 0);
+        firstRow = session.screenPositionToDocumentRow(firstRow, 0);
 
         // Check if firstRow is inside of a foldLine. If true, then use the first
         // row of the foldLine.
@@ -1351,10 +1342,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             firstRow = foldLine.start.row;
         }
 
-        const firstRowScreen = session.documentToScreenRow(firstRow, 0);
+        const firstRowScreen = session.documentPositionToScreenRow(firstRow, 0);
         const firstRowHeight = session.getRowLength(firstRow) * charHeightPx;
 
-        lastRow = Math.min(session.screenToDocumentRow(lastRow, 0), session.getLength() - 1);
+        lastRow = Math.min(session.screenPositionToDocumentRow(lastRow, 0), session.getLength() - 1);
         minHeight = size.scrollerHeightPx + session.getRowLength(lastRow) * charHeightPx + firstRowHeight;
 
         verticalOffsetPx = this.scrollTopPx - firstRowScreen * charHeightPx;
@@ -1771,7 +1762,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         const row = (clientY + this.scrollTopPx - canvasPos.top) / this.charHeightPx;
 
-        return session.screenToDocumentPosition(row, Math.max(column, 0));
+        return session.screenPositionToDocumentPosition(row, Math.max(column, 0));
     }
 
     /**
@@ -1780,7 +1771,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     textToScreenCoordinates(row: number, column: number): ScreenCoordinates {
         const session = this.sessionOrThrow();
         const canvasPos: ClientRect = this.scroller.getBoundingClientRect();
-        const pos: Position = session.documentToScreenPosition(row, column);
+        const pos: Position = session.documentPositionToScreenPosition(row, column);
 
         const x = Math.round(pos.column * this.charWidthPx);
         const y = pos.row * this.charHeightPx;

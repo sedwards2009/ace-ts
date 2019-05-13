@@ -128,7 +128,7 @@ export function onMouseDown(e: EditorMouseEvent): void {
         let rectSel = [];
         const blockSelect = function() {
             const newCursor = editor.renderer.pixelToScreenCoordinates(mouseX, mouseY);
-            const cursor = session.screenToDocumentPosition(newCursor.row, newCursor.column);
+            const cursor = session.screenPositionToDocumentPosition(newCursor.row, newCursor.column);
 
             if (isSamePoint(screenCursor, newCursor) && isSamePoint(cursor, selection.lead)) {
                 return;
@@ -155,7 +155,7 @@ export function onMouseDown(e: EditorMouseEvent): void {
         }
         
         if (shift) {
-            screenAnchor = session.documentToScreenPosition(selection.lead.row, selection.lead.column);
+            screenAnchor = session.documentPositionToScreenPosition(selection.lead.row, selection.lead.column);
         } else {
             selection.moveToPosition(pos);
         }

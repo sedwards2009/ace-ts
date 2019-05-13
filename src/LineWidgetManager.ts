@@ -388,7 +388,6 @@ export class LineWidgetManager {
         this.firstRow = config.firstRow;
         this.lastRow = config.lastRow;
 
-        renderer.cursorLayer.config = config;
         for (let i = first; i <= last; i++) {
             const w = lineWidgets[i];
             if (!w || !w.el) continue;

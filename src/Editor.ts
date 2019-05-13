@@ -4,7 +4,6 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { Anchor } from "./Anchor";
-import { mixin } from "./lib/oop";
 import { computedStyle, hasCssClass } from "./lib/dom";
 import { createDelayedCall } from './lib/lang/createDelayedCall';
 import { DelayedCall } from './lib/lang/DelayedCall';
@@ -82,7 +81,6 @@ import { SelectionChangeEvent } from "./events/SelectionChangeEvent";
 const search = new Search();
 const DRAG_OFFSET = 0; // pixels
 
-type CursorStyle = 'ace' | 'slim' | 'smooth' | 'wide';
 export type EditorStyle = 'ace_selecting' | 'ace_multiselect';
 
 function isRangeSelectionMarker(orientedRange: OrientedRange): orientedRange is RangeSelectionMarker {
@@ -90,12 +88,10 @@ function isRangeSelectionMarker(orientedRange: OrientedRange): orientedRange is 
         const candidate = orientedRange as RangeSelectionMarker;
         if (typeof candidate.markerId === 'number') {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -230,8 +226,6 @@ export class Editor {
 
     inVirtualSelectionMode: boolean;
     $blockSelectEnabled: boolean;
-
-    private $cursorStyle: CursorStyle;
 
     $isFocused: boolean;
 
@@ -983,19 +977,19 @@ export class Editor {
             const range = this.selection.toOrientedRange();
             const isBackwards = range.cursor === range.end;
 
-            const screenLead = session.documentToScreenPosition(range.cursor.row, range.cursor.column);
+            const screenLead = session.documentPositionToScreenPosition(range.cursor.row, range.cursor.column);
             if (this.selection.$desiredColumn) {
                 screenLead.column = this.selection.$desiredColumn;
             }
 
-            const lead = session.screenToDocumentPosition(screenLead.row + direction, screenLead.column);
+            const lead = session.screenPositionToDocumentPosition(screenLead.row + direction, screenLead.column);
 
             let anchor: Position;
             if (!isEmpty(range)) {
                 const row = isBackwards ? range.end.row : range.start.row;
                 const column = isBackwards ? range.end.column : range.start.column;
-                const screenAnchor = session.documentToScreenPosition(row, column);
-                anchor = session.screenToDocumentPosition(screenAnchor.row + direction, screenAnchor.column);
+                const screenAnchor = session.documentPositionToScreenPosition(row, column);
+                anchor = session.screenPositionToDocumentPosition(screenAnchor.row + direction, screenAnchor.column);
             }
             else {
                 anchor = lead;
@@ -3078,7 +3072,7 @@ export class Editor {
         const line = session.getLine(range.start.row);
         const position = range.start;
         const size = session.getTabSize();
-        const column = session.documentToScreenColumn(position.row, position.column);
+        const column = session.documentPositionToScreenColumn(position.row, position.column);
 
         let indentString: string;
         if (session.getUseSoftTabs()) {
@@ -3679,7 +3673,7 @@ export class Editor {
      */
     getCursorPositionScreen(): Position {
         const cursor = this.getCursorPosition();
-        return this.sessionOrThrow().documentToScreenPosition(cursor.row, cursor.column);
+        return this.sessionOrThrow().documentPositionToScreenPosition(cursor.row, cursor.column);
     }
 
     getSelectionIndex(): number {
@@ -4495,15 +4489,14 @@ export class Editor {
     }
 
     protected resetCursorStyle(): void {
-        const style = this.$cursorStyle || "ace";
         const cursorLayer = this.renderer.cursorLayer;
         if (!cursorLayer) {
             return;
         }
-        cursorLayer.setSmoothBlinking(/smooth/.test(style));
+        cursorLayer.setSmoothBlinking(false);
+
         // The cursor only blinks if the editor is writeable.
-        cursorLayer.isBlinking = !this.$readOnly && style !== "wide";
-        cursorLayer.setCssClass("ace_slim-cursors", /slim/.test(style));
+        cursorLayer.setBlinking(!this.$readOnly);
     }
 }
 
@@ -5162,7 +5155,7 @@ class GutterHandler {
                     if (row === maxRow) {
                         const screenRow = editor.renderer.pixelToScreenCoordinates(0, mouseEvent.clientY).row;
                         const pos = mouseEvent.getDocumentPosition();
-                        if (screenRow > session.documentToScreenRow(pos.row, pos.column)) {
+                        if (screenRow > session.documentPositionToScreenRow(pos.row, pos.column)) {
                             return hideTooltip(undefined, editor);
                         }
                     }
@@ -5187,7 +5180,7 @@ class GutterHandler {
                         moveTooltip(mouseEvent);
                     }
                     else {
-                        const gutterElement = gutter.$cells[session.documentToScreenRow(row, 0)].element;
+                        const gutterElement = gutter.$cells[session.documentPositionToScreenRow(row, 0)].element;
                         const rect = gutterElement.getBoundingClientRect();
                         const style = tooltip.getElement().style;
                         style.left = rect.right + "px";
