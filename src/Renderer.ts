@@ -32,6 +32,7 @@ import { ScrollBarEvent } from './events/ScrollBarEvent';
 import { EditorRenderer } from './EditorRenderer';
 import { refChange } from './refChange';
 import { LayerConfig } from "./layer/LayerConfig";
+import { DOMTextLayer } from "./layer/DOMTextLayer";
 
 
 export const changeCharacterSize = 'changeCharacterSize';
@@ -290,12 +291,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$gutterLayer.onWidthChange(this.onGutterResize.bind(this));
 
         this.$markerBack = new MarkerLayer(this.content);
-
-        this.textLayer = new TextLayer(this.content);
-        // this.canvas = this.textLayer.element;
-
+        this.textLayer = this.createTextLayer(this.content);
         this.$markerFront = new MarkerLayer(this.content);
-
         this.cursorLayer = new CursorLayer(this.content);
 
         // Indicates whether the horizontal scrollbar is visible
@@ -340,6 +337,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.updateCharacterSize();
 
         this._fontMetricsMonitor.startPolling();
+    }
+
+    protected createTextLayer(contentDiv: HTMLDivElement): TextLayer {
+        return new DOMTextLayer(contentDiv);
     }
 
     protected createVScrollBar(container: HTMLElement): VScrollBar {

@@ -15,6 +15,7 @@ export { Position } from './Position';
 export { Range } from './Range';
 export { OrientedRange, RangeBasic } from './RangeBasic';
 export { Renderer, HScrollTracking } from './Renderer';
+export { TextLayer } from './layer/TextLayer';
 export { TextMode } from './mode/TextMode';
 export { TokenWithIndex } from './Token';
 export { UndoManager } from './UndoManager';

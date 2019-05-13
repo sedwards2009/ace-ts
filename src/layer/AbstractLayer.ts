@@ -29,8 +29,4 @@ export class AbstractLayer implements Disposable {
         this.parent.removeChild(this.element);
         this.element = null;
     }
-
-    setCssClass(className: string, include: boolean): void {
-        setCssClass(this.element, className, include);
-    }
 }
