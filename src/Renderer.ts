@@ -240,7 +240,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     charWidthPx: number;
     charHeightPx: number;
 
-    private $extraHeight: number;
     private $composition: { keepTextAreaAtCursor: boolean | null; cssText: string } | null;
     private $hScrollBarAlwaysVisible = false;
     private $vScrollBarAlwaysVisible = false;
@@ -306,7 +305,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.scrollBarV = this.createVScrollBar(this.container)
         this.scrollBarVscrollUnhook = this.scrollBarV.on("scroll", (event: ScrollBarEvent, scrollBar: VScrollBar) => {
             if (!this.$scrollAnimation && this.session) {
-                this.setScrollTop(event.data - this.scrollMargin.top);
+                this.setScrollTopPx(event.data - this.scrollMargin.top);
             }
         });
 
@@ -468,7 +467,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             const scrollTop = session.getScrollTop();
             if (typeof scrollTop === 'number') {
                 if (this.scrollMargin.top && scrollTop <= 0) {
-                    this.setScrollTop(-this.scrollMargin.top);
+                    this.setScrollTopPx(-this.scrollMargin.top);
                 }
             }
 
@@ -645,7 +644,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     private $updateCachedSize(force: boolean, gutterWidthPixels: number, widthPx: number, heightPx: number): number {
-        heightPx -= (this.$extraHeight || 0);
         let changes = 0;
         const size = this.$size;
         const oldSize = {
@@ -1054,7 +1052,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         sm.v = sm.top + sm.bottom;
         sm.h = sm.left + sm.right;
         if (sm.top && this.scrollTopPx <= 0 && this.session)
-            this.setScrollTop(-sm.top);
+            this.setScrollTopPx(-sm.top);
         this.updateFull();
     }
 
@@ -1218,7 +1216,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             if (changes & CHANGE_TEXT || changes & CHANGE_LINES) {
                 this.textLayer.update(config);
             } else {
-                this.textLayer.scrollLines(config);
+                this.textLayer.scrollRows(config);
             }
             if (this.$showGutter) {
                 this.$gutterLayer.update(config);
@@ -1275,8 +1273,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const maxHeight = this.$maxLines * this.charHeightPx;
         const desiredHeight = Math.max(
             (this.$minLines || 1) * this.charHeightPx,
-            Math.min(maxHeight, height)
-        ) + this.scrollMargin.v + (this.$extraHeight || 0);
+            Math.min(maxHeight, height)) + this.scrollMargin.v;
         const vScroll = height > maxHeight;
 
         if (desiredHeight !== this.desiredHeight ||
@@ -1335,7 +1332,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.scrollBarV.setVisible(vScroll);
         }
 
-        this.setScrollTop(Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeight - size.scrollerHeightPx + this.scrollMargin.bottom)));
+        this.setScrollTopPx(Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeight - size.scrollerHeightPx + this.scrollMargin.bottom)));
 
         session.setScrollLeft(Math.max(-this.scrollMargin.left, Math.min(this.scrollLeftPx, longestLinePx - size.scrollerWidthPx + this.scrollMargin.right)));
 
@@ -1417,7 +1414,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
 
             // else update only the changed rows
-            this.textLayer.updateLines(layerConfig, firstRow, lastRow);
+            this.textLayer.updateRows(layerConfig, firstRow, lastRow);
             return true;
         }
         return false;
@@ -1529,12 +1526,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             if (top === 0) {
                 top = -this.scrollMargin.top;
             }
-            this.setScrollTop(top);
+            this.setScrollTopPx(top);
         } else if (scrollTop + this.$size.scrollerHeightPx - bottomMargin < top + this.charHeightPx) {
             if (offset) {
                 top += offset * this.$size.scrollerHeightPx;
             }
-            this.setScrollTop(top + this.charHeightPx - this.$size.scrollerHeightPx);
+            this.setScrollTopPx(top + this.charHeightPx - this.$size.scrollerHeightPx);
         }
 
         const scrollLeft = this.scrollLeftPx;
@@ -1580,14 +1577,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param row A row id.
      */
     scrollToRow(row: number): void {
-        this.setScrollTop(row * this.charHeightPx);
+        this.setScrollTopPx(row * this.charHeightPx);
     }
 
-    setScrollTop(topPx: number): void {
+    setScrollTopPx(topPx: number): void {
         const session = this.sessionOrThrow();
-        const screenLines = session.getScreenLength();
-        let maxHeight = screenLines * this.charHeightPx;
-        const maxTopPx = Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeight - this.$size.scrollerHeightPx + this.scrollMargin.bottom));
+        const screenRows = session.getScreenLength();
+        let maxHeightPx = screenRows * this.charHeightPx;
+        const maxTopPx = Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeightPx - this.$size.scrollerHeightPx + this.scrollMargin.bottom));
 
         const newTopPx = Math.min(topPx, maxTopPx);
         session.setScrollTop(newTopPx);
@@ -1602,7 +1599,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const h = this.$size.scrollerHeightPx - this.charHeightPx;
         const offset = pos.top - h * (alignment || 0);
 
-        this.setScrollTop(offset);
+        this.setScrollTopPx(offset);
         return offset;
     }
 
@@ -1622,7 +1619,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const initialScroll = this.scrollTopPx;
-        this.setScrollTop(offset);
+        this.setScrollTopPx(offset);
         if (animate) {
             this.animateScrolling(initialScroll, callback);
         }
@@ -1659,19 +1656,19 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$timer = undefined;
         }
 
-        this.setScrollTop(<number>steps.shift());
+        this.setScrollTopPx(<number>steps.shift());
         // trick session to think it's already scrolled to not loose toValue
         session.$scrollTop = toValue;
         // Every 10 milliseconds, animate the scrolling.
         let doneFinalTweak = false;
         this.$timer = window.setInterval(() => {
             if (steps.length > 0) {
-                this.setScrollTop(<number>steps.shift());
+                this.setScrollTopPx(<number>steps.shift());
                 session.$scrollTop = toValue;
             }
             else if (!doneFinalTweak) {
                 session.$scrollTop = -1;
-                this.setScrollTop(toValue);
+                this.setScrollTopPx(toValue);
                 doneFinalTweak = true;
             }
             else {
@@ -1720,7 +1717,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     scrollTo(scrollLeft: number, scrollTop: number): void {
         const session = this.sessionOrThrow();
         session.setScrollLeft(scrollLeft);
-        this.setScrollTop(scrollTop);
+        this.setScrollTopPx(scrollTop);
     }
 
     /**
@@ -1729,7 +1726,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     scrollBy(deltaX: number, deltaY: number): void {
         const session = this.sessionOrThrow();
         if (deltaY) {
-            this.setScrollTop(session.getScrollTop() + deltaY);
+            this.setScrollTopPx(session.getScrollTop() + deltaY);
         }
         if (deltaX) {
             session.setScrollLeft(session.getScrollLeft() + deltaX);

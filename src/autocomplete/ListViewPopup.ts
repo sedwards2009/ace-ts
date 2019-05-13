@@ -156,7 +156,7 @@ export class ListViewPopup implements ListView {
         this.editor.renderer.on("afterRender", () => {
             const row = this.getRow();
             const t = this.editor.renderer.textLayer;
-            const selected = <HTMLElement>t.element.childNodes[row - t.config.firstRow];
+            const selected = <HTMLElement>t.element.childNodes[row - this.editor.renderer.layerConfig.firstRow];
             if (selected === textLayerSelectedNode) {
                 return;
             }
