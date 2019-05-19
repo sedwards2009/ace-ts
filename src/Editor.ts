@@ -1678,6 +1678,10 @@ export class Editor {
         return this.renderer.onResize(force);
     }
 
+    updateFontSize(): void {
+        this.renderer.updateFontSize();
+    }
+    
     /**
      * Set autoscroll on/off.
      * 
