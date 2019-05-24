@@ -56,12 +56,6 @@ export const isGecko = (('Controllers' in window) || ('controllers' in window as
  */
 export const isMozilla = isGecko;
 
-// oldGecko == rev < 2.0 
-export const isOldGecko = isGecko && parseInt((ua.match(/rv\:(\d+)/) || [])[1], 10) < 4;
-
-// Is this Opera 
-export const isOpera = ('opera' in window) && Object.prototype.toString.call(window['opera']) === "[object Opera]";
-
 // Is the user using a browser that identifies itself as WebKit 
 export const isWebKit = parseFloat(ua.split("WebKit/")[1]) || undefined;
 

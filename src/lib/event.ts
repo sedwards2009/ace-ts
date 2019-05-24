@@ -33,7 +33,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 import { FUNCTION_KEYS, KEY_MODS, MODIFIER_KEYS, PRINTABLE_KEYS } from './keys';
-import { isChromeOS, isMac, isOldGecko, isOpera } from './useragent';
+import { isChromeOS, isMac } from './useragent';
 
 export interface ListenerTarget extends EventTarget {
 }
@@ -64,33 +64,9 @@ export function removeListener(target: ListenerTarget, type: string, callback: E
 * Prevents propagation and clobbers the default action of the passed Event (standard DOM).
 */
 export function stopEvent(e: Event): boolean {
-    stopPropagation(e);
-    preventDefault(e);
+    e.stopPropagation();
+    e.preventDefault();
     return false;
-}
-
-/**
- * Calls the `stopPropagation` method (if it is defined).
- * If it is not defined, sets the `cancelBubble` property to `true`.
- */
-export function stopPropagation(e: Event): void {
-    if (e.stopPropagation) {
-        e.stopPropagation();
-    }
-    else {
-        e.cancelBubble = true;
-    }
-}
-
-export function preventDefault(e: Event): void {
-    // returnValue is no longer documented in typings.
-    const RETURN_VALUE_DEPRECATED = 'returnValue';
-    if (e.preventDefault) {
-        e.preventDefault();
-    }
-    else if (e[RETURN_VALUE_DEPRECATED]) {
-        e[RETURN_VALUE_DEPRECATED] = false;
-    }
 }
 
 /*
@@ -118,7 +94,7 @@ export function getButton(e: MouseEvent): number {
  */
 export function capture(unused: HTMLElement, acquireCaptureHandler: (event: MouseEvent) => void, releaseCaptureHandler: (event: MouseEvent) => void): (event: MouseEvent) => void {
     // FIXME: 'Document' is missing property 'onmouseleave' from 'HTMLElement'.
-    const element: any = document;
+    const element = document;
 
     function releaseMouse(e: MouseEvent) {
 
@@ -130,14 +106,14 @@ export function capture(unused: HTMLElement, acquireCaptureHandler: (event: Mous
             releaseCaptureHandler(e);
         }
 
-        removeListener(element, "mousemove", acquireCaptureHandler, true);
-        removeListener(element, "mouseup", releaseMouse, true);
-        removeListener(element, "dragstart", releaseMouse, true);
+        element.removeEventListener("mousemove", acquireCaptureHandler, true);
+        element.removeEventListener("mouseup", releaseMouse, true);
+        element.removeEventListener("dragstart", releaseMouse, true);
     }
 
-    addListener(element, "mousemove", acquireCaptureHandler, true);
-    addListener(element, "mouseup", releaseMouse, true);
-    addListener(element, "dragstart", releaseMouse, true);
+    element.addEventListener("mousemove", acquireCaptureHandler, true);
+    element.addEventListener("mouseup", releaseMouse, true);
+    element.addEventListener("dragstart", releaseMouse, true);
 
     return releaseMouse;
 }
@@ -146,58 +122,25 @@ export function capture(unused: HTMLElement, acquireCaptureHandler: (event: Mous
  * Adds a portable 'mousewheel' ['wheel','DOM MouseScroll'] listener to an element.
  */
 export function addMouseWheelListener(element: HTMLElement, callback: (event: MouseWheelEvent) => void): void {
-    if ("onmousewheel" in element) {
-        addListener(element, "mousewheel", function (e: DOMWheelEvent) {
-            const factor = 8;
-            if (e.wheelDeltaX !== undefined) {
-                e.wheelX = -e.wheelDeltaX / factor;
-                e.wheelY = -e.wheelDeltaY / factor;
-            }
-            else {
-                e.wheelX = 0;
-                e.wheelY = -e.wheelDelta / factor;
-            }
-            callback(e);
-        });
-    }
-    else if ("onwheel" in element) {
-        addListener(element, "wheel", function wheel(e: DOMWheelEvent) {
-            const factor = 0.35;
-            switch (e.deltaMode) {
-                case e.DOM_DELTA_PIXEL:
-                    e.wheelX = e.deltaX * factor || 0;
-                    e.wheelY = e.deltaY * factor || 0;
-                    break;
-                case e.DOM_DELTA_LINE:
-                case e.DOM_DELTA_PAGE:
-                    e.wheelX = (e.deltaX || 0) * 5;
-                    e.wheelY = (e.deltaY || 0) * 5;
-                    break;
-            }
-            callback(e);
-        });
-    }
-    else {
-        // TODO: Define interface for DOMMouseScroll.
-        addListener(element, "DOMMouseScroll", function (e: DOMWheelEvent) {
-            if (e.axis && e.axis === e.HORIZONTAL_AXIS) {
-                e.wheelX = (e.detail || 0) * 5;
-                e.wheelY = 0;
-            }
-            else {
-                e.wheelX = 0;
-                e.wheelY = (e.detail || 0) * 5;
-            }
-            callback(e);
-        });
-    }
+    element.addEventListener("wheel", function wheel(e: DOMWheelEvent) {
+        const factor = 0.35;
+        switch (e.deltaMode) {
+            case e.DOM_DELTA_PIXEL:
+                e.wheelX = e.deltaX * factor || 0;
+                e.wheelY = e.deltaY * factor || 0;
+                break;
+            case e.DOM_DELTA_LINE:
+            case e.DOM_DELTA_PAGE:
+                e.wheelX = (e.deltaX || 0) * 5;
+                e.wheelY = (e.deltaY || 0) * 5;
+                break;
+        }
+        callback(e);
+    });
 }
 
 export function addMultiMouseDownListener(el: ListenerTarget, timeouts: number[], eventHandler: Object, callbackName: string) {
     let clicks = 0;
-    let startX: number;
-    let startY: number;
-    let timer: number | null;
     const eventNames = {
         2: "dblclick",
         3: "tripleclick",
@@ -227,13 +170,9 @@ export function addMultiMouseDownListener(el: ListenerTarget, timeouts: number[]
     });
 }
 
-const getModifierHash = isMac && isOpera && !("KeyboardEvent" in window)
-    ? function (e: KeyboardEvent) {
-        return 0 | (e.metaKey ? 1 : 0) | (e.altKey ? 2 : 0) | (e.shiftKey ? 4 : 0) | (e.ctrlKey ? 8 : 0);
-    }
-    : function (e: KeyboardEvent) {
-        return 0 | (e.ctrlKey ? 1 : 0) | (e.altKey ? 2 : 0) | (e.shiftKey ? 4 : 0) | (e.metaKey ? 8 : 0);
-    };
+const getModifierHash = function (e: KeyboardEvent) {
+    return 0 | (e.ctrlKey ? 1 : 0) | (e.altKey ? 2 : 0) | (e.shiftKey ? 4 : 0) | (e.metaKey ? 8 : 0);
+};
 
 export function getModifierString(e: KeyboardEvent) {
     return KEY_MODS[getModifierHash(e)];
@@ -328,50 +267,33 @@ function normalizeCommandKeys(callback: (e: KeyboardEvent, hashId: number, keyCo
  * The hashId value is compatible with the KeyboardHandler which maps them onto commands.
  */
 export function addCommandKeyListener(el: ListenerTarget, callback: (e: KeyboardEvent, hashId: number, keyCode: number) => any) {
-    if (isOldGecko || (isOpera && !("KeyboardEvent" in window))) {
-        // Old versions of Gecko aka. Firefox < 4.0 didn't repeat the keydown
-        // event if the user pressed the key for a longer time. Instead, the
-        // keydown event was fired once and later on only the keypress event.
-        // To emulate the 'right' keydown behavior, the keyCode of the initial
-        // keyDown event is stored and in the following keypress events the
-        // stores keyCode is used to emulate a keyDown event.
-        let lastKeyDownKeyCode: number | null = null;
-        addListener(el, "keydown", function (e: KeyboardEvent) {
-            lastKeyDownKeyCode = e.keyCode;
-        });
-        addListener(el, "keypress", function (e: KeyboardEvent) {
-            return normalizeCommandKeys(callback, e, lastKeyDownKeyCode);
-        });
-    }
-    else {
-        let lastDefaultPrevented: boolean | null = null;
+    let lastDefaultPrevented: boolean | null = null;
 
-        addListener(el, "keydown", function (e: KeyboardEvent) {
-            if (pressedKeys) {
-                pressedKeys[e.keyCode] = true;
-            }
-            const result = normalizeCommandKeys(callback, e, e.keyCode);
-            lastDefaultPrevented = e.defaultPrevented;
-            return result;
-        });
-
-        addListener(el, 'keypress', function (e: KeyboardEvent) {
-            if (lastDefaultPrevented && (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey)) {
-                stopEvent(e);
-                lastDefaultPrevented = null;
-            }
-        });
-
-        addListener(el, 'keyup', function (e: KeyboardEvent) {
-            if (pressedKeys) {
-                pressedKeys[e.keyCode] = null;
-            }
-        });
-
-        if (!pressedKeys) {
-            pressedKeys = Object.create(null);
-            addListener(window, 'focus', resetPressedKeys);
+    el.addEventListener("keydown", function (e: KeyboardEvent) {
+        if (pressedKeys) {
+            pressedKeys[e.keyCode] = true;
         }
+        const result = normalizeCommandKeys(callback, e, e.keyCode);
+        lastDefaultPrevented = e.defaultPrevented;
+        return result;
+    });
+
+    el.addEventListener('keypress', function (e: KeyboardEvent) {
+        if (lastDefaultPrevented && (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey)) {
+            stopEvent(e);
+            lastDefaultPrevented = null;
+        }
+    });
+
+    el.addEventListener('keyup', function (e: KeyboardEvent) {
+        if (pressedKeys) {
+            pressedKeys[e.keyCode] = null;
+        }
+    });
+
+    if (!pressedKeys) {
+        pressedKeys = Object.create(null);
+        window.addEventListener('focus', resetPressedKeys);
     }
 }
 

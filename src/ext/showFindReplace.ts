@@ -7,7 +7,7 @@ import { createDelayedCall } from '../lib/lang/createDelayedCall';
 import { DelayedCall } from '../lib/lang/DelayedCall';
 import { setCssClass } from '../lib/dom';
 import { keyCodeToString } from '../lib/keys';
-import { addListener, addCommandKeyListener, stopEvent, stopPropagation } from '../lib/event';
+import { addListener, addCommandKeyListener, stopEvent } from '../lib/event';
 import { KeyboardHandler } from '../keyboard/KeyboardHandler';
 import { Range } from '../Range';
 import { Editor } from '../Editor';
@@ -172,7 +172,7 @@ class SearchBox {
             setTimeout(() => {
                 this.activeInput.focus();
             }, 0);
-            stopPropagation(e);
+            e.stopPropagation();
         });
         addListener(sb, "click", (e: MouseEvent) => {
             const t = e.srcElement;
@@ -188,7 +188,7 @@ class SearchBox {
                     }
                 }
             }
-            stopPropagation(e);
+            e.stopPropagation();
         });
 
         addCommandKeyListener(sb, (e: Event, hashId: number, keyCode: number) => {

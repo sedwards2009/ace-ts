@@ -4,7 +4,7 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { Editor } from './Editor';
-import { getButton, preventDefault, stopPropagation } from "./lib/event";
+import { getButton } from "./lib/event";
 import { isMac } from "./lib/useragent";
 import { Position } from "./Position";
 import { contains, isEmpty } from './RangeHelpers';
@@ -51,12 +51,12 @@ export class EditorMouseEvent {
     }
 
     stopPropagation(): void {
-        stopPropagation(this.domEvent);
+        this.domEvent.stopPropagation();
         // this.propagationStopped = true;
     }
 
     preventDefault() {
-        preventDefault(this.domEvent);
+        this.domEvent.preventDefault();
         // this.defaultPrevented = true;
     }
 

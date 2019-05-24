@@ -48,7 +48,7 @@ import { refChange } from './refChange';
 import { SearchOptions } from './SearchOptions';
 import { Selection } from './Selection';
 import { stringTrimLeft, stringTrimRight } from "./lib/lang";
-import { addListener, addMouseWheelListener, addMultiMouseDownListener, capture, preventDefault, stopEvent, addCommandKeyListener } from "./lib/event";
+import { addListener, addMouseWheelListener, addMultiMouseDownListener, capture, stopEvent, addCommandKeyListener } from "./lib/event";
 import { EditorChangeSessionEvent } from './events/EditorChangeSessionEvent';
 import { SessionChangeEditorEvent } from './events/SessionChangeEditorEvent';
 import { SessionChangeCursorEvent } from './events/SessionChangeCursorEvent';
@@ -4660,7 +4660,7 @@ export class MouseHandler implements IGestureHandler {
 
             addListener(gutterEl, "mousedown", function (e) {
                 editor.focus();
-                return preventDefault(e);
+                return e.preventDefault();
             });
 
             // Handle `mousemove` while the mouse is over the editing area (and not the gutter).

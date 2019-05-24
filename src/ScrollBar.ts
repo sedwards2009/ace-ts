@@ -4,7 +4,7 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { createElement } from "./lib/dom";
-import { addListener, preventDefault, removeListener } from "./lib/event";
+import { addListener, removeListener } from "./lib/event";
 import { Disposable } from './Disposable';
 import { EventBusImpl } from "./lib/EventBusImpl";
 import { EventBus } from "./EventBus";
@@ -72,11 +72,11 @@ export class ScrollBar implements EventBus<ScrollBarEventName, ScrollBarEvent, S
         this.setVisible(false);
         this.skipEvent = false;
 
-        addListener(this.element, "mousedown", preventDefault);
+        addListener(this.element, "mousedown", e => e.preventDefault());
     }
 
     dispose(): void {
-        removeListener(this.element, "mousedown", preventDefault);
+        removeListener(this.element, "mousedown", e => e.preventDefault());
         this.element.removeChild(this.inner);
         this.inner = <any>undefined;
         this.parent.removeChild(this.element);

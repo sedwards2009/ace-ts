@@ -3,7 +3,7 @@
  * Copyright (c) 2015-2018, David Holmes
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
-import { capture, preventDefault } from "../lib/event";
+import { capture } from "../lib/event";
 import { isGecko, isTouchPad, isWebKit, isWin } from "../lib/useragent";
 import { createElement } from "../lib/dom";
 import { createDelayedCall } from "../lib/lang/createDelayedCall";
@@ -171,21 +171,21 @@ export class TextInput {
     private doCopy(e: ClipboardEvent): void {
         const data = this._emitCopy();
         if (!data) {
-            preventDefault(e);
+            e.preventDefault();
             return;
         }
         e.clipboardData.setData("text/plain", data);
-        preventDefault(e);
+        e.preventDefault();
     }
 
     private doCut(e: ClipboardEvent): void {
         const data = this._emitCut();
         if (!data) {
-            preventDefault(e);
+            e.preventDefault();
             return;
         }
         e.clipboardData.setData("text/plain", data);
-        preventDefault(e);
+        e.preventDefault();
     }
 
     // TODO: I don't see this being cleaned up. 
@@ -194,7 +194,7 @@ export class TextInput {
         if (text) {
             this._emitPaste(text);
         }
-        preventDefault(e);
+        e.preventDefault();
     }
 
     private onCompositionStart(ev: CompositionEvent): void {
