@@ -178,8 +178,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     scrollerElement: HTMLDivElement;
     contentElement: HTMLDivElement;
 
-    private $horizScroll: boolean;
-    private $vScroll: boolean;
+    private _canHorizontalScroll: boolean;
+    private _canVerticalScroll: boolean;
     scrollBarH: HScrollBar;
     scrollBarV: VScrollBar;
     private scrollBarHscrollUnhook: () => void;
@@ -288,8 +288,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.cursorLayer = new CursorLayer(this.contentElement);
 
         // Indicates whether the horizontal scrollbar is visible
-        this.$horizScroll = false;
-        this.$vScroll = false;
+        this._canHorizontalScroll = false;
+        this._canVerticalScroll = false;
 
         this.scrollBarV = this.createVScrollBar(this.containerElement)
         this.scrollBarVscrollUnhook = this.scrollBarV.on("scroll", (event: ScrollBarEvent, scrollBar: VScrollBar) => {
@@ -637,7 +637,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             changes |= CHANGE_SIZE;
 
             newScrollerHeightPx = viewPortSize.heightPx;
-            if (this.$horizScroll) {
+            if (this._canHorizontalScroll) {
                 newScrollerHeightPx -= this.scrollBarH.height;
             }
 
@@ -1055,7 +1055,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     setHScrollBarAlwaysVisible(hScrollBarAlwaysVisible: boolean) {
         this.$hScrollBarAlwaysVisible = hScrollBarAlwaysVisible;
-        if (!this.$hScrollBarAlwaysVisible || !this.$horizScroll) {
+        if (!this.$hScrollBarAlwaysVisible || !this._canHorizontalScroll) {
             this.$loop.schedule(CHANGE_SCROLL);
         }
     }
@@ -1073,7 +1073,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     setVScrollBarAlwaysVisible(alwaysVisible: boolean): void {
         this.$vScrollBarAlwaysVisible = alwaysVisible;
-        if (!this.$vScrollBarAlwaysVisible || !this.$vScroll) {
+        if (!this.$vScrollBarAlwaysVisible || !this._canVerticalScroll) {
             this.$loop.schedule(CHANGE_SCROLL);
         }
     }
@@ -1262,9 +1262,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const vScroll = height > maxHeight;
 
         if (desiredHeight !== this.desiredHeight ||
-            this.$viewPortSize.heightPx !== this.desiredHeight || vScroll !== this.$vScroll) {
-            if (vScroll !== this.$vScroll) {
-                this.$vScroll = vScroll;
+            this.$viewPortSize.heightPx !== this.desiredHeight || vScroll !== this._canVerticalScroll) {
+            if (vScroll !== this._canVerticalScroll) {
+                this._canVerticalScroll = vScroll;
                 this.scrollBarV.setVisible(vScroll);
             }
 
@@ -1300,9 +1300,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         const horizScroll = !hideScrollbars && (this.$hScrollBarAlwaysVisible || size.scrollerWidthPx - longestLinePx < 0);
 
-        const hScrollChanged = this.$horizScroll !== horizScroll;
+        const hScrollChanged = this._canHorizontalScroll !== horizScroll;
         if (hScrollChanged) {
-            this.$horizScroll = horizScroll;
+            this._canHorizontalScroll = horizScroll;
             this.scrollBarH.setVisible(horizScroll);
         }
 
@@ -1311,9 +1311,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const vScroll = !hideScrollbars && (this.$vScrollBarAlwaysVisible || size.scrollerHeightPx - maxHeight < 0);
-        const vScrollChanged = this.$vScroll !== vScroll;
+        const vScrollChanged = this._canVerticalScroll !== vScroll;
         if (vScrollChanged) {
-            this.$vScroll = vScroll;
+            this._canVerticalScroll = vScroll;
             this.scrollBarV.setVisible(vScroll);
         }
 
