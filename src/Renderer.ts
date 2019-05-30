@@ -32,6 +32,7 @@ import { ScrollBarEvent } from './events/ScrollBarEvent';
 import { EditorRenderer } from './EditorRenderer';
 import { refChange } from './refChange';
 import { LayerConfig } from "./layer/LayerConfig";
+import { ViewPortSize } from "./ViewPortSize";
 import { DOMTextLayer } from "./layer/DOMTextLayer";
 
 
@@ -211,13 +212,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * A cache of various sizes TBA.
      */
-    $viewPortSize: {
-        heightPx: number;
-        widthPx: number;
-        scrollerHeightPx: number;
-        scrollerWidthPx: number;
-        $dirty: boolean;
-    };
+    $viewPortSize: ViewPortSize;
+    private _viewPortDirty: boolean;
 
     private $loop: RenderLoop;
     private $changedLines: { firstRow: number; lastRow: number; } | null;
@@ -321,8 +317,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             heightPx: 0,
             scrollerHeightPx: 0,
             scrollerWidthPx: 0,
-            $dirty: true
         };
+        this._viewPortDirty = true;
 
         this.$loop = new RenderLoop(changes => this.$renderChanges(changes, false),
                                     this.containerElement.ownerDocument.defaultView);
@@ -567,7 +563,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private $updateSizeAsync(): void {
         if (this.$loop.pending) {
-            this.$viewPortSize.$dirty = true;
+            this._viewPortDirty = true;
         } else {
             this.onResize();
         }
@@ -631,19 +627,20 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private $updateCachedSize(force: boolean, gutterWidthPx?: number, widthPx?: number, heightPx?: number): number {
         let changes = 0;
         const viewPortSize = this.$viewPortSize;
-        const oldViewPortSize = {
-            width: viewPortSize.widthPx,
-            height: viewPortSize.heightPx,
-            scrollerHeight: viewPortSize.scrollerHeightPx,
-            scrollerWidth: viewPortSize.scrollerWidthPx
-        };
+        const oldViewPortSize = this.$viewPortSize;
+        
+        let newWidthPx = viewPortSize.widthPx;
+        let newHeightPx = viewPortSize.heightPx;
+        let newScrollerHeightPx = viewPortSize.scrollerHeightPx;
+        let newScrollerWidthPx = viewPortSize.scrollerWidthPx;
+
         if (heightPx && (force || viewPortSize.heightPx !== heightPx)) {
-            viewPortSize.heightPx = heightPx;
+            newHeightPx = heightPx;
             changes |= CHANGE_SIZE;
 
-            viewPortSize.scrollerHeightPx = viewPortSize.heightPx;
+            newScrollerHeightPx = viewPortSize.heightPx;
             if (this.$horizScroll) {
-                viewPortSize.scrollerHeightPx -= this.scrollBarH.height;
+                newScrollerHeightPx -= this.scrollBarH.height;
             }
 
             this.scrollBarV.element.style.bottom = pixelStyle(this.scrollBarH.height);
@@ -653,7 +650,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         if (widthPx && (force || viewPortSize.widthPx !== widthPx)) {
             changes |= CHANGE_SIZE;
-            viewPortSize.widthPx = widthPx;
+            newWidthPx = widthPx;
 
             if (gutterWidthPx == null) {
                 gutterWidthPx = this.$showGutter ? this.$gutterElement.offsetWidth : 0;
@@ -662,7 +659,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.gutterWidthPx = gutterWidthPx;
 
             this.scrollBarH.element.style.left = this.scrollerElement.style.left = pixelStyle(gutterWidthPx);
-            viewPortSize.scrollerWidthPx = Math.max(0, widthPx - gutterWidthPx - this.scrollBarV.width);
+            newScrollerWidthPx = Math.max(0, widthPx - gutterWidthPx - this.scrollBarV.width);
 
             this.scrollBarH.element.style.right = this.scrollerElement.style.right = pixelStyle(this.scrollBarV.width);
             this.scrollerElement.style.bottom = pixelStyle(this.scrollBarH.height);
@@ -672,7 +669,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
         }
 
-        viewPortSize.$dirty = !widthPx || !heightPx;
+        this._viewPortDirty = !widthPx || !heightPx;
+
+        this.$viewPortSize = {
+            widthPx: newWidthPx,
+            heightPx: newHeightPx,
+            scrollerHeightPx: newScrollerHeightPx,
+            scrollerWidthPx: newScrollerWidthPx,
+        };
 
         if (changes) {
             this.eventBus._signal("resize", oldViewPortSize);
@@ -689,7 +693,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         if (this.session && this.session.getUseWrapMode() && this.adjustWrapLimit()) {
             this.$loop.schedule(CHANGE_FULL);
-        } else if (this.$viewPortSize.$dirty) {
+        } else if (this._viewPortDirty) {
             this.$loop.schedule(CHANGE_FULL);
         } else {
             this.$computeLayerConfig();
@@ -1130,7 +1134,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$changes |= changes;
             return;
         }
-        if (this.$viewPortSize.$dirty) {
+        if (this._viewPortDirty) {
             this.$changes |= changes;
             this.onResize(true);
             return;
@@ -1853,7 +1857,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         // force re-measure of the gutter width
         if (this.$viewPortSize) {
-            this.$viewPortSize.widthPx = 0;
+            this.$viewPortSize = { ...this.$viewPortSize, widthPx: 0};
             this.$updateSizeAsync();
         }
 
