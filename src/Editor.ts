@@ -3469,7 +3469,7 @@ export class Editor {
 
             const scrollTop = renderer.scrollTopPx;
 
-            renderer.scrollBy(0, rows * config.charHeightPx);
+            renderer.scrollByPx(0, rows * config.charHeightPx);
             // FIXME: Why don't we assert our args and do typeof select === 'undefined'?
             if (select != null) {
                 // This is called when select is undefined.
@@ -3599,13 +3599,13 @@ export class Editor {
     scrollDown(): void {
         const deltaX = 0;
         const deltaY = 2 * this.renderer.layerConfig.charHeightPx;
-        this.renderer.scrollBy(deltaX, deltaY);
+        this.renderer.scrollByPx(deltaX, deltaY);
     }
 
     scrollUp(): void {
         const deltaX = 0;
         const deltaY = -2 * this.renderer.layerConfig.charHeightPx;
-        this.renderer.scrollBy(deltaX, deltaY);
+        this.renderer.scrollByPx(deltaX, deltaY);
     }
 
     /**
@@ -4962,10 +4962,10 @@ function makeMouseWheelHandler(editor: Editor, mouseHandler: MouseHandler) {
         const t = ev.domEvent.timeStamp;
         const dt = t - (mouseHandler.$lastScrollTime || 0);
 
-        const isScrolable = editor.renderer.isScrollableBy(ev.wheelX * ev.speed, ev.wheelY * ev.speed);
+        const isScrolable = editor.renderer.isScrollableByPx(ev.wheelX * ev.speed, ev.wheelY * ev.speed);
         if (isScrolable || dt < 200) {
             mouseHandler.$lastScrollTime = t;
-            editor.renderer.scrollBy(ev.wheelX * ev.speed, ev.wheelY * ev.speed);
+            editor.renderer.scrollByPx(ev.wheelX * ev.speed, ev.wheelY * ev.speed);
             return ev.stop();
         }
     };

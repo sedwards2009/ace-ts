@@ -489,8 +489,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         if (!this.$changedLines) {
             this.$changedLines = { firstRow: firstRow, lastRow: lastRow };
-        }
-        else {
+        } else {
             if (this.$changedLines.firstRow > firstRow) {
                 this.$changedLines.firstRow = firstRow;
             }
@@ -507,8 +506,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (this.$changedLines.lastRow < this.layerConfig.firstRow) {
             if (force) {
                 this.$changedLines.lastRow = this.layerConfig.lastRow;
-            }
-            else {
+            } else {
                 return;
             }
         }
@@ -685,7 +683,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return changes;
     }
 
-    private onGutterResize() {
+    private onGutterResize(): void {
         const gutterWidthPx = this.$showGutter ? this.$gutterElement.offsetWidth : 0;
         if (gutterWidthPx !== this.gutterWidthPx) {
             this.$changes |= this.$updateCachedSize(true, gutterWidthPx, this.$viewPortSize.widthPx, this.$viewPortSize.heightPx);
@@ -736,7 +734,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Returns whether an animated scroll happens or not.
      */
-    getAnimatedScroll() {
+    getAnimatedScroll(): boolean {
         return this.animatedScroll;
     }
 
@@ -885,7 +883,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
     }
 
-    getHighlightGutterLine() {
+    getHighlightGutterLine(): boolean {
         return this.$highlightGutterLine;
     }
 
@@ -893,7 +891,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return this.cursorLayer.getPixelPosition(position, onScreen);
     }
 
-    $updateGutterLineHighlight() {
+    private $updateGutterLineHighlight(): void {
         const session = this.sessionOrThrow();
         let pos = this.cursorLayer.$pixelPos;
         let height = this.layerConfig.charHeightPx;
@@ -910,7 +908,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$gutterLineHighlight.style.height = pixelStyle(height);
     }
 
-    $updatePrintMargin() {
+    private $updatePrintMargin(): void {
         if (!this.$showPrintMargin && !this.$printMarginElement)
             return;
 
@@ -1030,7 +1028,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return this.layerConfig.lastRow;
     }
 
-    setScrollMargin(topPx: number, bottomPx: number, leftPx: number, rightPx: number): void {
+    setScrollMarginPx(topPx: number, bottomPx: number, leftPx: number, rightPx: number): void {
         const sm = this.scrollMargin;
         sm.topPx = topPx | 0;
         sm.bottomPx = bottomPx | 0;
@@ -1475,7 +1473,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Shows the cursor icon.
      */
-    showCursor() {
+    showCursor(): void {
         this.cursorLayer.showCursor();
     }
 
@@ -1498,48 +1496,48 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         const pos = this.getPixelPosition(cursor, false);
 
-        let left = pos.left;
-        let top = pos.top;
+        let leftPx = pos.left;
+        let topPx = pos.top;
 
         const topMargin = viewMargin && viewMargin.top || 0;
         const bottomMargin = viewMargin && viewMargin.bottom || 0;
 
         const scrollTop = this.$scrollAnimation ? session.getScrollTopPx() : this.scrollTopPx;
 
-        if (scrollTop + topMargin > top) {
+        if (scrollTop + topMargin > topPx) {
             if (offset) {
-                top -= offset * this.$viewPortSize.scrollerHeightPx;
+                topPx -= offset * this.$viewPortSize.scrollerHeightPx;
             }
-            if (top === 0) {
-                top = -this.scrollMargin.topPx;
+            if (topPx === 0) {
+                topPx = -this.scrollMargin.topPx;
             }
-            this.setScrollTopPx(top);
-        } else if (scrollTop + this.$viewPortSize.scrollerHeightPx - bottomMargin < top + this.charHeightPx) {
+            this.setScrollTopPx(topPx);
+        } else if (scrollTop + this.$viewPortSize.scrollerHeightPx - bottomMargin < topPx + this.charHeightPx) {
             if (offset) {
-                top += offset * this.$viewPortSize.scrollerHeightPx;
+                topPx += offset * this.$viewPortSize.scrollerHeightPx;
             }
-            this.setScrollTopPx(top + this.charHeightPx - this.$viewPortSize.scrollerHeightPx);
+            this.setScrollTopPx(topPx + this.charHeightPx - this.$viewPortSize.scrollerHeightPx);
         }
 
         const scrollLeft = this.scrollLeftPx;
 
-        if (scrollLeft > left) {
-            if (left < 2 * this.layerConfig.charWidthPx) {
-                left = -this.scrollMargin.leftPx;
+        if (scrollLeft > leftPx) {
+            if (leftPx < 2 * this.layerConfig.charWidthPx) {
+                leftPx = -this.scrollMargin.leftPx;
             }
-            session.setScrollLeftPx(left);
-        } else if (scrollLeft + this.$viewPortSize.scrollerWidthPx < left + this.charWidthPx) {
-            session.setScrollLeftPx(Math.round(left + this.charWidthPx - this.$viewPortSize.scrollerWidthPx));
-        } else if (scrollLeft <= 0 && left - scrollLeft < this.charWidthPx) {
+            session.setScrollLeftPx(leftPx);
+        } else if (scrollLeft + this.$viewPortSize.scrollerWidthPx < leftPx + this.charWidthPx) {
+            session.setScrollLeftPx(Math.round(leftPx + this.charWidthPx - this.$viewPortSize.scrollerWidthPx));
+        } else if (scrollLeft <= 0 && leftPx - scrollLeft < this.charWidthPx) {
             session.setScrollLeftPx(0);
         }
     }
 
-    getScrollTop(): number {
+    getScrollTopPx(): number {
         return this.sessionOrThrow().getScrollTopPx();
     }
 
-    getScrollLeft(): number {
+    getScrollLeftPx(): number {
         return this.sessionOrThrow().getScrollLeftPx();
     }
 
@@ -1598,7 +1596,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param animate If `true` animates scrolling
      * @param callback Function to be called after the animation has finished
      */
-    scrollToLine(line: number, center: boolean, animate?: boolean, callback?: () => any) {
+    scrollToLine(line: number, center: boolean, animate?: boolean, callback?: () => any): void {
         const pos = this.getPixelPosition({ row: line, column: 0 }, false);
         let offset = pos.top;
         if (center) {
@@ -1701,40 +1699,40 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Scrolls the editor across axes to an absolute point (scrollLeft, scrollTop).
      */
-    scrollTo(scrollLeft: number, scrollTop: number): void {
+    scrollToPx(scrollLeftPx: number, scrollTopPx: number): void {
         const session = this.sessionOrThrow();
-        session.setScrollLeftPx(scrollLeft);
-        this.setScrollTopPx(scrollTop);
+        session.setScrollLeftPx(scrollLeftPx);
+        this.setScrollTopPx(scrollTopPx);
     }
 
     /**
      * Scrolls the editor across both axes by a displacement.
      */
-    scrollBy(deltaX: number, deltaY: number): void {
+    scrollByPx(deltaXPx: number, deltaYPx: number): void {
         const session = this.sessionOrThrow();
-        if (deltaY) {
-            this.setScrollTopPx(session.getScrollTopPx() + deltaY);
+        if (deltaYPx) {
+            this.setScrollTopPx(session.getScrollTopPx() + deltaYPx);
         }
-        if (deltaX) {
-            session.setScrollLeftPx(session.getScrollLeftPx() + deltaX);
+        if (deltaXPx) {
+            session.setScrollLeftPx(session.getScrollLeftPx() + deltaXPx);
         }
     }
 
     /**
      * Returns `true` if you can still scroll by either parameter; in other words, you haven't reached the end of the file or line.
      */
-    isScrollableBy(deltaX: number, deltaY: number): boolean {
+    isScrollableByPx(deltaXPx: number, deltaYPx: number): boolean {
         const session = this.sessionOrThrow();
-        if (deltaY < 0 && session.getScrollTopPx() >= 1 - this.scrollMargin.topPx) {
+        if (deltaYPx < 0 && session.getScrollTopPx() >= 1 - this.scrollMargin.topPx) {
             return true;
         }
-        if (deltaY > 0 && session.getScrollTopPx() + this.$viewPortSize.scrollerHeightPx - this.layerConfig.maxHeightPx < -1 + this.scrollMargin.bottomPx) {
+        if (deltaYPx > 0 && session.getScrollTopPx() + this.$viewPortSize.scrollerHeightPx - this.layerConfig.maxHeightPx < -1 + this.scrollMargin.bottomPx) {
             return true;
         }
-        if (deltaX < 0 && session.getScrollLeftPx() >= 1 - this.scrollMargin.leftPx) {
+        if (deltaXPx < 0 && session.getScrollLeftPx() >= 1 - this.scrollMargin.leftPx) {
             return true;
         }
-        if (deltaX > 0 && session.getScrollLeftPx() + this.$viewPortSize.scrollerWidthPx - this.layerConfig.docWidthPx < -1 + this.scrollMargin.rightPx) {
+        if (deltaXPx > 0 && session.getScrollLeftPx() + this.$viewPortSize.scrollerWidthPx - this.layerConfig.docWidthPx < -1 + this.scrollMargin.rightPx) {
             return true;
         }
         return false;
@@ -1747,7 +1745,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const row = Math.floor((y + this.scrollTopPx - canvasPos.top) / this.charHeightPx);
         const col = Math.round(offset);
 
-        return { row: row, column: col, side: offset - col > 0 ? 1 : -1 };
+        return { row: row, column: col }; //, side: offset - col > 0 ? 1 : -1 };
     }
 
     screenToTextCoordinates(clientX: number, clientY: number): Position {
@@ -1792,7 +1790,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         removeCssClass(this.containerElement, "ace_focus");
     }
 
-    showComposition(position: Position) {
+    showComposition(position: Position): void {
         if (!this.$composition)
             this.$composition = {
                 keepTextAreaAtCursor: this.$keepTextAreaAtCursor,
@@ -1831,7 +1829,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return this.$gutterLayer.getShowFoldWidgets();
     }
 
-    setShowFoldWidgets(showFoldWidgets: boolean) {
+    setShowFoldWidgets(showFoldWidgets: boolean): void {
         this.$gutterLayer.setShowFoldWidgets(showFoldWidgets);
     }
 

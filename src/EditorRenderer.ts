@@ -6,34 +6,13 @@
 import { Annotation } from "./Annotation";
 import { Position } from "./Position";
 
-/**
- *
- */
 // TODO: The HTML nature is leaky.
 export interface EditorRenderer {
-    /**
-     * 
-     */
     $keepTextAreaAtCursor: boolean | null;
-    /**
-     * 
-     */
     maxLines: number;
-    /**
-     * 
-     */
     minLines: number;
-    /**
-     * 
-     */
     scrollerElement: HTMLDivElement;
-    /**
-     *
-     */
     scrollTopPx: number;
-    /**
-     * 
-     */
     textareaElement: HTMLTextAreaElement;
 
     /**
@@ -71,7 +50,7 @@ export interface EditorRenderer {
      * @param deltaX The x value to scroll by.
      * @param deltaY The y value to scroll by.
      */
-    scrollBy(deltaX: number, deltaY: number): void;
+    scrollByPx(deltaX: number, deltaY: number): void;
 
     /**
      * Scrolls the cursor into the first visibile area of the editor
