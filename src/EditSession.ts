@@ -203,20 +203,13 @@ export class EditSession {
     private $overwrite = false;
     $searchHighlight: SearchHighlight;
     private $annotations: Annotation[];
-    // TODO: '$autoNewLine' is declared but its value is never read.
-    // private $autoNewLine: string;
 
     private eventBus: EventBusImpl<EditSessionEventName, any, EditSession>;
-
-    // private readonly changeModeBus = new EventEmitterClass<'changeMode', {}, EditSession>(this);
-    // readonly changeModeEvents = this.changeModeBus.events('changeMode');
 
     /**
      * Determines whether the worker will be started.
      */
     private $useWorker = true;
-
-    // private $modes: { [path: string]: LanguageMode } = {};
 
     /**
      * This properrty should be accessed from outside ising modeOrThrow() or getMode().
@@ -230,8 +223,8 @@ export class EditSession {
 
     tokenRe: RegExp;
     nonTokenRe: RegExp;
-    $scrollTop = 0;
-    private $scrollLeft = 0;
+    $scrollTopPx = 0;
+    private $scrollLeftPx = 0;
     private $wrap: boolean | number | string;
     private $wrapAsCode: boolean;
     private $wrapLimit = 80;
@@ -249,8 +242,7 @@ export class EditSession {
     private $tabSize = 4;
     private screenWidthChars: number;
     lineWidgets: (LineWidget | undefined)[] | null = null;
-    private lineWidgetsWidth: number;
-    lineWidgetWidth: number | null;
+    private lineWidgetsWidthChars: number;
     $getWidgetScreenLength: () => number;
     /**
      * This is a marker identifier for which XML or HTML tag to highlight.
@@ -1288,54 +1280,52 @@ export class EditSession {
     /**
      * This function sets the scroll top value. It also emits the `'changeScrollTop'` event.
      */
-    setScrollTop(scrollTop: number): void {
+    setScrollTopPx(scrollTopPx: number): void {
         // TODO: should we force integer lineheight instead? scrollTop = Math.round(scrollTop); 
-        if (this.$scrollTop === scrollTop || isNaN(scrollTop)) {
+        if (this.$scrollTopPx === scrollTopPx || isNaN(scrollTopPx)) {
             return;
         }
-        this.$scrollTop = scrollTop;
-        this.eventBus._signal("changeScrollTop", scrollTop);
+        this.$scrollTopPx = scrollTopPx;
+        this.eventBus._signal("changeScrollTop", scrollTopPx);
     }
 
     /**
      * Returns the value of the distance between the top of the editor and the topmost part of the visible content.
      */
-    getScrollTop(): number {
-        return this.$scrollTop;
+    getScrollTopPx(): number {
+        return this.$scrollTopPx;
     }
 
     /**
      * Sets the value of the distance between the left of the editor and the leftmost part of the visible content.
      */
-    setScrollLeft(scrollLeft: number): void {
-        // scrollLeft = Math.round(scrollLeft);
-        if (this.$scrollLeft === scrollLeft || isNaN(scrollLeft))
+    setScrollLeftPx(scrollLeftPx: number): void {
+        if (this.$scrollLeftPx === scrollLeftPx || isNaN(scrollLeftPx)) {
             return;
-
-        this.$scrollLeft = scrollLeft;
-        /**
-         * @event changeScrollLeft
-         */
-        this.eventBus._signal("changeScrollLeft", scrollLeft);
+        }
+        this.$scrollLeftPx = scrollLeftPx;
+        this.eventBus._signal("changeScrollLeft", scrollLeftPx);
     }
 
     /**
      * Returns the value of the distance between the left of the editor and the leftmost part of the visible content.
      */
-    getScrollLeft(): number {
-        return this.$scrollLeft;
+    getScrollLeftPx(): number {
+        return this.$scrollLeftPx;
     }
 
     getScreenWidthChars(): number {
         this.$computeWidth();
         if (this.lineWidgets) {
-            return Math.max(this.getLineWidgetMaxWidth(), this.screenWidthChars);
+            return Math.max(this.getLineWidgetMaxWidthChars(), this.screenWidthChars);
         }
         return this.screenWidthChars;
     }
 
-    private getLineWidgetMaxWidth(): number {
-        if (this.lineWidgetsWidth != null) return this.lineWidgetsWidth;
+    private getLineWidgetMaxWidthChars(): number {
+        if (this.lineWidgetsWidthChars != null) {
+            return this.lineWidgetsWidthChars;
+        }
         let width = 0;
         if (this.lineWidgets) {
             this.lineWidgets.forEach(function (widget) {
@@ -1344,7 +1334,7 @@ export class EditSession {
                 }
             });
         }
-        return this.lineWidgetWidth = width;
+        return width;
     }
 
     $computeWidth(force?: boolean): void {
@@ -1357,11 +1347,11 @@ export class EditSession {
             }
 
             const lines = doc.getAllLines();
-            this.screenWidthChars = this._computeLongestLineInRange(0, lines.length);
+            this.screenWidthChars = this._computeLongestDocLineInRangeChars(0, lines.length);
         }
     }
 
-    private _computeLongestLineInRange(startRow: number, endRow: number): number {
+    private _computeLongestDocLineInRangeChars(startRow: number, endRow: number): number {
         const doc = this.docOrThrow();
         const lines = doc.getAllLines();
         const cache = this.$rowLengthCache;
@@ -1393,7 +1383,7 @@ export class EditSession {
     }
 
     getWidthInRange(startRow: number, endRow: number): number {
-        const widestLine = this._computeLongestLineInRange(startRow, endRow);
+        const widestLine = this._computeLongestDocLineInRangeChars(startRow, endRow);
         if (this.$useWrapMode) {
             return Math.min(this.$wrapLimit, widestLine);
         } else {

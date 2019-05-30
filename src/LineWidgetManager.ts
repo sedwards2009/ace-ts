@@ -363,7 +363,6 @@ export class LineWidgetManager {
         }
         if (min !== Infinity) {
             this.session._emit("changeFold", { data: { start: { row: min } } });
-            this.session.lineWidgetWidth = null;
         }
         this.session._changedWidgets = [];
     }

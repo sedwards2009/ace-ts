@@ -1981,14 +1981,14 @@ export class Editor {
     private onScrollTopChange(event: any, session: EditSession): void {
         const renderer = this.renderer;
         if (renderer) {
-            renderer.scrollToY(session.getScrollTop());
+            renderer.scrollToYPx(session.getScrollTopPx());
         }
     }
 
     private onScrollLeftChange(event: any, session: EditSession): void {
         const renderer = this.renderer;
         if (renderer) {
-            renderer.scrollToX(session.getScrollLeft());
+            renderer.scrollToXPx(session.getScrollLeftPx());
         }
     }
 
