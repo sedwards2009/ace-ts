@@ -29,7 +29,7 @@ export class HScrollBar extends ScrollBar {
         // of 0px
         // in Firefox 6+ scrollbar is hidden if element has the same width as scrollbar
         // make element a little bit wider to retain scrollbar when page is zoomed 
-        this.height_ = renderer.$scrollbarWidth;
+        this.height_ = renderer.$scrollbarWidthPx;
         this.inner.style.height = this.element.style.height = toPixelString((this.height_ || 15) + 5);
         addListener(this.element, "scroll", this.onScroll);
     }

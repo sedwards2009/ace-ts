@@ -37,7 +37,7 @@ export class VScrollBar extends ScrollBar {
         // of 0px
         // in Firefox 6+ scrollbar is hidden if element has the same width as scrollbar
         // make element a little bit wider to retain scrollbar when page is zoomed 
-        renderer.$scrollbarWidth = this.width_ = scrollbarWidth(parent.ownerDocument);
+        renderer.$scrollbarWidthPx = this.width_ = scrollbarWidth(parent.ownerDocument);
         this.inner.style.width = this.element.style.width = toPixelString((this.width_ || 15) + 5);
         addListener(this.element, "scroll", this.onScroll);
     }
