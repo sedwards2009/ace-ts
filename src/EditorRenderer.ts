@@ -26,7 +26,7 @@ export interface EditorRenderer {
     /**
      * 
      */
-    scroller: HTMLDivElement;
+    scrollerElement: HTMLDivElement;
     /**
      *
      */
@@ -34,7 +34,7 @@ export interface EditorRenderer {
     /**
      * 
      */
-    textarea: HTMLTextAreaElement;
+    textareaElement: HTMLTextAreaElement;
 
     /**
      * Returns the root element containing this renderer.

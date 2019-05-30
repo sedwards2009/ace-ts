@@ -338,7 +338,7 @@ export class Editor {
                 ev.setText(this.getSelectedText());
             });
 
-            this.renderer.textarea = this.textInput.getElement();
+            this.renderer.textareaElement = this.textInput.getElement();
         }
 
         this.keyBinding = new KeyBinding<Editor>(this, this.commands.hashHandler);
@@ -549,7 +549,7 @@ export class Editor {
     }
 
     getContainer(): HTMLElement {
-        return this.renderer.container;
+        return this.renderer.containerElement;
     }
 
     /**
@@ -593,7 +593,7 @@ export class Editor {
         return this.renderer.$gutterLayer.$annotations;
     }
     getGutterWidth(): number {
-        return this.renderer.gutterWidth;
+        return this.renderer.gutterWidthPx;
     }
     getLineWidgetsAtRow(row: number): LineWidget[] {
         return this.sessionOrThrow().widgetManager.getWidgetsAtRow(row);
@@ -4436,7 +4436,7 @@ export class Editor {
         // needed to not trigger sync reflow
         let removeBeforeRenderHandler: (() => void) | undefined = this.renderer.on("beforeRender", () => {
             if (shouldScroll)
-                rect = this.renderer.container.getBoundingClientRect();
+                rect = this.renderer.containerElement.getBoundingClientRect();
         });
         let removeAfterRenderHandler: (() => void) | undefined = this.renderer.on("afterRender", () => {
             if (shouldScroll && rect && this.isFocused()) {
@@ -4650,7 +4650,7 @@ export class MouseHandler implements IGestureHandler {
             // We hook 'mousewheel' using the portable 
             addMouseWheelListener(editor.container, this.emitEditorMouseWheelEvent.bind(this, "mousewheel"));
 
-            const gutterEl = renderer.$gutter;
+            const gutterEl = renderer.$gutterElement;
             addListener(gutterEl, "mousedown", this.onMouseEvent.bind(this, "guttermousedown"));
             addListener(gutterEl, "click", this.onMouseEvent.bind(this, "gutterclick"));
             addListener(gutterEl, "dblclick", this.onMouseEvent.bind(this, "gutterdblclick"));
@@ -4834,8 +4834,8 @@ export class MouseHandler implements IGestureHandler {
     selectByLinesEnd(): void {
         this.$clickSelection = null;
         this.editor.unsetStyle("ace_selecting");
-        if (this.editor.renderer.scroller['releaseCapture']) {
-            this.editor.renderer.scroller['releaseCapture']();
+        if (this.editor.renderer.scrollerElement['releaseCapture']) {
+            this.editor.renderer.scrollerElement['releaseCapture']();
         }
     }
 
@@ -4859,8 +4859,8 @@ export class MouseHandler implements IGestureHandler {
             this.select();
         }
 
-        if (editor.renderer.scroller['setCapture']) {
-            editor.renderer.scroller['setCapture']();
+        if (editor.renderer.scrollerElement['setCapture']) {
+            editor.renderer.scrollerElement['setCapture']();
         }
         editor.setStyle("ace_selecting");
         this.setState("select");
@@ -5217,7 +5217,7 @@ class GutterHandler {
                 }, 50);
             });
 
-            addListener(editor.renderer.$gutter, "mouseout", function (e: MouseEvent) {
+            addListener(editor.renderer.$gutterElement, "mouseout", function (e: MouseEvent) {
                 mouseEvent = null;
                 if (!tooltipAnnotation || tooltipTimeout)
                     return;

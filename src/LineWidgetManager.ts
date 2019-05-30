@@ -238,7 +238,7 @@ export class LineWidgetManager {
             addCssClass(w.el, "ace_lineWidgetContainer");
             w.el.style.position = "absolute";
             w.el.style.zIndex = '5';
-            renderer.container.appendChild(w.el);
+            renderer.containerElement.appendChild(w.el);
             w._inDocument = true;
         }
 
@@ -339,7 +339,7 @@ export class LineWidgetManager {
                     continue;
                 }
                 w._inDocument = true;
-                renderer.container.appendChild(w.el);
+                renderer.containerElement.appendChild(w.el);
             }
 
             w.h = w.el.offsetHeight;
@@ -397,7 +397,7 @@ export class LineWidgetManager {
             }
             if (!w._inDocument) {
                 w._inDocument = true;
-                renderer.container.appendChild(w.el);
+                renderer.containerElement.appendChild(w.el);
             }
             let top: number = renderer.getPixelPosition({ row: i, column: 0 }, true).top;
             if (!w.coverLine) {
@@ -405,7 +405,7 @@ export class LineWidgetManager {
             }
             w.el.style.top = top - config.verticalOffsetPx + "px";
 
-            let left = w.coverGutter ? 0 : renderer.gutterWidth;
+            let left = w.coverGutter ? 0 : renderer.gutterWidthPx;
             if (!w.fixedWidth) {
                 left -= renderer.scrollLeftPx;
             }

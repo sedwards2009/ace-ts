@@ -75,7 +75,7 @@ export class ListViewPopup implements ListView {
         function createEditor(el: HTMLDivElement) {
             const renderer = new Renderer(el);
 
-            renderer.content.style.cursor = "default";
+            renderer.contentElement.style.cursor = "default";
             renderer.setStyle("ace_autocomplete");
             renderer.cursorLayer.restartTimer = noop;
             renderer.cursorLayer.element.style.opacity = "0";
@@ -212,7 +212,7 @@ export class ListViewPopup implements ListView {
             }
 
             if (data.meta) {
-                const maxW = this.editor.renderer.$size.scrollerWidthPx / this.editor.renderer.layerConfig.charWidthPx;
+                const maxW = this.editor.renderer.$viewPortSize.scrollerWidthPx / this.editor.renderer.layerConfig.charWidthPx;
                 if (data.meta.length + data.caption.length < maxW - 2) {
                     tokens.push({ type: "rightAlignedText", value: data.meta });
                 }

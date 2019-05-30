@@ -71,7 +71,7 @@ export class TokenTooltip extends Tooltip {
                 this.maxWidth = window.innerWidth;
             }
 
-            const canvasPos: ClientRect = r.rect || (r.rect = r.scroller.getBoundingClientRect());
+            const canvasPos: ClientRect = r.rect || (r.rect = r.scrollerElement.getBoundingClientRect());
             const offset = (this.x + r.scrollLeftPx - canvasPos.left) / r.charWidthPx;
             const row = Math.floor((this.y + r.scrollTopPx - canvasPos.top) / r.charHeightPx);
             const col = Math.round(offset);
@@ -139,8 +139,8 @@ export class TokenTooltip extends Tooltip {
             this.$timer = undefined;
         };
 
-        addListener(editor.renderer.scroller, "mousemove", this.onMouseMove);
-        addListener(editor.renderer.content, "mouseout", this.onMouseOut);
+        addListener(editor.renderer.scrollerElement, "mousemove", this.onMouseMove);
+        addListener(editor.renderer.contentElement, "mouseout", this.onMouseOut);
     }
     setPosition(x: number, y: number) {
         if (x + 10 + this.width > this.maxWidth)
@@ -153,8 +153,8 @@ export class TokenTooltip extends Tooltip {
 
     destroy() {
         this.onMouseOut(undefined);
-        removeListener(this.editor.renderer.scroller, "mousemove", this.onMouseMove);
-        removeListener(this.editor.renderer.content, "mouseout", this.onMouseOut);
+        removeListener(this.editor.renderer.scrollerElement, "mousemove", this.onMouseMove);
+        removeListener(this.editor.renderer.contentElement, "mouseout", this.onMouseOut);
         delete this.editor['tokenTooltip'];
     }
 }

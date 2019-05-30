@@ -120,8 +120,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private readonly uuid = `${Math.random()}`;
 
-    textarea: HTMLTextAreaElement;
-    container: HTMLElement;
+    textareaElement: HTMLTextAreaElement;
+    containerElement: HTMLElement;
     scrollLeftPx = 0;
     scrollTopPx = 0;
     layerConfig: LayerConfig = {
@@ -173,9 +173,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private $timer: number;
 
     $keepTextAreaAtCursor: boolean = true;
-    $gutter: HTMLDivElement;
-    scroller: HTMLDivElement;
-    content: HTMLDivElement;
+    $gutterElement: HTMLDivElement;
+    scrollerElement: HTMLDivElement;
+    contentElement: HTMLDivElement;
 
     private $horizScroll: boolean;
     private $vScroll: boolean;
@@ -213,7 +213,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * A cache of various sizes TBA.
      */
-    $size: {
+    $viewPortSize: {
         heightPx: number;
         widthPx: number;
         scrollerHeightPx: number;
@@ -227,14 +227,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private resizing: number;
     private $gutterLineHighlight: HTMLDivElement;
 
-    // FIXME: Why do we have two?
-    gutterWidth: number;
-    private $gutterWidth: number;   // FIXME remove this
+    gutterWidthPx: number;
 
     /**
      * TODO: Create a PrintMarginLayer class in the layer folder.
      */
-    private $printMarginEl: HTMLDivElement;
+    private $printMarginElement: HTMLDivElement;
     private $printMarginColumn = 80;
     private $showPrintMargin: boolean;
 
@@ -248,7 +246,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private showInvisibles = false;
     private animatedScroll = false;
     private fadeFoldWidgets = false;
-    private $scrollPastEnd: number;
+    private $scrollPastEnd: number; // FIXME is this ever set?
     private $highlightGutterLine: boolean;
     private desiredHeight: number;
     private _scrollHTracking = HScrollTracking.WHOLE_DOCUMENT;
@@ -256,71 +254,71 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * Constructs a new `Renderer` within the `container` specified.
      */
-    constructor(container: HTMLElement, options: RendererOptions={}) {
+    constructor(containerElement: HTMLElement, options: RendererOptions={}) {
         refChange('start');
         refChange(this.uuid, 'Renderer', +1);
         this.eventBus = new EventBusImpl<RendererEventName, any, Renderer>(this);
 
-        this.container = container || <HTMLDivElement>createElement("div");
-        this.container.dir = 'ltr';
+        this.containerElement = containerElement || <HTMLDivElement>createElement("div");
+        this.containerElement.dir = 'ltr';
 
         if (options.injectCss !== false) {
             // Imports CSS once per DOM document ('ace_editor' serves as an identifier).
             if (editorCss == null) {
                 editorCss = require("./css/editor.css");
             }
-            ensureHTMLStyleElement(editorCss, "ace_editor", container.ownerDocument);
+            ensureHTMLStyleElement(editorCss, "ace_editor", containerElement.ownerDocument);
         }
-        addCssClass(this.container, "ace_editor");
+        addCssClass(this.containerElement, "ace_editor");
 
-        this.$gutter = createElement("div") as HTMLDivElement;
-        this.$gutter.className = "ace_gutter";
-        this.container.appendChild(this.$gutter);
+        this.$gutterElement = createElement("div") as HTMLDivElement;
+        this.$gutterElement.className = "ace_gutter";
+        this.containerElement.appendChild(this.$gutterElement);
         // Hide gutter from screen-readers. 
-        this.$gutter.setAttribute("aria-hidden", "true");
+        this.$gutterElement.setAttribute("aria-hidden", "true");
 
-        this.scroller = createElement("div") as HTMLDivElement;
-        this.scroller.className = "ace_scroller";
-        this.container.appendChild(this.scroller);
+        this.scrollerElement = createElement("div") as HTMLDivElement;
+        this.scrollerElement.className = "ace_scroller";
+        this.containerElement.appendChild(this.scrollerElement);
 
-        this.content = createElement("div") as HTMLDivElement;
-        this.content.className = "ace_content";
-        this.scroller.appendChild(this.content);
+        this.contentElement = createElement("div") as HTMLDivElement;
+        this.contentElement.className = "ace_content";
+        this.scrollerElement.appendChild(this.contentElement);
 
-        this.$gutterLayer = new GutterLayer(this.$gutter);
+        this.$gutterLayer = new GutterLayer(this.$gutterElement);
         this.$gutterLayer.onWidthChange(this.onGutterResize.bind(this));
 
-        this.$markerBack = new MarkerLayer(this.content);
-        this.textLayer = this.createTextLayer(this.content);
-        this.$markerFront = new MarkerLayer(this.content);
-        this.cursorLayer = new CursorLayer(this.content);
+        this.$markerBack = new MarkerLayer(this.contentElement);
+        this.textLayer = this.createTextLayer(this.contentElement);
+        this.$markerFront = new MarkerLayer(this.contentElement);
+        this.cursorLayer = new CursorLayer(this.contentElement);
 
         // Indicates whether the horizontal scrollbar is visible
         this.$horizScroll = false;
         this.$vScroll = false;
 
-        this.scrollBarV = this.createVScrollBar(this.container)
+        this.scrollBarV = this.createVScrollBar(this.containerElement)
         this.scrollBarVscrollUnhook = this.scrollBarV.on("scroll", (event: ScrollBarEvent, scrollBar: VScrollBar) => {
             if (!this.$scrollAnimation && this.session) {
                 this.setScrollTopPx(event.data - this.scrollMargin.top);
             }
         });
 
-        this.scrollBarH = this.createHScrollBar(this.container);
+        this.scrollBarH = this.createHScrollBar(this.containerElement);
         this.scrollBarHscrollUnhook = this.scrollBarH.on("scroll", (event: ScrollBarEvent, scrollBar: HScrollBar) => {
             if (!this.$scrollAnimation && this.session) {
                 this.session.setScrollLeft(event.data - this.scrollMargin.left);
             }
         });
 
-        this._fontMetricsMonitor = new FontMetricsMonitor(this.container, 500);
+        this._fontMetricsMonitor = new FontMetricsMonitor(this.containerElement, 500);
         this._fontMetricsMonitor.onChange( () => {
             this.updateCharacterSize();
-            this.onResize(true, this.gutterWidth, this.$size.widthPx, this.$size.heightPx);
+            this.onResize(true, this.gutterWidthPx, this.$viewPortSize.widthPx, this.$viewPortSize.heightPx);
             this.eventBus._signal(changeCharacterSize, event);
         });
 
-        this.$size = {
+        this.$viewPortSize = {
             widthPx: 0,
             heightPx: 0,
             scrollerHeightPx: 0,
@@ -329,7 +327,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         };
 
         this.$loop = new RenderLoop(changes => this.$renderChanges(changes, false),
-                                    this.container.ownerDocument.defaultView);
+                                    this.containerElement.ownerDocument.defaultView);
         this.$loop.schedule(CHANGE_FULL);
 
         this.setFontSize(options.fontSize === undefined ? "16px" : options.fontSize);
@@ -374,9 +372,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$markerBack.dispose();
         this.$gutterLayer.dispose();
 
-        this.scroller.removeChild(this.content);
-        this.container.removeChild(this.scroller);
-        this.container.removeChild(this.$gutter);
+        this.scrollerElement.removeChild(this.contentElement);
+        this.containerElement.removeChild(this.scrollerElement);
+        this.containerElement.removeChild(this.$gutterElement);
 
         refChange(this.uuid, 'Renderer', -1);
         refChange('stop');
@@ -420,7 +418,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Sets the <code>style</code> property of the content to "default".
      */
     setDefaultCursorStyle(): void {
-        this.content.style.cursor = "default";
+        this.contentElement.style.cursor = "default";
     }
 
     setHScrollTracking(tracking: HScrollTracking): void {
@@ -571,7 +569,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private $updateSizeAsync(): void {
         if (this.$loop.pending) {
-            this.$size.$dirty = true;
+            this.$viewPortSize.$dirty = true;
         } else {
             this.onResize();
         }
@@ -581,12 +579,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Triggers a resize of the renderer.
      *
      * @param force If `true`, recomputes the size, even if the height and width haven't changed
-     * @param gutterWidth The width of the gutter in pixels
-     * @param width The width of the editor in pixels
-     * @param height The hiehgt of the editor, in pixels
+     * @param gutterWidthPx The width of the gutter in pixels
+     * @param widthPx The width of the editor in pixels
+     * @param heightPx The height of the editor, in pixels
      * @return true if the resize changed anything.
      */
-    onResize(force?: boolean, gutterWidth?: number, width?: number, height?: number): boolean {
+    onResize(force?: boolean, gutterWidthPx?: number, widthPx?: number, heightPx?: number): boolean {
         if (this.resizing > 2) {
             return false;
         } else if (this.resizing > 0) {
@@ -595,32 +593,29 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.resizing = force ? 1 : 0;
         }
 
-        const el = this.container;
-        if (!height) {
-            const rect = el.getBoundingClientRect();
-            height = rect.height;
+        const containerElement = this.containerElement;
+        if (heightPx !== 0) {
+            const rect = containerElement.getBoundingClientRect();
+            heightPx = rect.height;
 
             // If the height fails to be a multiple of lineHeight by more than 1px, then trim it.
-            if (this.charHeightPx - (height % this.charHeightPx) > 1) {
-                height -= height % this.charHeightPx;
+            if (this.charHeightPx - (heightPx % this.charHeightPx) > 1) {
+                heightPx -= heightPx % this.charHeightPx;
             }
         }
 
-        if (!width) {
-            width = el.clientWidth;
+        if (widthPx ! == 0) {
+            widthPx = containerElement.clientWidth;
         }
-        const changes = this.$updateCachedSize(force, gutterWidth, width, height);
+        const changes = this.$updateCachedSize(force, gutterWidthPx, widthPx, heightPx);
 
-        if (!this.$size.scrollerHeightPx || (!width && !height)) {
+        if (!this.$viewPortSize.scrollerHeightPx || (!widthPx && !heightPx)) {
             this.resizing = 0
             return false;
         }
 
         if (force) {
             this.$gutterLayer.$padding = null;
-        }
-
-        if (force) {
             this.$renderChanges(changes | this.$changes, true);
         } else {
             if (changes !== 0) {
@@ -635,72 +630,70 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         return changes !== 0;
     }
 
-    private $updateCachedSize(force: boolean, gutterWidthPixels: number, widthPx: number, heightPx: number): number {
+    private $updateCachedSize(force: boolean, gutterWidthPx?: number, widthPx?: number, heightPx?: number): number {
         let changes = 0;
-        const size = this.$size;
-        const oldSize = {
-            width: size.widthPx,
-            height: size.heightPx,
-            scrollerHeight: size.scrollerHeightPx,
-            scrollerWidth: size.scrollerWidthPx
+        const viewPortSize = this.$viewPortSize;
+        const oldViewPortSize = {
+            width: viewPortSize.widthPx,
+            height: viewPortSize.heightPx,
+            scrollerHeight: viewPortSize.scrollerHeightPx,
+            scrollerWidth: viewPortSize.scrollerWidthPx
         };
-        if (heightPx && (force || size.heightPx !== heightPx)) {
-            size.heightPx = heightPx;
+        if (heightPx && (force || viewPortSize.heightPx !== heightPx)) {
+            viewPortSize.heightPx = heightPx;
             changes |= CHANGE_SIZE;
 
-            size.scrollerHeightPx = size.heightPx;
+            viewPortSize.scrollerHeightPx = viewPortSize.heightPx;
             if (this.$horizScroll) {
-                size.scrollerHeightPx -= this.scrollBarH.height;
+                viewPortSize.scrollerHeightPx -= this.scrollBarH.height;
             }
 
             this.scrollBarV.element.style.bottom = pixelStyle(this.scrollBarH.height);
 
-            changes = changes | CHANGE_SCROLL;
+            changes |= CHANGE_SCROLL;
         }
 
-        if (widthPx && (force || size.widthPx !== widthPx)) {
+        if (widthPx && (force || viewPortSize.widthPx !== widthPx)) {
             changes |= CHANGE_SIZE;
-            size.widthPx = widthPx;
+            viewPortSize.widthPx = widthPx;
 
-            if (typeof gutterWidthPixels !== 'number') {
-                gutterWidthPixels = this.$showGutter ? this.$gutter.offsetWidth : 0;
+            if (gutterWidthPx == null) {
+                gutterWidthPx = this.$showGutter ? this.$gutterElement.offsetWidth : 0;
             }
 
-            this.gutterWidth = gutterWidthPixels;
+            this.gutterWidthPx = gutterWidthPx;
 
-            this.scrollBarH.element.style.left = this.scroller.style.left = pixelStyle(gutterWidthPixels);
-            size.scrollerWidthPx = Math.max(0, widthPx - gutterWidthPixels - this.scrollBarV.width);
+            this.scrollBarH.element.style.left = this.scrollerElement.style.left = pixelStyle(gutterWidthPx);
+            viewPortSize.scrollerWidthPx = Math.max(0, widthPx - gutterWidthPx - this.scrollBarV.width);
 
-            this.scrollBarH.element.style.right = this.scroller.style.right = pixelStyle(this.scrollBarV.width);
-            this.scroller.style.bottom = pixelStyle(this.scrollBarH.height);
+            this.scrollBarH.element.style.right = this.scrollerElement.style.right = pixelStyle(this.scrollBarV.width);
+            this.scrollerElement.style.bottom = pixelStyle(this.scrollBarH.height);
 
             if (this.session && this.session.getUseWrapMode() && this.adjustWrapLimit() || force) {
                 changes |= CHANGE_FULL;
             }
         }
 
-        size.$dirty = !widthPx || !heightPx;
+        viewPortSize.$dirty = !widthPx || !heightPx;
 
         if (changes) {
-            this.eventBus._signal("resize", oldSize);
+            this.eventBus._signal("resize", oldViewPortSize);
         }
 
         return changes;
     }
 
     private onGutterResize() {
-        const gutterWidth = this.$showGutter ? this.$gutter.offsetWidth : 0;
-        if (gutterWidth !== this.gutterWidth) {
-            this.$changes |= this.$updateCachedSize(true, gutterWidth, this.$size.widthPx, this.$size.heightPx);
+        const gutterWidthPx = this.$showGutter ? this.$gutterElement.offsetWidth : 0;
+        if (gutterWidthPx !== this.gutterWidthPx) {
+            this.$changes |= this.$updateCachedSize(true, gutterWidthPx, this.$viewPortSize.widthPx, this.$viewPortSize.heightPx);
         }
 
         if (this.session && this.session.getUseWrapMode() && this.adjustWrapLimit()) {
             this.$loop.schedule(CHANGE_FULL);
-        }
-        else if (this.$size.$dirty) {
+        } else if (this.$viewPortSize.$dirty) {
             this.$loop.schedule(CHANGE_FULL);
-        }
-        else {
+        } else {
             this.$computeLayerConfig();
             this.$loop.schedule(CHANGE_MARKER);
         }
@@ -719,7 +712,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Adjusts the wrap limit, which is the number of characters that can fit within the width of the edit area on screen.
      */
     adjustWrapLimit(): boolean {
-        const availableWidth = this.$size.scrollerWidthPx;
+        const availableWidth = this.$viewPortSize.scrollerWidthPx;
         const limit = Math.floor(availableWidth / this.charWidthPx);
         if (this.$showPrintMargin) {
             return this.sessionOrThrow().adjustWrapLimit(limit, this.$printMarginColumn);
@@ -747,15 +740,15 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     setTextDirection(value: TextDirection): void {
         if (value === 'ltr' || value === 'rtl') {
-            this.container.dir = value;
+            this.containerElement.dir = value;
         }
         else if (value === 'auto') {
-            this.container.dir = value;
+            this.containerElement.dir = value;
         }
     }
 
     getTextDirection(): TextDirection {
-        const dir = this.container.dir;
+        const dir = this.containerElement.dir;
         switch (dir) {
             case 'ltr': return dir;
             case 'rtl': return dir;
@@ -846,7 +839,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     setShowGutter(showGutter: boolean): void {
         this.$showGutter = showGutter;
-        this.$gutter.style.display = showGutter ? "block" : "none";
+        this.$gutterElement.style.display = showGutter ? "block" : "none";
         this.$loop.schedule(CHANGE_FULL);
         this.onGutterResize();
     }
@@ -856,16 +849,16 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     setFadeFoldWidgets(fadeFoldWidgets: boolean): void {
-        setCssClass(this.$gutter, "ace_fade-fold-widgets", fadeFoldWidgets);
+        setCssClass(this.$gutterElement, "ace_fade-fold-widgets", fadeFoldWidgets);
     }
 
     getFontSize(): string | null {
-        return this.container.style.fontSize;
+        return this.containerElement.style.fontSize;
     }
 
     setFontSize(fontSize: string | null): void {
         if (fontSize != null) {
-            this.container.style.fontSize = fontSize;
+            this.containerElement.style.fontSize = fontSize;
             this.updateFontSize();
         }
     }
@@ -879,7 +872,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (!this.$gutterLineHighlight) {
             this.$gutterLineHighlight = createHTMLDivElement();
             this.$gutterLineHighlight.className = "ace_gutter-active-line";
-            this.$gutter.appendChild(this.$gutterLineHighlight);
+            this.$gutterElement.appendChild(this.$gutterLineHighlight);
             return;
         }
 
@@ -916,19 +909,19 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     $updatePrintMargin() {
-        if (!this.$showPrintMargin && !this.$printMarginEl)
+        if (!this.$showPrintMargin && !this.$printMarginElement)
             return;
 
-        if (!this.$printMarginEl) {
+        if (!this.$printMarginElement) {
             const containerEl: HTMLDivElement = <HTMLDivElement>createElement("div");
             containerEl.className = "ace_layer ace_print-margin-layer";
-            this.$printMarginEl = <HTMLDivElement>createElement("div");
-            this.$printMarginEl.className = "ace_print-margin";
-            containerEl.appendChild(this.$printMarginEl);
-            this.content.insertBefore(containerEl, this.content.firstChild);
+            this.$printMarginElement = <HTMLDivElement>createElement("div");
+            this.$printMarginElement.className = "ace_print-margin";
+            containerEl.appendChild(this.$printMarginElement);
+            this.contentElement.insertBefore(containerEl, this.contentElement.firstChild);
         }
 
-        const style = this.$printMarginEl.style;
+        const style = this.$printMarginElement.style;
         style.left = pixelStyle((this.charWidthPx * this.$printMarginColumn));
         style.visibility = this.$showPrintMargin ? "visible" : "hidden";
 
@@ -941,21 +934,21 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Returns the root element containing this renderer.
      */
     getContainerElement(): HTMLElement {
-        return this.container;
+        return this.containerElement;
     }
 
     /**
      * Returns the element that the mouse events are attached to.
      */
     getMouseEventTarget(): HTMLDivElement {
-        return this.content;
+        return this.contentElement;
     }
 
     /**
      * Returns the element to which the hidden text area is added.
      */
     getTextAreaContainer(): HTMLElement {
-        return this.container;
+        return this.containerElement;
     }
 
     /**
@@ -988,20 +981,20 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         let w = this.charWidthPx;
         if (this.$composition) {
-            const val = this.textarea.value.replace(/^\x01+/, "");
+            const val = this.textareaElement.value.replace(/^\x01+/, "");
             w *= session.$getStringScreenWidth(val)[0];
         }
 
         posLeft -= this.scrollLeftPx;
-        if (posLeft > this.$size.scrollerWidthPx - w) {
-            posLeft = this.$size.scrollerWidthPx - w;
+        if (posLeft > this.$viewPortSize.scrollerWidthPx - w) {
+            posLeft = this.$viewPortSize.scrollerWidthPx - w;
         }
         posLeft -= this.scrollBarV.width;
 
-        this.textarea.style.height = pixelStyle(h);
-        this.textarea.style.width = pixelStyle(w);
-        this.textarea.style.right = pixelStyle(Math.max(0, this.$size.scrollerWidthPx - posLeft - w));
-        this.textarea.style.bottom = pixelStyle(Math.max(0, this.$size.heightPx - posTop - h));
+        this.textareaElement.style.height = pixelStyle(h);
+        this.textareaElement.style.width = pixelStyle(w);
+        this.textareaElement.style.right = pixelStyle(Math.max(0, this.$viewPortSize.scrollerWidthPx - posLeft - w));
+        this.textareaElement.style.bottom = pixelStyle(Math.max(0, this.$viewPortSize.heightPx - posTop - h));
     }
 
     /**
@@ -1097,7 +1090,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     private $updateScrollBarV(): void {
         let scrollHeightPx = this.layerConfig.maxHeightPx;
-        const scrollerHeightPx = this.$size.scrollerHeightPx;
+        const scrollerHeightPx = this.$viewPortSize.scrollerHeightPx;
         if (!this.$maxLines && this.$scrollPastEnd) {
             scrollHeightPx -= (scrollerHeightPx - this.charHeightPx) * this.$scrollPastEnd;
             if (this.scrollTopPx > scrollHeightPx - scrollerHeightPx) {
@@ -1135,11 +1128,11 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             changes |= this.$changes;
             this.$changes = 0;
         }
-        if ((!this.session || !this.container.offsetWidth || this.$frozen) || (!changes && !forceChanges)) {
+        if ((!this.session || !this.containerElement.offsetWidth || this.$frozen) || (!changes && !forceChanges)) {
             this.$changes |= changes;
             return;
         }
-        if (this.$size.$dirty) {
+        if (this.$viewPortSize.$dirty) {
             this.$changes |= changes;
             this.onResize(true);
             return;
@@ -1177,14 +1170,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 this.$updateScrollBarH();
             }
             this.$gutterLayer.element.style.marginTop = pixelStyle(-config.verticalOffsetPx);
-            this.content.style.marginTop = pixelStyle(-config.verticalOffsetPx);
-            this.content.style.width = pixelStyle(config.docWidthPx);
-            this.content.style.height = pixelStyle(config.minHeightPx);
+            this.contentElement.style.marginTop = pixelStyle(-config.verticalOffsetPx);
+            this.contentElement.style.width = pixelStyle(config.docWidthPx);
+            this.contentElement.style.height = pixelStyle(config.minHeightPx);
         }
 
         if (changes & CHANGE_H_SCROLL) {
-            this.content.style.marginLeft = pixelStyle(-this.scrollLeftPx);
-            this.scroller.className = this.scrollLeftPx <= 0 ? "ace_scroller" : "ace_scroller ace_scroll-left";
+            this.contentElement.style.marginLeft = pixelStyle(-this.scrollLeftPx);
+            this.scrollerElement.className = this.scrollLeftPx <= 0 ? "ace_scroller" : "ace_scroller ace_scroll-left";
         }
 
         if (changes & CHANGE_FULL) {
@@ -1269,15 +1262,15 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const vScroll = height > maxHeight;
 
         if (desiredHeight !== this.desiredHeight ||
-            this.$size.heightPx !== this.desiredHeight || vScroll !== this.$vScroll) {
+            this.$viewPortSize.heightPx !== this.desiredHeight || vScroll !== this.$vScroll) {
             if (vScroll !== this.$vScroll) {
                 this.$vScroll = vScroll;
                 this.scrollBarV.setVisible(vScroll);
             }
 
-            const w = this.container.clientWidth;
-            this.container.style.height = pixelStyle(desiredHeight);
-            this.$updateCachedSize(true, this.$gutterWidth, w, desiredHeight);
+            const w = this.containerElement.clientWidth;
+            this.containerElement.style.height = pixelStyle(desiredHeight);
+            this.$updateCachedSize(true, this.gutterWidthPx, w, desiredHeight);
             // this.$loop.changes = 0;
             this.desiredHeight = desiredHeight;
         }
@@ -1290,7 +1283,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const session = this.sessionOrThrow();
-        const size = this.$size;
+        const size = this.$viewPortSize;
 
         const hideScrollbars = size.heightPx <= 2 * this.charHeightPx;
         const screenLines = session.getScreenLength();
@@ -1357,7 +1350,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         // Horizontal scrollbar visibility may have changed, which changes
         // the client height of the scroller
         if (hScrollChanged || vScrollChanged) {
-            changes = this.$updateCachedSize(true, this.gutterWidth, size.widthPx, size.heightPx);
+            changes = this.$updateCachedSize(true, this.gutterWidthPx, size.widthPx, size.heightPx);
             this.eventBus._signal("scrollbarVisibilityChanged");
             if (vScrollChanged) {
                 longestLinePx = this._getLongestLinePx();
@@ -1376,7 +1369,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             maxHeightPx: maxHeight,
             verticalOffsetPx: verticalOffsetPx,
             gutterOffsetRows: Math.max(0, Math.ceil((verticalOffsetPx + size.heightPx - size.scrollerHeightPx) / charHeightPx)),
-            docHeightPx: this.$size.scrollerHeightPx
+            docHeightPx: this.$viewPortSize.scrollerHeightPx
         };
 
         return changes;
@@ -1415,7 +1408,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private _getLongestLinePx(): number {
         const session = this.sessionOrThrow();
         const charCount = session.getScreenWidthChars() + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
-        return Math.max(this.$size.scrollerWidthPx, Math.floor(charCount * this.charWidthPx));
+        return Math.max(this.$viewPortSize.scrollerWidthPx, Math.floor(charCount * this.charWidthPx));
     }
 
     private _getLongestVisibleLinePx(): number {
@@ -1424,7 +1417,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const docLength = doc.getLength();
         const widthInRange = session.getWidthInRange(this.getFirstVisibleRow(), Math.min(docLength, this.getLastVisibleRow() + 1));
         const charCount = widthInRange + ((this.showInvisibles && !session.$useWrapMode) ? 1 : 0);
-        return Math.max(this.$size.scrollerWidthPx, Math.floor(charCount * this.charWidthPx));
+        return Math.max(this.$viewPortSize.scrollerWidthPx, Math.floor(charCount * this.charWidthPx));
     }
 
     /**
@@ -1495,7 +1488,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     scrollCursorIntoView(cursor?: Position | null, offset?: number, viewMargin?: { top?: number; bottom?: number }): void {
         // the editor is not visible
-        if (this.$size.scrollerHeightPx === 0) {
+        if (this.$viewPortSize.scrollerHeightPx === 0) {
             return;
         }
 
@@ -1513,17 +1506,17 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         if (scrollTop + topMargin > top) {
             if (offset) {
-                top -= offset * this.$size.scrollerHeightPx;
+                top -= offset * this.$viewPortSize.scrollerHeightPx;
             }
             if (top === 0) {
                 top = -this.scrollMargin.top;
             }
             this.setScrollTopPx(top);
-        } else if (scrollTop + this.$size.scrollerHeightPx - bottomMargin < top + this.charHeightPx) {
+        } else if (scrollTop + this.$viewPortSize.scrollerHeightPx - bottomMargin < top + this.charHeightPx) {
             if (offset) {
-                top += offset * this.$size.scrollerHeightPx;
+                top += offset * this.$viewPortSize.scrollerHeightPx;
             }
-            this.setScrollTopPx(top + this.charHeightPx - this.$size.scrollerHeightPx);
+            this.setScrollTopPx(top + this.charHeightPx - this.$viewPortSize.scrollerHeightPx);
         }
 
         const scrollLeft = this.scrollLeftPx;
@@ -1533,8 +1526,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 left = -this.scrollMargin.left;
             }
             session.setScrollLeft(left);
-        } else if (scrollLeft + this.$size.scrollerWidthPx < left + this.charWidthPx) {
-            session.setScrollLeft(Math.round(left + this.charWidthPx - this.$size.scrollerWidthPx));
+        } else if (scrollLeft + this.$viewPortSize.scrollerWidthPx < left + this.charWidthPx) {
+            session.setScrollLeft(Math.round(left + this.charWidthPx - this.$viewPortSize.scrollerWidthPx));
         } else if (scrollLeft <= 0 && left - scrollLeft < this.charWidthPx) {
             session.setScrollLeft(0);
         }
@@ -1560,7 +1553,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      *
      */
     getScrollBottomRow(): number {
-        return Math.max(0, Math.floor((this.scrollTopPx + this.$size.scrollerHeightPx) / this.charHeightPx) - 1);
+        return Math.max(0, Math.floor((this.scrollTopPx + this.$viewPortSize.scrollerHeightPx) / this.charHeightPx) - 1);
     }
 
     /**
@@ -1576,7 +1569,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const session = this.sessionOrThrow();
         const screenRows = session.getScreenLength();
         let maxHeightPx = screenRows * this.charHeightPx;
-        const maxTopPx = Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeightPx - this.$size.scrollerHeightPx + this.scrollMargin.bottom));
+        const maxTopPx = Math.max(-this.scrollMargin.top, Math.min(this.scrollTopPx, maxHeightPx - this.$viewPortSize.scrollerHeightPx + this.scrollMargin.bottom));
 
         const newTopPx = Math.min(topPx, maxTopPx);
         session.setScrollTop(newTopPx);
@@ -1588,7 +1581,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const pos = this.getPixelPosition(cursor, false);
-        const h = this.$size.scrollerHeightPx - this.charHeightPx;
+        const h = this.$viewPortSize.scrollerHeightPx - this.charHeightPx;
         const offset = pos.top - h * (alignment || 0);
 
         this.setScrollTopPx(offset);
@@ -1607,7 +1600,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const pos = this.getPixelPosition({ row: line, column: 0 }, false);
         let offset = pos.top;
         if (center) {
-            offset -= this.$size.scrollerHeightPx / 2;
+            offset -= this.$viewPortSize.scrollerHeightPx / 2;
         }
 
         const initialScroll = this.scrollTopPx;
@@ -1733,20 +1726,20 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (deltaY < 0 && session.getScrollTop() >= 1 - this.scrollMargin.top) {
             return true;
         }
-        if (deltaY > 0 && session.getScrollTop() + this.$size.scrollerHeightPx - this.layerConfig.maxHeightPx < -1 + this.scrollMargin.bottom) {
+        if (deltaY > 0 && session.getScrollTop() + this.$viewPortSize.scrollerHeightPx - this.layerConfig.maxHeightPx < -1 + this.scrollMargin.bottom) {
             return true;
         }
         if (deltaX < 0 && session.getScrollLeft() >= 1 - this.scrollMargin.left) {
             return true;
         }
-        if (deltaX > 0 && session.getScrollLeft() + this.$size.scrollerWidthPx - this.layerConfig.docWidthPx < -1 + this.scrollMargin.right) {
+        if (deltaX > 0 && session.getScrollLeft() + this.$viewPortSize.scrollerWidthPx - this.layerConfig.docWidthPx < -1 + this.scrollMargin.right) {
             return true;
         }
         return false;
     }
 
     pixelToScreenCoordinates(x: number, y: number) {
-        const canvasPos = this.scroller.getBoundingClientRect();
+        const canvasPos = this.scrollerElement.getBoundingClientRect();
 
         const offset = (x + this.scrollLeftPx - canvasPos.left) / this.charWidthPx;
         const row = Math.floor((y + this.scrollTopPx - canvasPos.top) / this.charHeightPx);
@@ -1757,7 +1750,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     screenToTextCoordinates(clientX: number, clientY: number): Position {
         const session = this.sessionOrThrow();
-        const canvasPos = this.scroller.getBoundingClientRect();
+        const canvasPos = this.scrollerElement.getBoundingClientRect();
 
         const column = Math.round((clientX + this.scrollLeftPx - canvasPos.left) / this.charWidthPx);
 
@@ -1771,7 +1764,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      */
     textToScreenCoordinates(row: number, column: number): ScreenCoordinates {
         const session = this.sessionOrThrow();
-        const canvasPos: ClientRect = this.scroller.getBoundingClientRect();
+        const canvasPos: ClientRect = this.scrollerElement.getBoundingClientRect();
         const pos: Position = session.documentPositionToScreenPosition(row, column);
 
         const x = Math.round(pos.column * this.charWidthPx);
@@ -1787,26 +1780,26 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Focuses the current container.
      */
     visualizeFocus(): void {
-        addCssClass(this.container, "ace_focus");
+        addCssClass(this.containerElement, "ace_focus");
     }
 
     /**
      * Blurs the current container.
      */
     visualizeBlur(): void {
-        removeCssClass(this.container, "ace_focus");
+        removeCssClass(this.containerElement, "ace_focus");
     }
 
     showComposition(position: Position) {
         if (!this.$composition)
             this.$composition = {
                 keepTextAreaAtCursor: this.$keepTextAreaAtCursor,
-                cssText: this.textarea.style.cssText
+                cssText: this.textareaElement.style.cssText
             };
 
         this.$keepTextAreaAtCursor = true;
-        addCssClass(this.textarea, "ace_composition");
-        this.textarea.style.cssText = "";
+        addCssClass(this.textareaElement, "ace_composition");
+        this.textareaElement.style.cssText = "";
         this.$moveTextAreaToCursor();
     }
 
@@ -1826,9 +1819,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             return;
         }
 
-        removeCssClass(this.textarea, "ace_composition");
+        removeCssClass(this.textareaElement, "ace_composition");
         this.$keepTextAreaAtCursor = this.$composition.keepTextAreaAtCursor;
-        this.textarea.style.cssText = this.$composition.cssText;
+        this.textareaElement.style.cssText = this.$composition.cssText;
         this.$composition = null;
     }
 
@@ -1850,10 +1843,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             return;
         }
 
-        ensureHTMLStyleElement(modJs.cssText, modJs.cssClass, this.container.ownerDocument);
+        ensureHTMLStyleElement(modJs.cssText, modJs.cssClass, this.containerElement.ownerDocument);
 
         if (this.theme) {
-            removeCssClass(this.container, this.theme.cssClass);
+            removeCssClass(this.containerElement, this.theme.cssClass);
         }
 
         this.theme = modJs;
@@ -1861,8 +1854,8 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.setCssClass("ace_dark", modJs.isDark);
 
         // force re-measure of the gutter width
-        if (this.$size) {
-            this.$size.widthPx = 0;
+        if (this.$viewPortSize) {
+            this.$viewPortSize.widthPx = 0;
             this.$updateSizeAsync();
         }
 
@@ -1870,15 +1863,15 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     }
 
     addCssClass(cssClass: string): void {
-        addCssClass(this.container, cssClass);
+        addCssClass(this.containerElement, cssClass);
     }
 
     removeCssClass(cssClass: string): void {
-        removeCssClass(this.container, cssClass);
+        removeCssClass(this.containerElement, cssClass);
     }
 
     setCssClass(className: string, include: boolean): void {
-        setCssClass(this.container, className, include);
+        setCssClass(this.containerElement, className, include);
     }
 
     /**
@@ -1889,13 +1882,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (themeId !== this.themeId) {
             if (this.themeId) {
                 this.removeCssClass(this.themeId);
-                if (hasHTMLLinkElement(this.themeId, this.container.ownerDocument)) {
-                    removeHTMLLinkElement(this.themeId, this.container.ownerDocument);
+                if (hasHTMLLinkElement(this.themeId, this.containerElement.ownerDocument)) {
+                    removeHTMLLinkElement(this.themeId, this.containerElement.ownerDocument);
                 }
             }
             if (href) {
-                if (!hasHTMLLinkElement(themeId, this.container.ownerDocument)) {
-                    appendHTMLLinkElement(themeId, 'stylesheet', 'text/css', href, this.container.ownerDocument);
+                if (!hasHTMLLinkElement(themeId, this.containerElement.ownerDocument)) {
+                    appendHTMLLinkElement(themeId, 'stylesheet', 'text/css', href, this.containerElement.ownerDocument);
                 }
             }
             this.addCssClass(themeId);
@@ -1922,19 +1915,19 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * Adds a new class, `className`, to the editor container.
      */
     setStyle(className: string, include?: boolean): void {
-        setCssClass(this.container, className, include !== false);
+        setCssClass(this.containerElement, className, include !== false);
     }
 
     /**
      * Removes the class `className` from the editor container.
      */
     unsetStyle(className: string): void {
-        removeCssClass(this.container, className);
+        removeCssClass(this.containerElement, className);
     }
 
     setCursorStyle(style: string): void {
-        if (this.content.style.cursor !== style) {
-            this.content.style.cursor = style;
+        if (this.contentElement.style.cursor !== style) {
+            this.contentElement.style.cursor = style;
         }
     }
 
@@ -1942,7 +1935,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
      * @param cursorStyle A css cursor style. 'crosshair'.
      */
     setMouseCursor(cursorStyle: string): void {
-        this.content.style.cursor = cursorStyle;
+        this.contentElement.style.cursor = cursorStyle;
     }
 }
 
