@@ -586,7 +586,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         const containerElement = this.containerElement;
-        if (heightPx !== 0) {
+        if (heightPx === undefined || heightPx === null) {
             const rect = containerElement.getBoundingClientRect();
             heightPx = rect.height;
 
@@ -596,7 +596,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
         }
 
-        if (widthPx ! == 0) {
+        if (widthPx === undefined || widthPx === null) {
             widthPx = containerElement.clientWidth;
         }
         const changes = this.$updateCachedSize(force, gutterWidthPx, widthPx, heightPx);
