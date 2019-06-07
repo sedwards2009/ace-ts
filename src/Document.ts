@@ -588,8 +588,9 @@ export class Document implements Shareable {
             return;
         }
 
-        if (isInsert && delta.lines.length > 20000)
+        if (isInsert && delta.lines.length > 20000) {
             this.$splitAndapplyLargeDelta(delta, 20000);
+        }
 
         applyDelta(this._lines, delta, doNotValidate);
         this.eventBusOrThrow()._signal(CHANGE, delta);

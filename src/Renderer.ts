@@ -1181,13 +1181,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         if (changes & CHANGE_FULL) {
-            this.textLayer.update(config);
+            this.textLayer.update(config, this.$viewPortSize);
             if (this.$showGutter) {
-                this.$gutterLayer.update(config);
+                this.$gutterLayer.update(config, this.$viewPortSize);
             }
             this.$markerBack.update(config);
             this.$markerFront.update(config);
-            this.cursorLayer.update(config);
+            this.cursorLayer.update(config, this.$viewPortSize);
             this.$moveTextAreaToCursor();
             if (this.$highlightGutterLine) {
                 this.$updateGutterLineHighlight();
@@ -1199,16 +1199,16 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         if (changes & CHANGE_SCROLL) {
             if (changes & CHANGE_TEXT || changes & CHANGE_LINES) {
-                this.textLayer.update(config);
+                this.textLayer.update(config, this.$viewPortSize);
             } else {
-                this.textLayer.scrollRows(config);
+                this.textLayer.scrollRows(config, this.$viewPortSize);
             }
             if (this.$showGutter) {
-                this.$gutterLayer.update(config);
+                this.$gutterLayer.update(config, this.$viewPortSize);
             }
             this.$markerBack.update(config);
             this.$markerFront.update(config);
-            this.cursorLayer.update(config);
+            this.cursorLayer.update(config, this.$viewPortSize);
             if (this.$highlightGutterLine) {
                 this.$updateGutterLineHighlight();
             }
@@ -1218,22 +1218,22 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         }
 
         if (changes & CHANGE_TEXT) {
-            this.textLayer.update(config);
+            this.textLayer.update(config, this.$viewPortSize);
             if (this.$showGutter) {
-                this.$gutterLayer.update(config);
+                this.$gutterLayer.update(config, this.$viewPortSize);
             }
         } else if (changes & CHANGE_LINES) {
             if (this.$updateLines() || (changes & CHANGE_GUTTER) && this.$showGutter) {
-                this.$gutterLayer.update(config);
+                this.$gutterLayer.update(config, this.$viewPortSize);
             }
         } else if (changes & CHANGE_GUTTER) {
             if (this.$showGutter) {
-                this.$gutterLayer.update(config);
+                this.$gutterLayer.update(config, this.$viewPortSize);
             }
         }
 
         if (changes & CHANGE_CURSOR) {
-            this.cursorLayer.update(config);
+            this.cursorLayer.update(config, this.$viewPortSize);
             this.$moveTextAreaToCursor();
             if (this.$highlightGutterLine) {
                 this.$updateGutterLineHighlight();
@@ -1392,14 +1392,14 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             // if the last row is unknown -> redraw everything
             if (lastRow === Infinity) {
                 if (this.$showGutter) {
-                    this.$gutterLayer.update(layerConfig);
+                    this.$gutterLayer.update(layerConfig, this.$viewPortSize);
                 }
-                this.textLayer.update(layerConfig);
+                this.textLayer.update(layerConfig, this.$viewPortSize);
                 return false;
             }
 
             // else update only the changed rows
-            this.textLayer.updateRows(layerConfig, firstRow, lastRow);
+            this.textLayer.updateRows(layerConfig, this.$viewPortSize, firstRow, lastRow);
             return true;
         }
         return false;

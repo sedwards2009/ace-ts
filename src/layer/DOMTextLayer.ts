@@ -11,6 +11,8 @@ import { EditSession } from "../EditSession";
 import { FoldLine } from "../FoldLine";
 import { LayerConfig } from './LayerConfig';
 import { Token } from "../Token";
+import { TextLayer } from "./TextLayer";
+import { ViewPortSize } from "../ViewPortSize";
 
 const EOF_CHAR = "\xB6";
 const EOL_CHAR_LF = "\xAC";
@@ -19,7 +21,7 @@ const TAB_CHAR = "\u2192";
 const SPACE_CHAR = "\xB7";
 
 
-export class DOMTextLayer extends AbstractLayer implements Disposable {
+export class DOMTextLayer extends AbstractLayer implements Disposable,  TextLayer {
     private _eolChar: string;
 
     private _session: EditSession;
@@ -131,7 +133,7 @@ export class DOMTextLayer extends AbstractLayer implements Disposable {
         }
     }
 
-    updateRows(config: LayerConfig, firstRow: number, lastRow: number): void {
+    updateRows(config: LayerConfig, viewPortSize: ViewPortSize, firstRow: number, lastRow: number): void {
         // Due to wrap line changes there can be new lines if e.g.
         // the line to updated wrapped in the meantime.
         if (this._config.lastRow !== config.lastRow ||

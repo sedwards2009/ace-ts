@@ -11,6 +11,7 @@ import { EditSession } from '../EditSession';
 import { PixelPosition } from '../PixelPosition';
 import { Position } from '../Position';
 import { Interval } from '../Interval';
+import { ViewPortSize } from "../ViewPortSize";
 
 const PIXEL_POSITION_ZERO = { left: 0, top: 0 };
 
@@ -192,7 +193,7 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         return { left: cursorLeft, top: cursorTop };
     }
 
-    update(config: LayerConfig): void {
+    update(config: LayerConfig, viewPortSize: ViewPortSize): void {
         this._config = config;
 
         // Selection markers is a concept from multi selection.

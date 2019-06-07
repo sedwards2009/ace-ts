@@ -27,6 +27,8 @@ export { Command } from './commands/Command';
 export { commands as MultiSelectCommands } from './commands/MultiSelectCommands';
 export { SelectionChangeEvent } from './events/SelectionChangeEvent';
 export { Origin } from './OriginEnum';
+export { LayerConfig } from './layer/LayerConfig';
+export { ViewPortSize } from './ViewPortSize';
 
 import * as ModeListModule from './mode/ModeList';
 export const ModeList = ModeListModule;

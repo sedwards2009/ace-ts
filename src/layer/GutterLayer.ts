@@ -19,6 +19,7 @@ import { FoldLine } from "../FoldLine";
 import { toPixelString } from "../dom/toPixelString";
 import { EventEmitter } from "../EventEmitter";
 import { Event } from '../Event';
+import { ViewPortSize } from "../ViewPortSize";
 
 
 function onCreateCell(element: HTMLDivElement) {
@@ -126,7 +127,7 @@ export class GutterLayer extends AbstractLayer {
         }
     }
 
-    update(config: LayerConfig): void {
+    update(config: LayerConfig, viewPortSize: ViewPortSize): void {
         const session = this.session;
         const firstRow = config.firstRow;
         // Compensate for horizontal scollbar.
@@ -308,13 +309,13 @@ export class GutterLayer extends AbstractLayer {
         }
     }
 
-    scrollLines(config: LayerConfig): void {
+    scrollLines(config: LayerConfig, viewPortSize: ViewPortSize): void {
         const oldConfig = this._config;
         this._config = config;
 
         this._updateCursorRow();
         if (this._lines.pageChanged(oldConfig, config)) {
-            return this.update(config);
+            return this.update(config, viewPortSize);
         }
 
         this._lines.moveContainer(config);
@@ -324,11 +325,11 @@ export class GutterLayer extends AbstractLayer {
         this._oldLastRow = lastRow;
 
         if (!oldConfig || oldLastRow < config.firstRow) {
-            return this.update(config);
+            return this.update(config, viewPortSize);
         }
 
         if (lastRow < oldConfig.firstRow) {
-            return this.update(config);
+            return this.update(config, viewPortSize);
         }
 
         if (oldConfig.firstRow < config.firstRow) {
