@@ -92,8 +92,9 @@ export function edit(elementOrString: HTMLElement | string): Editor {
     }
 
     const doc = createEditSession(value);
-
-    const editor = new Editor(new Renderer(el as HTMLElement), doc);
+    const renderer = new Renderer(el as HTMLElement);
+    renderer.init();
+    const editor = new Editor(renderer, doc);
     const env = {
         document: doc,
         editor: editor,

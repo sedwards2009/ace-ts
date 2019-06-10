@@ -74,6 +74,7 @@ export class ListViewPopup implements ListView {
 
         function createEditor(el: HTMLDivElement) {
             const renderer = new Renderer(el);
+            renderer.init();
 
             renderer.contentElement.style.cursor = "default";
             renderer.setStyle("ace_autocomplete");

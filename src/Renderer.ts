@@ -147,15 +147,15 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     /**
      * FIXME: Leaky. ListViewPopup and showErrorMarker use this property.
      */
-    readonly cursorLayer: CursorLayer;
-    readonly $gutterLayer: GutterLayer;
-    private readonly $markerFront: MarkerLayer;
-    private readonly $markerBack: MarkerLayer;
+    cursorLayer: CursorLayer;
+    $gutterLayer: GutterLayer;
+    private $markerFront: MarkerLayer;
+    private $markerBack: MarkerLayer;
 
     /**
      * FIXME: Leaky. ListViewPopup uses this property.
      */
-    readonly textLayer: TextLayer;
+    textLayer: TextLayer;
 
     private $frozen = false;
 
@@ -252,7 +252,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     constructor(containerElement: HTMLElement, options: RendererOptions={}) {
         refChange('start');
         refChange(this.uuid, 'Renderer', +1);
-        this.eventBus = new EventBusImpl<RendererEventName, any, Renderer>(this);
 
         this.containerElement = containerElement || <HTMLDivElement>createElement("div");
         this.containerElement.dir = 'ltr';
@@ -262,9 +261,16 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             if (editorCss == null) {
                 editorCss = require("./css/editor.css");
             }
-            ensureHTMLStyleElement(editorCss, "ace_editor", containerElement.ownerDocument);
+            ensureHTMLStyleElement(editorCss, "ace_editor", this.containerElement.ownerDocument);
         }
         addCssClass(this.containerElement, "ace_editor");
+        
+        this.setFontSize(options.fontSize === undefined ? "16px" : options.fontSize);
+    }
+
+    init(): void {
+        this.eventBus = new EventBusImpl<RendererEventName, any, Renderer>(this);
+
 
         this.$gutterElement = createElement("div") as HTMLDivElement;
         this.$gutterElement.className = "ace_gutter";
@@ -325,7 +331,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                                     this.containerElement.ownerDocument.defaultView);
         this.$loop.schedule(CHANGE_FULL);
 
-        this.setFontSize(options.fontSize === undefined ? "16px" : options.fontSize);
         this.setShowFoldWidgets(true);
         this.updateCharacterSize();
 
