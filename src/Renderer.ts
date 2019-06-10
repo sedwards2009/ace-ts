@@ -34,6 +34,7 @@ import { refChange } from './refChange';
 import { LayerConfig } from "./layer/LayerConfig";
 import { ViewPortSize } from "./ViewPortSize";
 import { DOMTextLayer } from "./layer/DOMTextLayer";
+import { DOMFontMetricsMonitor } from "./layer/DOMFontMetricsMonitor";
 
 
 export const changeCharacterSize = 'changeCharacterSize';
@@ -305,7 +306,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             }
         });
 
-        this._fontMetricsMonitor = new FontMetricsMonitor(this.containerElement, 500);
+        this._fontMetricsMonitor = this.createFontMetricsMonitor();
         this._fontMetricsMonitor.onChange( () => {
             this.updateCharacterSize();
             this.onResize(true, this.gutterWidthPx, this.$viewPortSize.widthPx, this.$viewPortSize.heightPx);
@@ -328,7 +329,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.setShowFoldWidgets(true);
         this.updateCharacterSize();
 
-        this._fontMetricsMonitor.startPolling();
+        this._fontMetricsMonitor.startMonitoring();
     }
 
     protected createTextLayer(contentDiv: HTMLDivElement): TextLayer {
@@ -341,6 +342,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     protected createHScrollBar(container: HTMLElement): HScrollBar {
         return new HScrollBar(container, this);
+    }
+
+    protected createFontMetricsMonitor(): FontMetricsMonitor {
+        return new DOMFontMetricsMonitor(this.containerElement, 500);
     }
 
     /**
