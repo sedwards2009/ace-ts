@@ -110,11 +110,11 @@ export class DOMFontMetricsMonitor implements FontMetricsMonitor, Disposable {
         }
     }
 
-    startMonitoring(): number {
+    startMonitoring(): void {
         if (this.$pollSizeChangesTimer) {
-            return this.$pollSizeChangesTimer;
+            return;
         }
-        return this.$pollSizeChangesTimer = window.setInterval(() => {
+        this.$pollSizeChangesTimer = window.setInterval(() => {
             this.checkForSizeChanges();
         }, 500);
     }

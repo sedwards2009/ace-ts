@@ -16,6 +16,6 @@ export interface FontMetrics {
 export interface FontMetricsMonitor extends Disposable {
     getFontMetrics(): FontMetrics;
     checkForSizeChanges(): void;
-    startMonitoring(): number;
+    startMonitoring(): void;
     onChange: Event<FontMetrics>;
 }
