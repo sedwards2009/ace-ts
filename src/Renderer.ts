@@ -646,7 +646,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             newHeightPx = heightPx;
             changes |= CHANGE_SIZE;
 
-            newScrollerHeightPx = viewPortSize.heightPx;
+            newScrollerHeightPx = heightPx;
             if (this._canHorizontalScroll) {
                 newScrollerHeightPx -= this.scrollBarH.height;
             }
