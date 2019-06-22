@@ -4,30 +4,17 @@
  * Licensed under the 3-Clause BSD license. See the LICENSE file for details.
  */
 import { Position } from "./Position";
+import { HeavyString } from './HeavyString';
 
-/**
- *
- */
+
 export interface Delta {
-
-    /**
-     *
-     */
     action: 'insert' | 'remove';
 
-    /**
-     *
-     */
-    end: Position;
+    // This isn't really used in the case of 'insert'. It is the position
+    // after the inserted text *after* the insertion is complete.
+    end: Position;  
 
-    /**
-     *
-     */
-    lines: string[];
-
-    /**
-     *
-     */
+    lines: (string | HeavyString)[];
+    
     start: Position;
 }
-

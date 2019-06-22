@@ -11,6 +11,7 @@ import { Position, position } from './Position';
 import { Range } from './Range';
 import { Shareable } from './Shareable';
 import { RangeBasic } from './RangeBasic';
+import { HeavyString } from './HeavyString';
 
 /**
  * Copies a Position.
@@ -296,12 +297,16 @@ export class Document implements Shareable {
      * Returns the end position of the inserted text, the character immediately after the last character inserted.
      * This method also triggers the 'change' event.
      */
-    insert(position: Position, text: string): Position {
-        // Only detect new lines if the document has no line break yet.
-        if (this.getLength() <= 1) {
-            this.$detectNewLine(text);
+    insert(position: Position, text: string | (string | HeavyString)[]): Position {
+        if (typeof text === "string") {
+            // Only detect new lines if the document has no line break yet.
+            if (this.getLength() <= 1) {
+                this.$detectNewLine(text);
+            }
+            return this.insertMergedLines(position, $split(text));
+        } else {
+            return this.insertMergedLines(position, text);
         }
-        return this.insertMergedLines(position, $split(text));
     }
 
     /**
@@ -311,7 +316,7 @@ export class Document implements Shareable {
      *   1. This does NOT handle newline characters (single-line text only).
      *   2. This is faster than the `insert` method for single-line text insertions.
      */
-    insertInLine(position: Readonly<Position>, text: string): Position {
+    insertInLine(position: Readonly<Position>, text: string | HeavyString): Position {
         const start: Position = this.clippedPos(position.row, position.column);
         const end: Position = pos(position.row, position.column + text.length);
 
@@ -417,7 +422,7 @@ export class Document implements Shareable {
      * Returns the end position of the inserted text.
      * This method also triggers the 'change' event.
      */
-    insertMergedLines(position: Readonly<Position>, lines: string[]): Position {
+    insertMergedLines(position: Readonly<Position>, lines: (string | HeavyString)[]): Position {
         const start: Position = this.clippedPos(position.row, position.column);
         const end: Position = {
             row: start.row + lines.length - 1,
@@ -539,7 +544,7 @@ export class Document implements Shareable {
      * This method triggers a 'change' event for the removal.
      * This method triggers a 'change' event for the insertion.
      */
-    replace(range: RangeBasic, newText: string): Position {
+    replace(range: RangeBasic, newText: string | (string | HeavyString)[]): Position {
         const isEmpty = range.start.row === range.end.row && range.start.column === range.end.column;
         if (newText.length === 0 && isEmpty) {
             // If the range is empty then the range.start and range.end will be the same.

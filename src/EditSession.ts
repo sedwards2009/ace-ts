@@ -47,6 +47,7 @@ import { TokenWithIndex } from './Token';
 import { FoldMode } from './mode/folding/FoldMode';
 import { TextMode } from './mode/TextMode';
 import { Mode } from './mode/ModeList';
+import { HeavyString } from './HeavyString';
 
 
 // "Tokens"
@@ -1452,11 +1453,11 @@ export class EditSession {
      * Triggers a 'change' event on the document.
      * Throws if the document is not defined.
      */
-    insert(position: Position, text: string): Position {
+    insert(position: Position, text: string | HeavyString[]): Position {
         return this.docOrThrow().insert(position, text);
     }
 
-    insertInLine(position: Readonly<Position>, text: string): Position {
+    insertInLine(position: Readonly<Position>, text: string | HeavyString): Position {
         return this.docOrThrow().insertInLine(position, text);
     }
 
@@ -1625,7 +1626,7 @@ export class EditSession {
      * Returns the end position of the change.
      * This method triggers a change events in the document for removal and insertion.
      */
-    replace(range: RangeBasic, newText: string): Position {
+    replace(range: RangeBasic, newText: string | (string | HeavyString)[]): Position {
         return this.docOrThrow().replace(range, newText);
     }
 

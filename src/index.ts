@@ -30,6 +30,7 @@ export { SelectionChangeEvent } from './events/SelectionChangeEvent';
 export { Origin } from './OriginEnum';
 export { LayerConfig } from './layer/LayerConfig';
 export { ViewPortSize } from './ViewPortSize';
+export { HeavyString } from './HeavyString';
 
 import * as ModeListModule from './mode/ModeList';
 export const ModeList = ModeListModule;
