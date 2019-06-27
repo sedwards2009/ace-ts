@@ -25,7 +25,7 @@ export function convertIndentation(session: EditSession, ch: string, len: number
         const line = lines[i];
         const match = line.match(/^\s*/)[0];
         if (match) {
-            const w = session.$getStringScreenWidth(match)[0];
+            const w = session.getStringScreenWidth(match)[0];
             const tabCount = Math.floor(w / oldLen);
             const remainder = w % oldLen;
             let toInsert = cache[tabCount] || (cache[tabCount] = stringRepeat(tab, tabCount));

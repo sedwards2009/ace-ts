@@ -1347,8 +1347,8 @@ export class EditSession {
                 return;
             }
 
-            const lines = doc.getAllLines();
-            this.screenWidthChars = this._computeLongestDocLineInRangeChars(0, lines.length);
+            const lineCount = doc.getLength();
+            this.screenWidthChars = this._computeLongestDocLineInRangeChars(0, lineCount);
         }
     }
 
@@ -1373,7 +1373,7 @@ export class EditSession {
 
             let cacheEntry = cache[i];
             if (cacheEntry == null) {
-                cacheEntry = this.$getStringScreenWidth(lines[i])[0];
+                cacheEntry = this.getStringScreenWidth(lines[i])[0];
                 cache[i] = cacheEntry;
             }
             if (cacheEntry > longestScreenLine) {
@@ -2342,29 +2342,33 @@ export class EditSession {
      * The first position indicates the number of columns for `str` on screen.<br/>
      * The second value contains the position of the document column that this function read until.
      */
-    $getStringScreenWidth(str: string, maxScreenColumn?: number, screenColumn?: number): number[] {
+    getStringScreenWidth(str: string, maxScreenColumn?: number, screenColumn?: number): number[] {
         if (maxScreenColumn === 0)
             return [0, 0];
         if (maxScreenColumn == null)
             maxScreenColumn = Infinity;
         screenColumn = screenColumn || 0;
 
-        let c: number;
+        let codePoint: number;
         let column: number;
         for (column = 0; column < str.length; column++) {
-            c = str.charCodeAt(column);
+            codePoint = str.codePointAt(column);
             // tab
-            if (c === 9) {
+            if (codePoint === 9) {
                 screenColumn += this.getScreenTabSize(screenColumn);
             }
             // full width characters
-            else if (c >= 0x1100 && isFullWidth(c)) {
+            else if (codePoint >= 0x1100 && isFullWidth(codePoint)) {
                 screenColumn += 2;
             } else {
                 screenColumn += 1;
             }
             if (screenColumn > maxScreenColumn) {
                 break;
+            }
+
+            if (codePoint > 0xffff) {
+                column++;   // In `str`, this codepoint was 2 UTF16 words because it was surrogate pair.
             }
         }
 
@@ -2569,7 +2573,7 @@ export class EditSession {
             }
         }
 
-        docColumn += this.$getStringScreenWidth(line, screenColumn)[1];
+        docColumn += this.getStringScreenWidth(line, screenColumn)[1];
 
         // We remove one character at the end so that the docColumn
         // position returned is not associated to the next row on the screen.
@@ -2677,7 +2681,7 @@ export class EditSession {
 
         return {
             row: screenRow,
-            column: this.$getStringScreenWidth(textLine)[0]
+            column: this.getStringScreenWidth(textLine)[0]
         };
     }
 

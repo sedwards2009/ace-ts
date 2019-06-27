@@ -992,7 +992,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         let w = this.charWidthPx;
         if (this.$composition) {
             const val = this.textareaElement.value.replace(/^\x01+/, "");
-            w *= session.$getStringScreenWidth(val)[0];
+            w *= session.getStringScreenWidth(val)[0];
         }
 
         posLeft -= this.scrollLeftPx;
