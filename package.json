@@ -1,6 +1,6 @@
 {
   "name": "ace-ts",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Ace editor but using TypeScript",
   "scripts": {
     "build": "node build_scripts/build.js",
