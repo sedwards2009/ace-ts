@@ -158,7 +158,7 @@ const modes: Mode[] = [
     new Mode("scala", "Scala", "scala", ["text/x-scala"]),
     new Mode("scheme", "Scheme", "scm|rkt", ["text/x-scheme"]),
     new Mode("scss", "SCSS", "scss", ["text/x-scss"]),
-    new Mode("sh", "SH", "sh|bash|^.bashrc", ["application/x-sh"]),
+    new Mode("sh", "SH", "sh|bash|^.bashrc", ["application/x-sh", "text/x-sh"]),
     new Mode("sjs", "SJS", "sjs", ["text/x-sjs"]),
     // new Mode("smarty", "Smarty", "smarty|tpl", ["text/x-smarty"]),
     new Mode("snippets", "snippets", "snippets", ["text/x-snippets"]),
