@@ -599,11 +599,6 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (heightPx === undefined || heightPx === null) {
             const rect = containerElement.getBoundingClientRect();
             heightPx = rect.height;
-
-            // If the height fails to be a multiple of lineHeight by more than 1px, then trim it.
-            if (this.charHeightPx - (heightPx % this.charHeightPx) > 1) {
-                heightPx -= heightPx % this.charHeightPx;
-            }
         }
 
         if (widthPx === undefined || widthPx === null) {
@@ -1331,9 +1326,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
         session.setScrollLeftPx(Math.max(-this.scrollMargin.leftPx, Math.min(this.scrollLeftPx, longestLinePx - size.scrollerWidthPx + this.scrollMargin.rightPx)));
 
-        const lineCount = Math.ceil(minHeight / this.charHeightPx) - 1;
         let firstRow = Math.max(0, Math.round((this.scrollTopPx - verticalOffsetPx) / this.charHeightPx));
-        let lastRow = firstRow + lineCount;
+        const lineCount = Math.ceil(minHeight / this.charHeightPx);
+        let lastRow = firstRow + lineCount -1;
 
         // Map lines on the screen to lines in the document.
         const charHeightPx = this.charHeightPx;
@@ -1392,13 +1387,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$changedLines = null;
             const layerConfig = this.layerConfig;
 
-            if (firstRow > layerConfig.lastRow + 1) {
+            if (firstRow > layerConfig.lastRow) {
                 return false;
             }
             if (lastRow < layerConfig.firstRow) {
                 return false;
             }
-
+  
             // if the last row is unknown -> redraw everything
             if (lastRow === Infinity) {
                 if (this.$showGutter) {
