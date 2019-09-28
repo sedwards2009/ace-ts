@@ -23,19 +23,16 @@ export class CursorLayer extends AbstractLayer implements Disposable {
     private _isCursorVisible = false;
     private _isBlinking = true;
     private _blinkInterval = 1000;
-    private _smoothBlinking = false;
     private readonly _blinker = new Interval();
     private _timeoutId: number;
     private _cursors: HTMLDivElement[] = [];
     private _isOverwriteCursor: boolean;
-    private _updateCursors: (opacity: boolean) => void;
     private _config: LayerConfig;
     $pixelPos: PixelPosition;
 
     constructor(parent: HTMLElement) {
         super(parent, "ace_layer ace_cursor-layer");
         addCssClass(this.element, "ace_hidden-cursors");
-        this._updateCursors = (opacity: boolean) => this._updateOpacity(opacity);
     }
 
     dispose(): void {
@@ -44,17 +41,13 @@ export class CursorLayer extends AbstractLayer implements Disposable {
         super.dispose();
     }
 
-    private _updateVisibility(visible: boolean): void {
+    private _updateCursors(on: boolean): void {
+        const classToAdd = on ? "blink_state_visible" : "blink_state_alt";
+        const classToRemove = on ? "blink_state_alt" : "blink_state_visible";
         const cursors = this._cursors;
         for (let i = cursors.length; i--;) {
-            cursors[i].style.visibility = visible ? "" : "hidden";
-        }
-    }
-
-    private _updateOpacity(opacity: boolean): void {
-        const cursors = this._cursors;
-        for (let i = cursors.length; i--;) {
-            cursors[i].style.opacity = opacity ? "" : "0";
+            cursors[i].classList.remove(classToRemove);
+            cursors[i].classList.add(classToAdd);
         }
     }
 
@@ -72,17 +65,6 @@ export class CursorLayer extends AbstractLayer implements Disposable {
     setBlinkInterval(blinkInterval: number): void {
         if (blinkInterval !== this._blinkInterval) {
             this._blinkInterval = blinkInterval;
-            this.restartTimer();
-        }
-    }
-
-    setSmoothBlinking(smoothBlinking: boolean): void {
-        if (smoothBlinking !== this._smoothBlinking) {
-            this._smoothBlinking = smoothBlinking;
-            setCssClass(this.element, "ace_smooth-blinking", smoothBlinking);
-            this._updateCursors(true);
-            // TODO: Differs from ACE...
-            this._updateCursors = (smoothBlinking ? this._updateOpacity : this._updateVisibility).bind(this);
             this.restartTimer();
         }
     }
@@ -117,31 +99,20 @@ export class CursorLayer extends AbstractLayer implements Disposable {
     }
 
     restartTimer(): void {
-        const update = this._updateCursors;
+        const update = (on: boolean) => this._updateCursors(on);
 
         this._blinker.off();
-
         clearTimeout(this._timeoutId);
-        if (this._smoothBlinking) {
-            removeCssClass(this.element, "ace_smooth-blinking");
-        }
-
         update(true);
 
         if (!this._isBlinking || !this._blinkInterval || !this._isCursorVisible) {
             return;
         }
-        
-        if (this._smoothBlinking) {
-            setTimeout(() => {
-                addCssClass(this.element, "ace_smooth-blinking");
-            });
-        }
 
         const blink = () => {
             this._timeoutId = window.setTimeout(() => {
                 update(false);
-            }, 0.6 * this._blinkInterval);
+            }, 0.5 * this._blinkInterval);
         };
 
         this._blinker.on(function () { update(true); blink(); }, this._blinkInterval);

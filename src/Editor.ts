@@ -4497,7 +4497,6 @@ export class Editor {
         if (!cursorLayer) {
             return;
         }
-        cursorLayer.setSmoothBlinking(false);
 
         // The cursor only blinks if the editor is writeable.
         cursorLayer.setBlinking(!this.$readOnly);
