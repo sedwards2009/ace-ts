@@ -876,7 +876,7 @@ export class EditSession {
      * Adds a new marker to the given `Range`, returning the new marker id.
      * If `inFront` is `true`, a front marker is defined, and the `'changeFrontMarker'` event fires; otherwise, the `'changeBackMarker'` event fires.
      */
-    addMarker(range: OrientedRange, clazz: string, type: MarkerType = 'line', renderer?: MarkerRenderer | null, inFront?: boolean): number {
+    addMarker(range: OrientedRange, clazz: string, type: MarkerType = 'line', renderer?: MarkerRenderer | null, inFront=false): number {
         const id = this.$markerId++;
 
         if (range) {
@@ -895,12 +895,12 @@ export class EditSession {
         }
 
         const marker: Marker = {
-            range: range,
+            range,
             type: type || "line",
-            renderer: renderer,
-            clazz: clazz,
-            inFront: !!inFront,
-            id: id
+            renderer,
+            clazz,
+            inFront,
+            id
         };
 
         if (inFront) {
@@ -913,6 +913,11 @@ export class EditSession {
         }
 
         return id;
+    }
+
+    forceMarkerUpdate(): void {
+        this.eventBus._signal("changeFrontMarker");
+        this.eventBus._signal("changeBackMarker");
     }
 
     /**

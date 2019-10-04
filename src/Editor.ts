@@ -222,7 +222,7 @@ export class Editor {
     inMultiSelectMode: boolean;
     private _compositionMouseDownHandler: () => void = null;
 
-    multiSelect: Selection | undefined;
+    multiSelect: Selection | null;
 
     inVirtualSelectionMode: boolean;
     $blockSelectEnabled: boolean;
@@ -746,9 +746,6 @@ export class Editor {
         this.renderer.updateBackMarkers();
     }
 
-    /**
-     *
-     */
     removeSelectionMarkers(ranges: OrientedRange[]): void {
         const session = this.session;
         if (session) {
@@ -2080,12 +2077,14 @@ export class Editor {
             session.$selectionMarker = null;
         }
 
-        if (this.selection && !this.selection.isEmpty()) {
+        const isMultiSelect = this.multiSelect != null && this.multiSelect.ranges.length !== 0;
+        if (this.selection && ! this.selection.isEmpty() && ! isMultiSelect) {
             const range = this.selection.getRange();
             const style = this.getSelectionStyle();
             session.$selectionMarker = session.addMarker(range, "ace_selection", style);
         }
         else {
+            session.forceMarkerUpdate();
             this.$updateHighlightActiveLine();
         }
 
