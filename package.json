@@ -4,16 +4,21 @@
   "description": "Ace editor but using TypeScript",
   "scripts": {
     "build": "node build_scripts/build.js",
+    "clean": "rimraf dist",
     "package": "yarn run build && yarn pack"
   },
-  "main": "build/index.js",
-  "typings": "build/index.d.ts",
-  "dependencies": {
-  },
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "dependencies": {},
   "devDependencies": {
+    "rimraf": "^3.0.2",
     "rollup": "^0.59.1",
     "shelljs": "^0.8.2",
     "typescript": "2.8.3"
   },
-  "files": ["package.json", "README.md", "build"]
+  "files": [
+    "package.json",
+    "README.md",
+    "build"
+  ]
 }
