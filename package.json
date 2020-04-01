@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node build_scripts/build.js",
     "clean": "rimraf dist",
+    "package": "yarn run build && yarn pack",
     "prepublish": "yarn run clean && yarn run build",
     "publish-pkg": "yarn publish --access public"
   },
