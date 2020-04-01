@@ -46,10 +46,6 @@ export class EditorMouseEvent {
         this.$inSelection = null;
     }
 
-    get toElement() {
-        return this.domEvent.toElement;
-    }
-
     stopPropagation(): void {
         this.domEvent.stopPropagation();
         // this.propagationStopped = true;
@@ -103,7 +99,7 @@ export class EditorMouseEvent {
 
     /*
      * Get the clicked mouse button
-     * 
+     *
      * @returns 0 for left button, 1 for middle button, 2 for right button
      */
     getButton(): number {

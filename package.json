@@ -1,7 +1,7 @@
 {
   "name": "@extraterm/ace-ts",
   "version": "0.17.0",
-  "description": "Ace editor but using TypeScript",
+  "description": "Ace editor but using TypeScript, for use in Extraterm",
   "scripts": {
     "build": "node build_scripts/build.js",
     "clean": "rimraf dist",
@@ -12,10 +12,11 @@
   "typings": "dist/index.d.ts",
   "dependencies": {},
   "devDependencies": {
+    "@types/node": "^12.6.2",
     "rimraf": "^3.0.2",
     "rollup": "^0.59.1",
     "shelljs": "^0.8.2",
-    "typescript": "2.8.3"
+    "typescript": "3.7.4"
   },
   "files": [
     "package.json",

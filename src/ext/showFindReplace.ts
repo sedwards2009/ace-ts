@@ -47,7 +47,7 @@ class SearchBox {
     private searchInput: HTMLInputElement;
     private replaceInput: HTMLInputElement;
     /**
-     * 
+     *
      */
     private activeInput: HTMLInputElement;
     private $closeSearchBarKb: KeyboardHandler<Editor>;
@@ -55,7 +55,7 @@ class SearchBox {
     public isReplace: boolean;
     private $onChange: DelayedCall;
     /**
-     * 
+     *
      */
     constructor(editor: Editor, unused?: Range, showReplaceForm?: boolean) {
         const div = document.createElement("div");
@@ -176,7 +176,7 @@ class SearchBox {
         });
         addListener(sb, "click", (e: MouseEvent) => {
             const t = e.srcElement;
-            if (t) {
+            if (t && t instanceof HTMLElement) {
                 const action = t.getAttribute("action");
                 if (action && this[action]) {
                     this[action]();

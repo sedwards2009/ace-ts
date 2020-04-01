@@ -31,7 +31,7 @@ export interface Token {
 function isToken(token: { type: string | null, value: string }): token is Token {
     // Checking only that the type is truthy is consistent with the legacy code.
     // It would probably be more precise to check for a string a string and manage
-    // the case of a zero-length string elsewhere. 
+    // the case of a zero-length string elsewhere.
     if (token.type) {
         return true;
     }
@@ -95,7 +95,7 @@ export interface TokenizedLine<E> {
     state: string | (string | E)[];
 
     /**
-     * The tokenizer currently only produces 
+     * The tokenizer currently only produces
      */
     tokens: Token[];
 }
@@ -107,7 +107,7 @@ let MAX_TOKEN_COUNT = 2000;
 
 /**
  * An `onMatch` function for a Rule.
- * 
+ *
  * TODO: The cast to <T> suggests that parameterization by T is not a good thing.
  */
 function applyToken<T extends Token, E, S extends Array<string | E>>(this: Rule<T, E, S>, str: string): T[] | undefined {
@@ -142,7 +142,7 @@ function applyToken<T extends Token, E, S extends Array<string | E>>(this: Rule<
 
 /**
  * An `onMatch` function for a Rule.
- * 
+ *
  * TODO: The cast to <T> suggests that parameterization by T is not a good thing.
  */
 function arrayTokens<T extends Token, E, S extends Array<string | E>>(this: Rule<T, E, S>, str: string): 'text' | T[] {
@@ -242,7 +242,7 @@ export class Tokenizer<T extends Token, E, S extends Array<string | E>> {
     public trace = false;
     /**
      * rules by state name.
-     * 
+     *
      * FIXME: TextMode wants access to the rulesByState.
      * This is so that it can build completion keywords, not a good coupling.
      */
@@ -252,7 +252,7 @@ export class Tokenizer<T extends Token, E, S extends Array<string | E>> {
      * Each value is a monster; the join of all the regular expressions using |.
      * Is this for optimization?
      * Much of the complication of parsing is in determining which rule matched.
-     * 
+     *
      * TODO:Rename monsterRegExpByState?
      */
     protected readonly regExps: { [stateName: string]: RegExp } = {};
@@ -507,17 +507,18 @@ export class Tokenizer<T extends Token, E, S extends Array<string | E>> {
                 }
 
                 if (rule.next) {
-                    if (typeof rule.next === "string") {
-                        currentState = changeCurrentState(currentState, rule.next, stack, this.trace);
+                    const next = rule.next;
+                    if (typeof next === "string") {
+                        currentState = changeCurrentState(currentState, next, stack, this.trace);
                     }
-                    else if (Array.isArray(rule.next)) {
+                    else if (Array.isArray(next)) {
                         // This case should not happen because or rule normalization?
                         console.warn("rule.next: Rule[] is not being handled by the Tokenizer.");
                     }
-                    else if (typeof rule.next === 'function') {
+                    else if (next instanceof Function) {
                         // TODO: May be better to simplify back to a stack being a (number | string)[].
                         // An example of why we end up here is a POP_STATE.
-                        const nextState = rule.next(currentState, stack as S);
+                        const nextState = next(currentState, stack as S);
                         if (typeof nextState === 'string') {
                             currentState = changeCurrentState(currentState, nextState, stack, this.trace);
                         }
