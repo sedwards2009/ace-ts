@@ -22,6 +22,6 @@
   "files": [
     "package.json",
     "README.md",
-    "build"
+    "dist"
   ]
 }
