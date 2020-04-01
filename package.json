@@ -1,11 +1,12 @@
 {
-  "name": "ace-ts",
-  "version": "0.16.0",
+  "name": "@extraterm/ace-ts",
+  "version": "0.17.0",
   "description": "Ace editor but using TypeScript",
   "scripts": {
     "build": "node build_scripts/build.js",
     "clean": "rimraf dist",
-    "package": "yarn run build && yarn pack"
+    "prepublish": "yarn run clean && yarn run build",
+    "publish-pkg": "yarn publish --access public"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
