@@ -187,7 +187,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     private scrollBarVscrollUnhook: () => void;
 
     $scrollAnimation: { from: number; to: number; steps: number[] } | null;
-    
+
     $scrollbarWidthPx: number;
     private session: EditSession;
     private eventBus: EventBusImpl<RendererEventName, any, Renderer>;
@@ -264,7 +264,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             ensureHTMLStyleElement(editorCss, "ace_editor", this.containerElement.ownerDocument);
         }
         addCssClass(this.containerElement, "ace_editor");
-        
+
         this.setFontSize(options.fontSize === undefined ? "16px" : options.fontSize);
     }
 
@@ -275,7 +275,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.$gutterElement = createElement("div") as HTMLDivElement;
         this.$gutterElement.className = "ace_gutter";
         this.containerElement.appendChild(this.$gutterElement);
-        // Hide gutter from screen-readers. 
+        // Hide gutter from screen-readers.
         this.$gutterElement.setAttribute("aria-hidden", "true");
 
         this.scrollerElement = createElement("div") as HTMLDivElement;
@@ -299,12 +299,13 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this._canVerticalScroll = false;
 
         this.scrollBarV = this.createVScrollBar(this.containerElement)
-        this.scrollBarVscrollUnhook = this.scrollBarV.on("scroll", (event: ScrollBarEvent, scrollBar: VScrollBar) => {
-            if (!this.$scrollAnimation && this.session) {
-                this.setScrollTopPx(event.data - this.scrollMargin.topPx);
-            }
-        });
-
+        if (this.scrollBarV != null) {
+            this.scrollBarVscrollUnhook = this.scrollBarV.on("scroll", (event: ScrollBarEvent, scrollBar: VScrollBar) => {
+                if (!this.$scrollAnimation && this.session) {
+                    this.setScrollTopPx(event.data - this.scrollMargin.topPx);
+                }
+            });
+        }
         this.scrollBarH = this.createHScrollBar(this.containerElement);
         this.scrollBarHscrollUnhook = this.scrollBarH.on("scroll", (event: ScrollBarEvent, scrollBar: HScrollBar) => {
             if (!this.$scrollAnimation && this.session) {
@@ -367,8 +368,12 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         this.scrollBarHscrollUnhook();
         this.scrollBarH.dispose();
 
-        this.scrollBarVscrollUnhook();
-        this.scrollBarV.dispose();
+        if (this.scrollBarVscrollUnhook != null) {
+            this.scrollBarVscrollUnhook();
+        }
+        if (this.scrollBarV != null) {
+            this.scrollBarV.dispose();
+        }
 
         this.cursorLayer.dispose();
         this.$markerFront.dispose();
@@ -631,7 +636,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         let changes = 0;
         const viewPortSize = this.$viewPortSize;
         const oldViewPortSize = this.$viewPortSize;
-        
+
         let newWidthPx = viewPortSize.widthPx;
         let newHeightPx = viewPortSize.heightPx;
         let newScrollerHeightPx = viewPortSize.scrollerHeightPx;
@@ -646,7 +651,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
                 newScrollerHeightPx -= this.scrollBarH.height;
             }
 
-            this.scrollBarV.element.style.bottom = pixelStyle(this.scrollBarH.height);
+            if (this.scrollBarV != null) {
+                this.scrollBarV.element.style.bottom = pixelStyle(this.scrollBarH.height);
+            }
 
             changes |= CHANGE_SCROLL;
         }
@@ -662,9 +669,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.gutterWidthPx = gutterWidthPx;
 
             this.scrollBarH.element.style.left = this.scrollerElement.style.left = pixelStyle(gutterWidthPx);
-            newScrollerWidthPx = Math.max(0, widthPx - gutterWidthPx - this.scrollBarV.width);
+            const scrollbarVWidth = this.scrollBarV == null ? 0 : this.scrollBarV.width;
+            newScrollerWidthPx = Math.max(0, widthPx - gutterWidthPx - scrollbarVWidth);
 
-            this.scrollBarH.element.style.right = this.scrollerElement.style.right = pixelStyle(this.scrollBarV.width);
+            this.scrollBarH.element.style.right = this.scrollerElement.style.right = pixelStyle(scrollbarVWidth);
             this.scrollerElement.style.bottom = pixelStyle(this.scrollBarH.height);
 
             if (this.session && this.session.getUseWrapMode() && this.adjustWrapLimit() || force) {
@@ -871,7 +879,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
     updateFontSize(): void {
 
     }
-    
+
     setHighlightGutterLine(highlightGutterLine: boolean): void {
         this.$highlightGutterLine = highlightGutterLine;
         if (!this.$gutterLineHighlight) {
@@ -994,8 +1002,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         if (posLeft > this.$viewPortSize.scrollerWidthPx - w) {
             posLeft = this.$viewPortSize.scrollerWidthPx - w;
         }
-        posLeft -= this.scrollBarV.width;
-
+        if (this.scrollBarV != null) {
+            posLeft -= this.scrollBarV.width;
+        }
         this.textareaElement.style.height = pixelStyle(h);
         this.textareaElement.style.width = pixelStyle(w);
         this.textareaElement.style.right = pixelStyle(Math.max(0, this.$viewPortSize.scrollerWidthPx - posLeft - w));
@@ -1094,6 +1103,10 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
 
     private $updateScrollBarV(): void {
+        if (this.scrollBarV == null) {
+            return;
+        }
+
         let scrollHeightPx = this.layerConfig.maxHeightPx;
         const scrollerHeightPx = this.$viewPortSize.scrollerHeightPx;
         if (!this.$maxLines && this.$scrollPastEnd) {
@@ -1161,7 +1174,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             changes |= this.$computeLayerConfig();
             // If a change is made offscreen and wrapMode is on, then the onscreen
             // lines may have been pushed down. If so, the first screen row will not
-            // have changed, but the first actual row will. In that case, adjust 
+            // have changed, but the first actual row will. In that case, adjust
             // scrollTop so that the cursor and onscreen content stays in the same place.
             if (config.firstRow !== this.layerConfig.firstRow && config.firstRowScreen === this.layerConfig.firstRowScreen) {
                 this.scrollTopPx = this.scrollTopPx + (config.firstRow - this.layerConfig.firstRow) * this.charHeightPx;
@@ -1270,7 +1283,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             this.$viewPortSize.heightPx !== this.desiredHeight || vScroll !== this._canVerticalScroll) {
             if (vScroll !== this._canVerticalScroll) {
                 this._canVerticalScroll = vScroll;
-                this.scrollBarV.setVisible(vScroll);
+                if (this.scrollBarV != null) {
+                    this.scrollBarV.setVisible(vScroll);
+                }
             }
 
             const w = this.containerElement.clientWidth;
@@ -1319,7 +1334,9 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         const vScrollChanged = this._canVerticalScroll !== vScroll;
         if (vScrollChanged) {
             this._canVerticalScroll = vScroll;
-            this.scrollBarV.setVisible(vScroll);
+            if (this.scrollBarV != null) {
+                this.scrollBarV.setVisible(vScroll);
+            }
         }
 
         this.setScrollTopPx(Math.max(-this.scrollMargin.topPx, Math.min(this.scrollTopPx, maxHeight - size.scrollerHeightPx + this.scrollMargin.bottomPx)));
@@ -1393,7 +1410,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
             if (lastRow < layerConfig.firstRow) {
                 return false;
             }
-  
+
             // if the last row is unknown -> redraw everything
             if (lastRow === Infinity) {
                 if (this.$showGutter) {
@@ -1595,7 +1612,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     /**
      * Gracefully scrolls the editor to the row indicated.
-     * 
+     *
      * @param line A line number
      * @param center If `true`, centers the editor the to indicated line
      * @param animate If `true` animates scrolling
@@ -1677,7 +1694,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
 
     /**
      * Scrolls the editor to the y pixel indicated.
-     * 
+     *
      * @param scrollTopPx The position to scroll to
      */
     scrollToYPx(scrollTopPx: number): void {
