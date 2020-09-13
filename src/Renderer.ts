@@ -328,8 +328,7 @@ export class Renderer implements Disposable, EventBus<RendererEventName, any, Re
         };
         this._viewPortDirty = true;
 
-        this.$loop = new RenderLoop(changes => this.$renderChanges(changes, false),
-                                    this.containerElement.ownerDocument.defaultView);
+        this.$loop = new RenderLoop(changes => this.$renderChanges(changes, false));
         this.$loop.schedule(CHANGE_FULL);
 
         this.setShowFoldWidgets(true);
