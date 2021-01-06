@@ -238,6 +238,7 @@ export class Editor {
     private $highlightPending: boolean;
     private $highlightSelectedWord = false;
     private $highlightTagPending: boolean;
+    private _highlightBrackets = true;
 
     private $mergeUndoDeltas: boolean | 'always' = true;
     /**
@@ -302,7 +303,7 @@ export class Editor {
         this.curOp = null;
         this.prevOp = {};
         this.$mergeableCommands = [COMMAND_NAME_BACKSPACE, COMMAND_NAME_DEL, COMMAND_NAME_INSERT_STRING];
-        
+
         if (renderer) {
             this.container = renderer.getContainerElement();
             this.renderer = renderer;
@@ -643,7 +644,7 @@ export class Editor {
     /**
      * Cleans up the entire editor.
      * 1. Dispose of the UI elements.
-     * 2. 
+     * 2.
      */
     dispose(): void {
         this.renderer.dispose();
@@ -694,7 +695,7 @@ export class Editor {
     }
 
     /**
-     * When setting the selection, the session must be defined. 
+     * When setting the selection, the session must be defined.
      */
     set selection(selection: Selection | undefined) {
         if (this.session) {
@@ -719,7 +720,7 @@ export class Editor {
 
 
 
-    /** 
+    /**
      * Adds the selection and cursor using the (oriented) range containing the cursor.
      * This method mutates its argument from an OrientedRange to a RangeSelectionMarker.
      * Throws an exception if there is no session.
@@ -810,7 +811,7 @@ export class Editor {
         }
     }
 
-    /** 
+    /**
      * Executes a command for each selection range.
      *
      * @param action The action to execute.
@@ -1025,7 +1026,7 @@ export class Editor {
         return this.sessionOrThrow().getWordRange(row, column);
     }
 
-    /** 
+    /**
      * Finds the next occurence of text in an active selection and adds it to the selections.
      */
     selectMore(direction: Direction, skip?: boolean, stopAtFirst?: boolean): void {
@@ -1068,7 +1069,7 @@ export class Editor {
         }
     }
 
-    /** 
+    /**
      * Aligns the cursors or selected text.
      */
     alignCursors(): void {
@@ -1678,10 +1679,10 @@ export class Editor {
     updateFontSize(): void {
         this.renderer.updateFontSize();
     }
-    
+
     /**
      * Set autoscroll on/off.
-     * 
+     *
      * @param autoscroll true if the viewport should automatically scroll to
      *                   keep the cursor visible.
      */
@@ -1699,7 +1700,7 @@ export class Editor {
 
     /**
      * Returns true if autoscroll is active.
-     * 
+     *
      * Autoscroll means that the viewport is automatically scrolled to keep
      * the cursor visible after document changes.
      */
@@ -1744,12 +1745,25 @@ export class Editor {
         this.renderer.setFontSize(fontSize);
     }
 
-    private $highlightBrackets(): void {
-        const session = this.sessionOrThrow();
-        if (session.$bracketHighlight) {
-            session.removeMarker(session.$bracketHighlight);
-            session.$bracketHighlight = undefined;
+    setHighlightBrackets(on: boolean): void {
+        if (this._highlightBrackets !== on) {
+            this._highlightBrackets = on;
+            if (on) {
+                this._updateHighlightBrackets();
+            } else {
+                this._removeHighlightBrackets();
+            }
         }
+    }
+
+    private _updateHighlightBrackets(): void {
+        if ( ! this._highlightBrackets) {
+            return;
+        }
+
+        this._removeHighlightBrackets();
+
+        const session = this.sessionOrThrow();
 
         if (this.$highlightPending) {
             return;
@@ -1759,6 +1773,11 @@ export class Editor {
         this.$highlightPending = true;
         setTimeout(() => {
             this.$highlightPending = false;
+
+            if ( ! this._highlightBrackets) {
+                return;
+            }
+
             // The session may be pulled out from under us during the wait time.
             // TODO: We could cancel the timeout if we saved the handle for the timer.
             if (session) {
@@ -1778,6 +1797,14 @@ export class Editor {
                 }
             }
         }, 50);
+    }
+
+    private _removeHighlightBrackets(): void {
+        const session = this.sessionOrThrow();
+        if (session.$bracketHighlight) {
+            session.removeMarker(session.$bracketHighlight);
+            session.$bracketHighlight = undefined;
+        }
     }
 
     private $highlightTags(): void {
@@ -1993,7 +2020,6 @@ export class Editor {
      * Handler for cursor or selection changes.
      */
     private onChangeOverwrite(event: SessionChangeCursorEvent, session: EditSession): void {
-
         this.$cursorChange();
 
         if (this.$blockScrolling === 0) {
@@ -2003,7 +2029,7 @@ export class Editor {
             }
         }
 
-        this.$highlightBrackets();
+        this._updateHighlightBrackets();
         this.$highlightTags();
         this.$updateHighlightActiveLine();
         this.eventBus._signal("changeOverwrite");
@@ -2023,7 +2049,7 @@ export class Editor {
             }
         }
 
-        this.$highlightBrackets();
+        this._updateHighlightBrackets();
         this.$highlightTags();
         this.$updateHighlightActiveLine();
         this._emitChangeSelection(Origin.INTERNAL);
@@ -2243,7 +2269,7 @@ export class Editor {
     }
 
     copy(): void {
-        // Don't expect this to be called. 
+        // Don't expect this to be called.
         console.warn("Editor.copy called but there is no implementation.");
     }
 
@@ -2469,7 +2495,7 @@ export class Editor {
                 */
             }
         }
-        
+
         if (this._relayInput) {
             this.eventBus._emit("keyPress", { text });
         }
@@ -4254,7 +4280,7 @@ export class Editor {
      * @param needle The text to find.
      * @param options The search options.
      * @param additive
-     * @returns The cumulative count of all found matches 
+     * @returns The cumulative count of all found matches
      */
     findAll(needle?: (string | RegExp), options: SearchOptions = {}, additive?: boolean): number {
         const session = this.sessionOrThrow();
@@ -4645,7 +4671,7 @@ export class MouseHandler implements IGestureHandler {
             addListener(mouseTarget, "mousemove", this.onMouseMove.bind(this, "mousemove"));
             addMultiMouseDownListener(mouseTarget, [400, 300, 250], this, "onMouseEvent");
 
-            // We hook 'mousewheel' using the portable 
+            // We hook 'mousewheel' using the portable
             addMouseWheelListener(editor.container, this.emitEditorMouseWheelEvent.bind(this, "mousewheel"));
 
             const gutterEl = renderer.$gutterElement;
