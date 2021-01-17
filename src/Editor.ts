@@ -238,6 +238,7 @@ export class Editor {
     private $highlightPending: boolean;
     private $highlightSelectedWord = false;
     private $highlightTagPending: boolean;
+    private _highlightTags = true;
     private _highlightBrackets = true;
 
     private $mergeUndoDeltas: boolean | 'always' = true;
@@ -1807,7 +1808,21 @@ export class Editor {
         }
     }
 
-    private $highlightTags(): void {
+    setHighlightTags(on: boolean): void {
+        if (this._highlightTags !== on) {
+            this._highlightTags = on;
+            if (on) {
+                this._updateHighlightTags();
+            } else {
+                this._removeHighlightTags();
+            }
+        }
+    }
+
+    private _updateHighlightTags(): void {
+        if ( ! this._highlightTags) {
+            return;
+        }
 
         if (this.$highlightTagPending) {
             return;
@@ -1906,6 +1921,14 @@ export class Editor {
             }
 
         }, 50);
+    }
+
+    private _removeHighlightTags(): void {
+        const session = this.sessionOrThrow();
+        if (session.$tagHighlight) {
+            session.removeMarker(session.$tagHighlight);
+            session.$tagHighlight = null;
+        }
     }
 
     /**
@@ -2030,7 +2053,7 @@ export class Editor {
         }
 
         this._updateHighlightBrackets();
-        this.$highlightTags();
+        this._updateHighlightTags();
         this.$updateHighlightActiveLine();
         this.eventBus._signal("changeOverwrite");
     }
@@ -2050,7 +2073,7 @@ export class Editor {
         }
 
         this._updateHighlightBrackets();
-        this.$highlightTags();
+        this._updateHighlightTags();
         this.$updateHighlightActiveLine();
         this._emitChangeSelection(Origin.INTERNAL);
     }
